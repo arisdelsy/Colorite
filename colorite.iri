@@ -16,6 +16,13 @@ DIO0_8    : constant integer := 8;
 -- Analog Output Aliases
 
 -- Database Type Definitions and Field Aliases
+type UsersDatabase is database ("Users")
+     login: String;
+  password: String;
+end database;
+
+Users_login    : constant integer := 1;
+Users_password : constant integer := 2;
 
 
 
@@ -46,6 +53,8 @@ lbl12     : constant integer := 12;
 lbl13     : constant integer := 13;
 lbl14     : constant integer := 14;
 lbl15     : constant integer := 15;
+img16     : constant integer := 16;
+lbl17     : constant integer := 17;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
