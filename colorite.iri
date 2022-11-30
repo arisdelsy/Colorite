@@ -41,8 +41,8 @@ TCPC2     : constant string := "TCPC2";
 -- Setpoint Aliases
 
 -- Widget Aliases
-lbl5      : constant integer := 5;
 lbl3      : constant integer := 3;
+lbl5      : constant integer := 5;
 lbl6      : constant integer := 6;
 lbl7      : constant integer := 7;
 img8      : constant integer := 8;
@@ -55,6 +55,10 @@ lbl14     : constant integer := 14;
 lbl15     : constant integer := 15;
 img16     : constant integer := 16;
 lbl17     : constant integer := 17;
+lbl18     : constant integer := 18;
+lbl19     : constant integer := 19;
+lbl20     : constant integer := 20;
+lbl21     : constant integer := 21;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
