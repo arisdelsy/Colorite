@@ -73,6 +73,7 @@ program Colorite;
   UserIdMode        : constant integer := 1003;
   PasswordMode      : constant integer := 1004;
   NewPasswordMode   : constant integer := 1005;
+  NewUserMode       : constant integer := 1006;
 
   Blank : constant string := "";      
   type boolean is (False,True); 
@@ -84,6 +85,9 @@ program Colorite;
   g_sPassword: stored string;
   g_sScannerInput : string; 
   g_ciDebug: constant integer := 0;
+  g_bLogin: stored boolean;
+
+  locked : boolean := True;
 
 ---- Previous global variables from Checkweight Program
   g_sSetupPassword : stored string;
@@ -92,7 +96,8 @@ program Colorite;
   g_rCountby : real;    
   g_bUpdate : boolean;
   g_iDecimal1 : integer;  
-  g_uUnits : Units; 
+  g_uUnits : Units;
+  g_sysResult : SysCode; 
   g_sysResult1 : SysCode; 
   g_sysResult2 : SysCode;  
   g_iDebug : integer;
@@ -116,7 +121,7 @@ program Colorite;
   --DATABASES AND ARRAYS
   type UserArrays is array [1000] of string; 
   
-  UsersDB :UsersDatabase  
+  UsersDB :UsersDatabase;  
 
 
 
@@ -132,6 +137,27 @@ program Colorite;
     
   end;     
   
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iType : integer);  -- Prompts operator for data
+  begin
+    
+    DisableHandler(NumericKeyPressed);
+    DisableHandler(EnterKeyPressed);
+    DisableHandler(NavUpKeyPressed);
+    DisableHandler(NavDownKeyPressed);   
+    
+    --LockMajorKeys;
+ 
+		SetEntry(sDefault);
+    if iType = 0 then
+      PromptUser(sPrompt);
+    elsif iType = 1 then  
+      PromptPassword(sPrompt);
+    elsif iType = 2 then
+      PromptNumeric(sPrompt);
+    end if;
+    g_EntryMode := iMode;
+    
+  end;  
 
 --  procedure DisableSetPoints;
 -- begin
@@ -162,12 +188,12 @@ program Colorite;
 
     sUnits := GetCurrentUnitsString(1);    
 
-		SetPrintText(1, TransDB.ItemId);
-		SetPrintText(2, TransDB.ItemName);
-		SetPrintText(3, RealToString(TransDB.Weight,0,g_iDecimal1) + " " + sUnits);
-		SetPrintText(4, TransDB.Status);
-		SetPrintText(5, Date$(TransDB.DT));
-		SetPrintText(6, Time$(TransDB.DT));
+		--SetPrintText(1, TransDB.ItemId);
+		--SetPrintText(2, TransDB.ItemName);
+		--SetPrintText(3, RealToString(TransDB.Weight,0,g_iDecimal1) + " " + sUnits);
+		--SetPrintText(4, TransDB.Status);
+		--SetPrintText(5, Date$(TransDB.DT));
+		--SetPrintText(6, Time$(TransDB.DT));
 		Print(AuxFmt1);
   end;     
 
@@ -197,73 +223,104 @@ program Colorite;
   end;
   
 
-  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for entry
-  begin
-    
-    DisableHandler(NumericKeyPressed);
-    DisableHandler(EnterKeyPressed);
-    DisableHandler(NavUpKeyPressed);
-    DisableHandler(NavDownKeyPressed);   
+ 
 
-    --LockMajorKeys; --do i need this?
+procedure ProcessingLoginEntry;
+begin
+    g_bLogin := False;
+    UsersDB.login := g_sUserId; -- we are temporarily setting the value of g_sUsedId to the database 
+    UsersDB.password := g_sPassword;
 
-		SetEntry(sDefault);
-    if iPrompt = 1 then   
-      PromptUser(sPrompt);
-    elsif iPrompt = 2 then
-      PromptNumeric(sPrompt);
-    elsif iPrompt = 3 then
-      PromptPassword(sPrompt);
+    g_sysResult := UsersDB.FindFirst(Users_login); --This will equal SysOk if found in DB
+    if g_sysResult = SysOk then
+      g_bLogin := True;
+      if g_bLogin = True then
+        EntryMode := SetOrderNumMode;
+      else
+        EntryMode := LoginMode;
+      end if;
+    elsif g_sysResult <> SysOk then
+      UsersDB.Add;
+      Entrymode := SetOrderNumMode;
+      
+      
     else
-      PromptUser(sPrompt);  
+      DisplayStatus("Incorrect Credentials. Please try again.");
+      
     end if;
-    g_EntryMode := iMode;
+  
+    ----------------------------------------- this code is to be used for new users-------------------------
+    --if g_sysResult <> SysOk then
+      --UsersDB.Add;
+      --EntryMode := SetOrderNumMode;
+      --DisplayCustomersDB;
+      --ClearCustomerTemp;
+      --if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+        --SetImageWidgetPath(btnNxt2, "/next.png");
+      --else
+        --SetImageWidgetPath(btnNxt2, "local://10.png");
+      --end if;
+      --SetupStartTimer(4,100,TimerOneShot);
+    ------------------------------------------------------------------------------------------------------
+    --elsif g_sysResult = SysDatabaseFull then
+      --Delete25Percent;
+      --CustomersDB.Add;
+      --EntryMode := CustomerSelectMode;
+      --g_Entrymode := CustomerSelectMode;
+      --DisplayCustomersDB;
+      --if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+        --SetImageWidgetPath(btnNxt2, "/next.png");
+      --else
+        --SetImageWidgetPath(btnNxt2, "local://10.png");
+      --end if;
+      --SetupStartTimer(4,100,TimerOneShot);
     
-  end;
+end;
+
 
 --keep/revise
-  function IsDigits(sNumeric : string) : boolean;  -- Makes ure user entry is numeric       
-    i : integer;
-    sTemp : string;
-    bResult : boolean := True;
-    bDecimal : boolean := False;
-  begin
+  --function IsDigits(sNumeric : string) : boolean;  -- Makes ure user entry is numeric       
+    --i : integer;
+    --sTemp : string;
+    --bResult : boolean := True;
+    --bDecimal : boolean := False;
+  --begin
   
-    if sNumeric = "." or StringToInteger(sNumeric) >= g_ciInt32_Max then   
-      bResult := False;
-      return bResult;
-    end if;  
+    --if sNumeric = "." or StringToInteger(sNumeric) >= g_ciInt32_Max then   
+      --bResult := False;
+      --return bResult;
+    --end if;  
 
-    for i := 1 to Len(sNumeric)
-    loop                              
+    --for i := 1 to Len(sNumeric)
+    --loop                              
     
-      sTemp := Mid$(sNumeric, i, 1); 
+      --sTemp := Mid$(sNumeric, i, 1); 
       
       -- ignore first decimal point
-      if sTemp = "." then  
-        if bDecimal = True then   
-          bResult := False;
-          exit;   
-        end if;     
-        bDecimal := True;  
-      end if; 
+      --if sTemp = "." then  
+        --if bDecimal = True then   
+          --bResult := False;
+          --exit;   
+        --end if;     
+        --bDecimal := True;  
+      --end if; 
       
       -- ignore negative if first character
-      if i <> 1 and sTemp = "-" then
-        bResult := False;
-        exit;
-      end if;
+      --if i <> 1 and sTemp = "-" then
+        --bResult := False;
+        --exit;
+      --end if;
       
-      if (sTemp < "0" or sTemp > "9") and sTemp <> "." and sTemp <> "-" then        
-        bResult := False;
-        exit;
-      end if; 
+      --if (sTemp < "0" or sTemp > "9") and sTemp <> "." and sTemp <> "-" then        
+        --bResult := False;
+        --exit;
+      --end if; 
       
-    end loop;
+    --end loop;
         
-    return bResult; 
+    --return bResult; 
     
-  end;   
+  --end;   
 
 
 --keep/revise
@@ -281,32 +338,32 @@ program Colorite;
         sMessage := "Required Entry - Try Again";  
       end if;      
         
-    elsif sValidFor = "I" then
+    --elsif sValidFor = "I" then
       
-      if isDigits(sTemp) = False then
-        bResult := False;  
-        sMessage := "Invalid Number - Try Again";        
-      elsif (Len(sTemp) = 0 or StringToInteger(sTemp) < 1) and iLength = 0 then   -- iLength to 1 will allow zero for an entry
-        bResult := False;  
-        sMessage := "Invalid Number (0) - Try Again";
-      end if;      
+      --if isDigits(sTemp) = False then
+        --bResult := False;  
+        --sMessage := "Invalid Number - Try Again";        
+      --elsif (Len(sTemp) = 0 or StringToInteger(sTemp) < 1) and iLength = 0 then   -- iLength to 1 will allow zero for an entry
+        --bResult := False;  
+        --sMessage := "Invalid Number (0) - Try Again";
+      --end if;      
     
-    elsif sValidFor = "R" then
+    --elsif sValidFor = "R" then
     
-      if isDigits(sTemp) = False or StringToReal(sTemp) < 0 then     
-        bResult := False;    
-        sMessage := "Invalid Number - Try Again";
-      elsif (Len(sTemp) = 0 or StringToReal(sTemp) = 0) and iLength = 0 then  -- iLength to 1 will allow zero for an entry
-        bResult := False;    
-        sMessage := "Invalid Number (0) - Try Again";              
-      end if;  
+      --if isDigits(sTemp) = False or StringToReal(sTemp) < 0 then     
+        --bResult := False;    
+        --sMessage := "Invalid Number - Try Again";
+      --elsif (Len(sTemp) = 0 or StringToReal(sTemp) = 0) and iLength = 0 then  -- iLength to 1 will allow zero for an entry
+        --bResult := False;    
+        --sMessage := "Invalid Number (0) - Try Again";              
+      --end if;  
 
-    elsif sValidFor = "P" then
+    --elsif sValidFor = "P" then
     
-      if isDigits(sTemp) = False or StringToReal(sTemp) < 0 or StringToReal(sTemp) > 100 then 
-        bResult := False; 
-        sMessage := "Invalid Number (0-100) - Try Again";
-      end if; 
+      --if isDigits(sTemp) = False or StringToReal(sTemp) < 0 or StringToReal(sTemp) > 100 then 
+        --bResult := False; 
+        --sMessage := "Invalid Number (0-100) - Try Again";
+      --end if; 
                 
     else
       
@@ -393,7 +450,7 @@ program Colorite;
       sFormattedDate := sFormattedDate + "20" + IntegerToString(iyear,0);   
     end if;
     
-    sFormattedDate := sFormattedDate + " " + GetMilitaryTime(dtTemp);
+    --sFormattedDate := sFormattedDate + " " + GetMilitaryTime(dtTemp);
     
     return sFormattedDate; 
 
@@ -613,7 +670,7 @@ program Colorite;
   begin   
   
     DisplayStatus(g_csProgName + " " + g_csVersion); 
-    SetLabelText(lbProg, "Program: " + g_csProgName + " " + g_csVersion);  
+    --SetLabelText(lbProg, "Program: " + g_csProgName + " " + g_csVersion);  
     
   end; 
 
@@ -633,8 +690,8 @@ program Colorite;
   begin
 
     setwidgetColor(1, "#F0EEEE");
-    SetLabelText(lbSts1, Blank);
-		SetLabelText(lbAOU, Blank);	
+    --SetLabelText(lbSts1, Blank);
+		--SetLabelText(lbAOU, Blank);	
 
   end;
   
@@ -652,27 +709,27 @@ program Colorite;
 
     sUnits := GetCurrentUnitsString(1);     
 
-    SetLabelText(lbSet1, "Setup Password ");
-    Setlabeltext(lbSet11, sPassword);          
-    SetLabelText(lbSet2, "Threshold Weight ");
-    setlabeltext(lbSet22, RealToString(g_rThresholdWeight,0,g_iDecimal1) + " " + sUnits);  
-    if g_iAutoPrint = 1 then
-      SetLabelText(lbSet3, "Auto Print: ON");   
-    else
-      SetLabelText(lbSet3, "Auto Print: OFF");  
-    end if;
-    SetLabelText(lbSet4, "Clear Transactions");
-		SetLabelText(lbSet5, "Add/Edit Items");
-    SetLabelText(lbSet6, "Delete Items");
-    SetLabelText(lbSet7, "Import / Export");
-    Setlabeltext(lbSet8, "CW-90 WeighVault");
-    if g_bWeighVault = True then
-      SetLabelText(lbSet88, "Enabled");
-    else
-      SetLabelText(lbSet88, "Disabled");
-    end if;
-    SetLabelText(lbSet9, "WeighVault");
-    SetlabelTExt(lbSet99, "PC Test");		
+    --SetLabelText(lbSet1, "Setup Password ");
+    --Setlabeltext(lbSet11, sPassword);          
+    --SetLabelText(lbSet2, "Threshold Weight ");
+    --setlabeltext(lbSet22, RealToString(g_rThresholdWeight,0,g_iDecimal1) + " " + sUnits);  
+    --if g_iAutoPrint = 1 then
+      --SetLabelText(lbSet3, "Auto Print: ON");   
+    --else
+      --SetLabelText(lbSet3, "Auto Print: OFF");  
+    --end if;
+    --SetLabelText(lbSet4, "Clear Transactions");
+		--SetLabelText(lbSet5, "Add/Edit Items");
+    --SetLabelText(lbSet6, "Delete Items");
+    --SetLabelText(lbSet7, "Import / Export");
+    --Setlabeltext(lbSet8, "CW-90 WeighVault");
+    --if g_bWeighVault = True then
+      --SetLabelText(lbSet88, "Enabled");
+    --else
+      --SetLabelText(lbSet88, "Disabled");
+    --end if;
+    --SetLabelText(lbSet9, "WeighVault");
+    --SetlabelTExt(lbSet99, "PC Test");		
   end; 
   
   procedure RefreshMainDisplay; 
@@ -681,35 +738,35 @@ program Colorite;
 		
 		if g_sItemId <> Blank then
     	sUnits := GetCurrentUnitsString(CurrentScale);
-    	SetLabelText(lbId2, g_sItemId + " " +  g_sItemName); 
-    	SetLabelText(lbLow, RealToString(g_rLowWeight,0,g_iDecimal1) + " " + sUnits);      
-    	SetLabelText(lbHigh, RealToString(g_rHighWeight,0,g_iDecimal1) + " " + sUnits);
+    	--SetLabelText(lbId2, g_sItemId + " " +  g_sItemName); 
+    	--SetLabelText(lbLow, RealToString(g_rLowWeight,0,g_iDecimal1) + " " + sUnits);      
+    	--SetLabelText(lbHigh, RealToString(g_rHighWeight,0,g_iDecimal1) + " " + sUnits);
 		
-		else
-    	SetLabelText(lbId2, Blank); 
-    	SetLabelText(lbLow, Blank);      
-    	SetLabelText(lbHigh, "");
+		--else
+    	--SetLabelText(lbId2, Blank); 
+    	--SetLabelText(lbLow, Blank);      
+    	--SetLabelText(lbHigh, "");
 		end if;
   
   end;
 
-  procedure SetupScreens;
-  i : integer;
-  begin
-    SetBargraphLevel(barSet1, 100);
-    SetBargraphLevel(barSet2, 100);
-    SetBargraphLevel(barSet3, 100);
-    SetBargraphLevel(barSet4, 100);
-    SetBargraphLevel(barSet5, 100);
-    SetBargraphLevel(barSet6, 100);
-    SetBargraphLevel(barSet7, 100);
-    SetBargraphLevel(barSet8, 100);
-    SetBargraphLevel(barSet9, 100);
-    SetBargraphLevel(barSet10, 100);
-    SetBargraphLevel(barSet12, 100);
-    SetBargraphLevel(barSet13, 100);
+  --procedure SetupScreens;
+  --i : integer;
+  --begin
+    --SetBargraphLevel(barSet1, 100);
+    --SetBargraphLevel(barSet2, 100);
+    --SetBargraphLevel(barSet3, 100);
+    --SetBargraphLevel(barSet4, 100);
+    --SetBargraphLevel(barSet5, 100);
+    --SetBargraphLevel(barSet6, 100);
+    --SetBargraphLevel(barSet7, 100);
+    --SetBargraphLevel(barSet8, 100);
+    --SetBargraphLevel(barSet9, 100);
+    --SetBargraphLevel(barSet10, 100);
+    --SetBargraphLevel(barSet12, 100);
+    --SetBargraphLevel(barSet13, 100);
 
-  end;
+  --end;
 
   procedure ToggleOutput(iOUtput : integer);
     iDigOutSts : integer;
@@ -722,15 +779,15 @@ program Colorite;
       SetDigOut(0, iOutput, g_ciDigOutOn);
     end if;
 
-  end;
+  end; 
   
   procedure GoIntoSetupMenu;  -- Enters Setup Menu
   begin
  
-    DisableSetPoints;
+    --DisableSetPoints;
     DisplayStatus("Setup Menu");
-    EntryMode := Setup1Mode;    
-    SelectScreen(g_ciSetup);     
+    --EntryMode := Setup1Mode;    
+    --SelectScreen(g_ciSetup);     
     RefreshSetupDisplay;     
   
   end; 
@@ -740,256 +797,204 @@ program Colorite;
     SetupStartTimer(29, iTime, TimerOneShot);
   end;  
 
-  procedure SendDataToPC(sType : string);   
-    sMessage : string;
-  begin
-    
-    if sType = "TRANS" then
-      SetLabelText(lbPC, "Sending Transaction Data");  
-      sMessage := GetUID +  "|" + 
-                  g_sItemId + "|" +
-                  GetFormattedDate(TransDB.DT) + "|" +
-                  Realtostring(TransDB.Weight,0,g_iDecimal1) + " " + g_sUnits + "|" +
-                  Realtostring(g_rTareWgt,0,g_iDecimal1) + " " + g_sUnits + "|" +
-                  g_sUnits + "|" +
-                  TransDB.Status + "|" + 
-                  RealToString(g_rHighWeight,0,g_iDecimal1) + " " + g_sUnits + "|" +
-                  RealToString(g_rLowWeight,0,g_iDecimal1) + " " + g_sUnits +  "|" +
-                  RealToString(g_rTargetWgt,0,g_iDecimal1) + " " + g_sUnits +  "|";  
-      
-      WriteOut(g_csPC, "TRANS|" + sMessage + CalculateCRC16(sMessage) + "|" + Chr$(13));  
-
-    elsif sType = "TEST" then
-      DisplayStatus("Testing Communication with WeighVault");
-      WriteOut(g_csPC, "TEST|" + Chr$(13));         
-      EntryMode := SendingPCTest;      
-      
-    else
-      SetLabelText(lbPC,"Requesting ID Information");  
-      WriteOut(g_csPC, sType + "|" + Chr$(13));
-      EntryMode := GetId;   
-          
-    end if;
-
-    StopTimer(10);
-    SetupStartTimer(10, 1500, TimerOneShot);     
-
-  end;   
-
-	procedure StoreorSendTransaction(rWeight : real);
-	begin
+  
+	--procedure StoreorSendTransaction(rWeight : real);
+	--begin
 	
-		TransDB.ItemId := g_sItemId;
-		TransDB.ItemName := g_sItemName;
-		TransDB.Weight := rWeight;
-		TransDB.DT := SystemTime;
+		--TransDB.ItemId := g_sItemId;
+		--TransDB.ItemName := g_sItemName;
+		--TransDB.Weight := rWeight;
+		--TransDB.DT := SystemTime;
 
-    if g_bWeighVault = False then
-      g_sysResult1 := TransDB.Add;
-      if g_sysResult1 <> SysOk then
-        DisplayStatus("DB Error " + SysCodeToString(g_sysResult1));
-      end if;
-    else    
-      SendDatatoPC("TRANS");
-    end if;
+    --if g_bWeighVault = False then
+      --g_sysResult1 := TransDB.Add;
+      --if g_sysResult1 <> SysOk then
+        --DisplayStatus("DB Error " + SysCodeToString(g_sysResult1));
+      --end if;
+    --else    
+      --SendDatatoPC("TRANS");
+    --end if;
 		
-	end;  
+	--end;  
   
-  procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
-  begin 
   
-    ClosePrompt;  
-    UnLockMajorKeys;
-    
-    if EntryMode >= Setup1Mode and EntryMode < Setup2Mode then 
-      EntryMode := Setup1Mode;  
-    elsif Entrymode = SetupEnterPasswordMode then 
-      DisableHandler(NumericKeyPressed);  
-      DisableHandler(EnterKeyPressed); 
-      EntryMode := NoMode;
-			DisplayStatus(Blank);
-    else    
-      EntryMode := NoMode;  
-    end if;
-    
-  end;    
   
-  procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
-  begin 
+  --procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
+  --begin 
     
-    ClosePrompt;   
-    UnLockMajorKeys;
+    --ClosePrompt;   
+    --UnLockMajorKeys;
     
-    if EntryMode = SetupChangePasswordMode then
+    --if EntryMode = SetupChangePasswordMode then
      
-        g_sTmpPassword := sTemp;
-        PromptForEntry("Re-enter Password to Verify", SetupVerifyPasswordMode, Blank,0);        
+        --g_sTmpPassword := sTemp;
+        --PromptForEntry("Re-enter Password to Verify", SetupVerifyPasswordMode, Blank,0);        
      
-    elsif EntryMode = SetupVerifyPasswordMode then 
+    --elsif EntryMode = SetupVerifyPasswordMode then 
     
-      if sTemp = g_sTmpPassword then    
-        g_sSetupPassword := sTemp;
-        EntryMode := Setup1Mode;
-        DisplayStatus("Password Changed");      
-      else 
-        DisplayStatus("Error: Passwords don't Match");
-        EntryMode := Setup1Mode;  
-      end if;
+      --if sTemp = g_sTmpPassword then    
+        --g_sSetupPassword := sTemp;
+        --EntryMode := Setup1Mode;
+        --DisplayStatus("Password Changed");      
+      --else 
+        --DisplayStatus("Error: Passwords don't Match");
+        --EntryMode := Setup1Mode;  
+      --end if;
     
-    elsif Entrymode = SetupEnterPasswordMode then
+    --elsif Entrymode = SetupEnterPasswordMode then
 
-      g_sTmpPassword := sTemp;
-      if g_sTmpPassword = g_sSetupPassword or g_sTmpPassword = g_ciBackDoorPassword then  
-        GoIntoSetupMenu;          
-      else      
-        DisplayStatus("Error: Invalid Password");   
-        g_sTmpPassword := Blank;        
-        EntryMode := NoMode;                         
-      end if;    
+      --g_sTmpPassword := sTemp;
+      --if g_sTmpPassword = g_sSetupPassword or g_sTmpPassword = g_ciBackDoorPassword then  
+        --GoIntoSetupMenu;          
+      --else      
+        --DisplayStatus("Error: Invalid Password");   
+        --g_sTmpPassword := Blank;        
+        --EntryMode := NoMode;                         
+      --end if;    
 
-		elsif EntryMode = SetupThresholdWeight then
-      if IsValid(stemp, "r", 1) then
-        g_rThresholdWeight := StringToReal(sTemp);  
-    		SetSPValue(1, g_rThresholdWeight);
-    		SetSPValue(2, g_rThresholdWeight);  
-				EntryMode := Setup1Mode;
-      end if;   
+		--elsif EntryMode = SetupThresholdWeight then
+      --if IsValid(stemp, "r", 1) then
+        --g_rThresholdWeight := StringToReal(sTemp);  
+    		--SetSPValue(1, g_rThresholdWeight);
+    		--SetSPValue(2, g_rThresholdWeight);  
+				--EntryMode := Setup1Mode;
+      --end if;   
 
-    elsif EntryMode = SetupItemId then
-      if IsValid(stemp, "s", 15) then
-        ItemDB.Id  :=  sTemp;
-        if ItemDB.FindFirst(Item_Id) = SysOk then
-          g_bUpdate := True;
-          PromptForEntry("Enter Item Name", SetupItemName, ItemDB.Name,0);
-        else
-          g_bUpdate := False;
-          PromptForEntry("Enter Item Name", SetupItemName, Blank,0);
-        end if;
-      end if;
+    --elsif EntryMode = SetupItemId then
+      --if IsValid(stemp, "s", 15) then
+        --ItemDB.Id  :=  sTemp;
+        --if ItemDB.FindFirst(Item_Id) = SysOk then
+          --g_bUpdate := True;
+          --PromptForEntry("Enter Item Name", SetupItemName, ItemDB.Name,0);
+        --else
+          --g_bUpdate := False;
+          --PromptForEntry("Enter Item Name", SetupItemName, Blank,0);
+        --end if;
+      --end if;
 
-    elsif EntryMode = SetupItemName then
-      if IsValid(stemp, "s",15) then
-        ItemDB.Name  :=  sTemp;
-        if g_bUpdate = True then
-          PromptForEntry("Enter Item Low Weight", SetupItemLowWeight, RealToString(ItemDB.Low,0,g_iDecimal1),2);
-        else
-          PromptForEntry("Enter Item Low Weight", SetupItemLowWeight, Blank,2);
-        end if;
-      end if;
+    --elsif EntryMode = SetupItemName then
+      --if IsValid(stemp, "s",15) then
+        --ItemDB.Name  :=  sTemp;
+        --if g_bUpdate = True then
+          --PromptForEntry("Enter Item Low Weight", SetupItemLowWeight, RealToString(ItemDB.Low,0,g_iDecimal1),2);
+        --else
+          --PromptForEntry("Enter Item Low Weight", SetupItemLowWeight, Blank,2);
+        --end if;
+      --end if;
 
-    elsif EntryMode = SetupItemLowWeight then
-      if IsValid(stemp, "r", 1) then
-        ItemDB.Low := StringToReal(sTemp);  
-        if g_bUpdate = True then
-          PromptForEntry("Enter Item High Weight", SetupItemHighWeight, RealToString(ItemDB.High,0,g_iDecimal1),2);
-        else
-          PromptForEntry("Enter Item High Weight", SetupItemHighWeight, Blank,2);
-        end if;       
-      end if;   
+    --elsif EntryMode = SetupItemLowWeight then
+      --if IsValid(stemp, "r", 1) then
+        --ItemDB.Low := StringToReal(sTemp);  
+        --if g_bUpdate = True then
+          --PromptForEntry("Enter Item High Weight", SetupItemHighWeight, RealToString(ItemDB.High,0,g_iDecimal1),2);
+        --else
+          --PromptForEntry("Enter Item High Weight", SetupItemHighWeight, Blank,2);
+        --end if;       
+      --end if;   
 
-    elsif EntryMode = SetupItemHighWeight then
-      if IsValid(stemp, "r", 1 ) then 
-        if StringToReal(sTemp) > ItemDB.Low then
-          ItemDB.High := StringToReal(sTemp);  
-          if g_bUpdate = True then
-            if ItemDB.Update = SysOk then
-              DisplayStatus("Item Updated");
-            else 
-              DisplayStatus("Error: Item DB");
-            end if;
+    --elsif EntryMode = SetupItemHighWeight then
+      --if IsValid(stemp, "r", 1 ) then 
+        --if StringToReal(sTemp) > ItemDB.Low then
+          --ItemDB.High := StringToReal(sTemp);  
+          --if g_bUpdate = True then
+            --if ItemDB.Update = SysOk then
+              --DisplayStatus("Item Updated");
+            --else 
+              --DisplayStatus("Error: Item DB");
+            --end if;
 						-- If Item selected was updated were updating screen
-						if ItemDB.Id = g_sItemId then 
-        			g_sItemId := ItemDB.Id;    
-        			g_sItemName := ItemDB.Name;
-        			g_rLowWeight := ItemDB.Low;
-        			g_rHighWeight := ItemDB.High;  
-              g_rLastSavedWgt := 0;  
-        			RefreshMainDisplay;   
-        			SetLabelText(lbSts1, Blank);  	
-						end if;						
-          else
-            if ItemDB.Add = SysOk then
-              DisplayStatus("Item Added");
-            else 
-              DisplayStatus("Error: Item DB");
-            end if;
-          end if; 				
-          EntryMode := Setup1Mode;      
-        else
-          PromptForEntry("Error High < Low", SetupItemHighWeight, Blank,2);
-        end if; 
-      end if;       
+						--if ItemDB.Id = g_sItemId then 
+        			--g_sItemId := ItemDB.Id;    
+        			--g_sItemName := ItemDB.Name;
+        			--g_rLowWeight := ItemDB.Low;
+        			--g_rHighWeight := ItemDB.High;  
+              --g_rLastSavedWgt := 0;  
+        			--RefreshMainDisplay;   
+        			--SetLabelText(lbSts1, Blank);  	
+						--end if;						
+          --else
+            --if ItemDB.Add = SysOk then
+              --DisplayStatus("Item Added");
+            --else 
+              --DisplayStatus("Error: Item DB");
+            --end if;
+          --end if; 				
+          --EntryMode := Setup1Mode;      
+        --else
+          --PromptForEntry("Error High < Low", SetupItemHighWeight, Blank,2);
+        --end if; 
+      --end if;       
 
-    elsif EntryMode = SetupDeleteItem then
-      ItemDB.Id := sTemp;
-      if ItemDB.FindFirst(Item_Id) = SysOk then
-        if ItemDB.Delete = SysOk then    
-          DisplayStatus("Item Deleted"); 
-        else  
-          DisplayStatus("Error: Item DB");
-        end if;
+    --elsif EntryMode = SetupDeleteItem then
+      --ItemDB.Id := sTemp;
+      --if ItemDB.FindFirst(Item_Id) = SysOk then
+        --if ItemDB.Delete = SysOk then    
+          --DisplayStatus("Item Deleted"); 
+        --else  
+          --DisplayStatus("Error: Item DB");
+        --end if;
 				
 				-- If Item selected was updated were updating screen
-				if ItemDB.Id = g_sItemId then 
-        	g_sItemId := Blank;    
-        	g_sItemName := Blank;
-        	g_rLowWeight := 0.0;
-        	g_rHighWeight := 0.0;   
-          g_rLastSavedWgt := 0; 
-        	RefreshMainDisplay;   
-        	SetLabelText(lbSts1, Blank);  	
-				end if;	
+				--if ItemDB.Id = g_sItemId then 
+        	--g_sItemId := Blank;    
+        	--g_sItemName := Blank;
+        	--g_rLowWeight := 0.0;
+        	--g_rHighWeight := 0.0;   
+          --g_rLastSavedWgt := 0; 
+        	--RefreshMainDisplay;   
+        	--SetLabelText(lbSts1, Blank);  	
+				--end if;	
 				
-      else
-        DisplayStatus("ID NOT FOUND");
-      end if;
-      EntryMode := Setup1Mode;
+      --else
+        --DisplayStatus("ID NOT FOUND");
+      --end if;
+      --EntryMode := Setup1Mode;
 
-    elsif EntryMode = EnterItemID then
+    --elsif EntryMode = EnterItemID then
 
-      if g_bWeighVault = True then
-        if StringToInteger(sTemp) <= 9999 then
-          SendDatatoPC("GET_ID|" + sTemp); 
-        else
-          PromptForEntry("WeighVault Accepts (1-9999) - Retry", EnterItemID, Blank,0);   
-        end if;
-      else
-        ItemDB.Id := sTemp;
+      --if g_bWeighVault = True then
+        --if StringToInteger(sTemp) <= 9999 then
+          --SendDatatoPC("GET_ID|" + sTemp); 
+        --else
+          --PromptForEntry("WeighVault Accepts (1-9999) - Retry", EnterItemID, Blank,0);   
+        --end if;
+      --else
+        --ItemDB.Id := sTemp;
         
-        if ItemDB.FindFirst(Item_Id) = SysOk then
-          g_sItemId := ItemDB.Id;    
-          g_sItemName := ItemDB.Name;
-          g_rLowWeight := ItemDB.Low;
-          g_rHighWeight := ItemDB.High;   
-          g_rLastSavedWgt := 0; 
-          RefreshMainDisplay;   
-          SetLabelText(lbSts1, Blank);   
-          EntryMode := NoMode;
-        else
-          PromptForEntry("ID NOT Found - Retry", EnterItemID, Blank,0); 
-        end if; 
-      end if;
+        --if ItemDB.FindFirst(Item_Id) = SysOk then
+          --g_sItemId := ItemDB.Id;    
+          --g_sItemName := ItemDB.Name;
+          --g_rLowWeight := ItemDB.Low;
+          --g_rHighWeight := ItemDB.High;   
+          --g_rLastSavedWgt := 0; 
+          --RefreshMainDisplay;   
+          --SetLabelText(lbSts1, Blank);   
+          --EntryMode := NoMode;
+        --else
+          --PromptForEntry("ID NOT Found - Retry", EnterItemID, Blank,0); 
+        --end if; 
+      --end if;
 			
-		elsif EntryMode = SetupClearTransactions then
+		--elsif EntryMode = SetupClearTransactions then
 			
-			if sTemp = "Y" then
-				if TransDB.Clear = SysOk then
-				 	DisplayStatus("Transactions Database Cleared");
-				else
-					DisplayStatus("Error Clearing Transaction Database");
-				end if;
-			else
-				DisplayStatus("Transaction Database NOT Cleared");
-			end if;
-			EntryMode := Setup1Mode;
+			--if sTemp = "Y" then
+				--if TransDB.Clear = SysOk then
+				 	--DisplayStatus("Transactions Database Cleared");
+				--else
+					--DisplayStatus("Error Clearing Transaction Database");
+				--end if;
+			--else
+				--DisplayStatus("Transaction Database NOT Cleared");
+			--end if;
+			--EntryMode := Setup1Mode;
    
-    end if; 
+    --end if; 
 
-    if EntryMode >=  Setup1Mode then
-      RefreshSetupDisplay;
-    end if; 
+    --if EntryMode >=  Setup1Mode then
+      --RefreshSetupDisplay;
+    --end if; 
           
-  end; 
+  --end; 
 
 -------------------------------------------
 
@@ -1011,11 +1016,13 @@ program Colorite;
         g_sPassword := Blank;
         SetLabelText(lbl19, Blank);
         SelectScreen(g_ciMainLogin);
-
-  
+      else    
+        EntryMode := NoMode;  
       end if;
       
+
     end; 
+ 
 
   procedure ProcessDataEntry(sTemp : string); --Processes different data entries based on the entry mode the program is in
   begin
@@ -1032,7 +1039,7 @@ program Colorite;
     elsif g_EntryMode = NewPasswordMode then
       if sTemp = Blank then
         PromptForEntry("Invalid Password Entry - Retry", NewPasswordMode, Blank, 3);
-      else
+      --else
         --g_sTmpPassword := sTemp;
         --sPassword := g_sTmpPassword;
         --EntryMode:= SetupMenuMode;
@@ -1041,7 +1048,7 @@ program Colorite;
       end if;
     
     elsif g_EntryMode = PasswordMode then
-      if sTemp = sPassword or sTemp = backdoor_pass then
+      if sTemp = g_sPassword or sTemp = g_ciBackDoorPassword then
         locked := False;
         EntryMode:= SetupMenuMode;
         setupScreen;
@@ -1097,15 +1104,6 @@ program Colorite;
   end;   
 
 
-
-
-
-
-
-
-
-
-
   procedure Ready;  -- Initialization procedure
   begin
     
@@ -1120,7 +1118,7 @@ program Colorite;
     end if;           
 	
     SetupScreens;
-    SelectScreen(g_ciMain);  
+    SelectScreen(g_ciMainLogin);  
     SetSPValue(1, g_rThresholdWeight);
     SetSPValue(2, g_rThresholdWeight);
 		EnableSP(1);
@@ -1422,15 +1420,26 @@ program Colorite;
       ToggleOutput(g_coOver);
     elsif g_iWidget = lbID1 then
       PromptForEntry("Enter ID to Checkweigh", EnterItemID, Blank,0); 
-    elsif g_iWidget = Setup then 
+    
+    --elsif g_iWidget = Setup then 
 
-      if EntryMode = noMode then        
+      --if EntryMode = noMode then        
         -- Bypassing password entry if zero or blank
-        if g_sSetupPassword = "0" or g_sSetupPassword = Blank then
-          GoIntoSetupMenu;           
-        else       
-          PromptForEntry("Enter Password", SetupEnterPasswordMode, Blank, 1);
-        end if; 
+        --if g_sSetupPassword = "0" or g_sSetupPassword = Blank then
+          --GoIntoSetupMenu;           
+        --else       
+          --PromptForEntry("Enter Password", SetupEnterPasswordMode, Blank, 1);
+        --end if; 
+      --end if;
+
+    elsif g_iWidget = btnSetup then
+      if g_sUsedId = Blank then
+        PromptForEntry("Enter A New User ID", EnterNewUserMode, Blank,0);
+        if g_sPassword = Blank then
+          PromptForEntry("Enter A New Password", EnterNewUserMode, Blank,2);
+          ProcessingLoginEntry;
+      --else
+        --PromptForEntry("Enter Password", EnterPasswordMode, Blank,3);
       end if;
 
     elsif g_iWidget = lbYes then
@@ -1444,7 +1453,7 @@ program Colorite;
       ProcessDataEntry("N");  
     elsif g_iWidget = Exit8 then
       TurnOffAllOutputs;
-      SelectScreen(g_ciMain);
+      SelectScreen(g_ciMainLogin);
       EntryMode := NoMode;
       SetLabelText(lbPC, Blank); 
 			DisplayStatus(Blank);
