@@ -1067,9 +1067,8 @@ end;
     elsif g_EntryMode = AdminPasswordMode then
       if sTemp = Blank then
         PromptForEntry("INVALID Please Enter Admin Password", AdminPasswordMode, Blank, 1);
-        EntryMode := NewUserMode;
       end if;
-      
+      EntryMode := NewUserMode;
 
     --elsif g_EntryMode = EnterPurchaseOrderMode then 
       --if sTemp = Blank then 
@@ -1449,7 +1448,7 @@ end;
     if g_iWidget = btnSetup then
       if g_sPassword = Blank then
         PromptForEntry("Enter Admin Password to Create New User", AdminPasswordMode, Blank,1);
-        EntryMode := NewUserMode;
+
         if g_sPassword = g_ciBackDoorPassword then 
           locked := False;
           EntryMode := NewUserMode;
