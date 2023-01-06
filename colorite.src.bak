@@ -85,6 +85,7 @@ program Colorite;
   --New ARIS
   g_sUserId :stored string;
   g_sPassword: stored string;
+  g_sTempPass: stored string;
   g_sScannerInput : string; 
   g_ciDebug: constant integer := 0;
   g_bLogin: stored boolean;
@@ -1035,27 +1036,10 @@ end;
       end if;
       g_sUserId := sTemp;
       SetLabelText(lbl18, g_sUserId);
-      EntryMode := LoginMode;
-      
-    elsif g_EntryMode = NewUserMode then
-      if sTemp = Blank then
-        PromptForEntry("Invalid User ID - Retry", NewUserMode, Blank, 0);
-      end if;
+      EntryMode := LoginMode; 
 
-    
-    elsif g_EntryMode = NewPasswordMode then
-      if sTemp = Blank then
-        PromptForEntry("Invalid Password Entry - Retry", NewPasswordMode, Blank, 3);
-      --else
-        --g_sTmpPassword := sTemp;
-        --sPassword := g_sTmpPassword;
-        EntryMode:= SetupMenuMode;
-        --setupScreen;
-        SelectScreen(g_ciMainLogin); 
-      end if;
-    
     elsif g_EntryMode = PasswordMode then
-      if sTemp = g_sPassword or sTemp = g_ciBackDoorPassword then
+      if sTemp = g_sPassword then
         locked := False;
         EntryMode:= LoginMode;
         SetLabelText(lbl19, g_sPassword);
@@ -1063,12 +1047,32 @@ end;
       else
         PromptForEntry("Invalid Password Entry - Retry", PasswordMode, Blank, 3); 
       end if;
+      
+    elsif g_EntryMode = NewUserMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid User ID - Retry", NewUserMode, Blank, 0);
+      end if;
+      g_sUserId := sTemp;
+      EntryMode := NewPasswordMode;
+
+    
+    elsif g_EntryMode = NewPasswordMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid Password Entry - Retry", NewPasswordMode, Blank, 3);
+      end if;
+      g_sPassword := sTemp;
+      EntryMode := LoginMode;
+      SelectScreen(g_ciMainLogin); 
+    
+    
 
     elsif g_EntryMode = AdminPasswordMode then
       if sTemp = Blank then
         PromptForEntry("INVALID Please Enter Admin Password", AdminPasswordMode, Blank, 1);
+        g_sTempPass := sTemp;
+        EntryMode := NewUserMode;
       end if;
-      EntryMode := NewUserMode;
+      
 
     --elsif g_EntryMode = EnterPurchaseOrderMode then 
       --if sTemp = Blank then 
@@ -1449,14 +1453,18 @@ end;
       if g_sPassword = Blank then
         PromptForEntry("Enter Admin Password to Create New User", AdminPasswordMode, Blank,1);
 
-        if g_sPassword = g_ciBackDoorPassword then 
+        if g_sTempPass = g_ciBackDoorPassword then 
           locked := False;
-          EntryMode := NewUserMode;
           PromptForEntry("Enter New User ID", NewUserMode, Blank, 0);
-          EntryMode := NewPasswordMode;
           PromptForEntry("Enter New Password", NewPasswordMode, Blank, 0);
         end if;  
       end if;
+
+    elsif g_iWidget = lbl18 then
+      PromptForEntry("Enter User ID", UserIdMode, Blank, 0);
+
+    elsif g_iWidget = lbl19 then
+      PromptForEntry("Enter Password", PasswordMode, Blank, 0);
 
     elsif g_iWidget = btnLogin then
       ProcessingLoginEntry;
