@@ -1,14 +1,7 @@
 
 ------------------------------------------------------------------------------
--- Program Name: CheckWeigher
--- The 1280 Checkweigher application is included with the 1280 standard 
--- firmware and is loaded by importing the application from the Configuration 
--- menu "Import Files".  This application is a static checkweigher with a 
--- stored low and high Weight associated with an ID.  A digital output will 
--- be activated for a set time based on under, accept or over, and stores the 
--- ID, Weight, status (under, accept, over), and time/date in a database.  
--- The Print key can be pressed to Print the last transaction's ID, Weight, 
--- status and time/date.  
+-- Program Name: Colorite
+-- This 1280 custom made program 
 ------------------------------------------------------------------------------
 
 program Colorite; 
@@ -38,6 +31,7 @@ program Colorite;
   g_ciScanBar      : constant integer := 2;
   g_ciStatus       : constant integer := 3;
   g_ciSearching    : constant integer := 4;
+  g_ciSetUpUsers   : constant integer := 5;
 
 
 
@@ -76,6 +70,8 @@ program Colorite;
   NewUserMode       : constant integer := 1006;
   SetupMenuMode     : constant integer := 1007;
   AdminPasswordMode : constant integer := 1008;
+  ProcessNewUser    : constant integer := 1009;
+
 
   Blank : constant string := "";      
   type boolean is (False,True); 
@@ -85,7 +81,9 @@ program Colorite;
   --New ARIS
   g_sUserId :stored string;
   g_sPassword: stored string;
-  g_sTempPass: stored string;
+  --g_sTempPass: stored string;
+  g_sTUser : stored string;
+  g_sTPass : stored string;
   g_sScannerInput : string; 
   g_ciDebug: constant integer := 0;
   g_bLogin: stored boolean;
@@ -228,6 +226,52 @@ program Colorite;
 
  
 
+
+
+procedure ClearUserVars;
+begin
+  g_sUserId := Blank;
+  g_sPassword := Blank;
+end;
+
+procedure ClearTempUser;
+begin
+  g_sTUser := Blank;
+  g_sTPass := Blank;
+end;
+
+procedure ClearWidgetsTemp;
+begin
+  SetLabelText(lbl18, Blank);
+  SetLabelText(lbl19, Blank);
+end;
+
+procedure ClearWidgetsUser;
+begin
+  SetLabelText(lbl24, Blank);
+  SetLabelText(lbl25, Blank);
+end;
+
+procedure AddNewUser;
+begin
+    UsersDB.login := g_sTUser; -- we are temporarily setting the value of g_sTUser to the database 
+    UsersDB.password := g_sTPass;
+
+    g_sysResult := UsersDB.FindFirst(Users_login);
+    if g_sysResult <> SysOk then
+      UsersDB.Add;
+      ClearWidgetsTemp;
+      DisplayStatus("New User Added");
+      ClearTempUser;
+      EntryMode := AdminPasswordMode;
+      SetWidgetVisibility(AddUser, Voff);
+    else
+      DisplayStatus("ERROR: User Exists -- Proceed to Login Page");
+      --EntryMode := NoMode;
+    end if;
+
+end;
+
 procedure ProcessingLoginEntry;
 begin
     g_bLogin := False;
@@ -240,54 +284,12 @@ begin
       if g_bLogin = True then
         SelectScreen(g_ciScanBar);
         EntryMode := SetOrderNumMode;
-      else
-        EntryMode := LoginMode;  
       end if;
     else
       DisplayStatus("Incorrect Credentials. Please try again.");
+      EntryMode := LoginMode;  
     end if;
   
-
-
-
-    ----------------------------------------- this code is to be used for new users-------------------------
-    --if g_sysResult <> SysOk then
-      --UsersDB.Add;
-      --EntryMode := SetOrderNumMode;
-      --DisplayCustomersDB;
-      --ClearCustomerTemp;
-      --if FileExists("/sdimages/next.png", SDCard) = SysOk then  
-        --SetImageWidgetPath(btnNxt2, "/next.png");
-      --else
-        --SetImageWidgetPath(btnNxt2, "local://10.png");
-      --end if;
-      --SetupStartTimer(4,100,TimerOneShot);
-    ------------------------------------------------------------------------------------------------------
-    --elsif g_sysResult = SysDatabaseFull then
-      --Delete25Percent;
-      --CustomersDB.Add;
-      --EntryMode := CustomerSelectMode;
-      --g_Entrymode := CustomerSelectMode;
-      --DisplayCustomersDB;
-      --if FileExists("/sdimages/next.png", SDCard) = SysOk then  
-        --SetImageWidgetPath(btnNxt2, "/next.png");
-      --else
-        --SetImageWidgetPath(btnNxt2, "local://10.png");
-      --end if;
-      --SetupStartTimer(4,100,TimerOneShot);
-    
-end;
-
-procedure ClearUserVars;
-begin
-  g_sUserId := Blank;
-  g_sPassword := Blank;
-end;
-
-procedure AddNewUser;
-begin
-
-
 end;
 
 --keep/revise
@@ -1056,30 +1058,36 @@ end;
       SetLabelText(lbl19, g_sPassword);
       EntryMode := LoginMode;
       
-      
     elsif g_EntryMode = NewUserMode then
       if sTemp = Blank then
         PromptForEntry("Invalid User ID - Retry", NewUserMode, Blank, 0);
       end if;
-      g_sUserId := sTemp;
-      EntryMode := NewPasswordMode;
+      g_sTUser := sTemp;
+      SetLabelText(lbl24, g_sTUser);
+      EntryMode := ProcessNewUser;
 
     
     elsif g_EntryMode = NewPasswordMode then
       if sTemp = Blank then
         PromptForEntry("Invalid Password Entry - Retry", NewPasswordMode, Blank, 1);
       end if;
-      g_sPassword := sTemp;
-      EntryMode := LoginMode;
-      SelectScreen(g_ciMainLogin); 
-    
+      g_sTPass := sTemp;
+      SetLabelText(lbl25, g_sTPass);
+      EntryMode := ProcessNewUser;
+      if FileExists("/sdimages/adduser.png", SDCard) = SysOk then  
+        SetImageWidgetPath(AddUser, "/adduser.png");
+        SetWidgetVisibility(AddUser, Von);
+      end if;
     
     elsif g_EntryMode = AdminPasswordMode then
-      if sTemp = Blank then
+      if sTemp = g_ciBackDoorPassword then
+        locked := false;
+        EntryMode := SetupMenuMode;
+        SelectScreen(g_ciSetUpUsers);
+      else
         PromptForEntry("INVALID Please Enter Admin Password", AdminPasswordMode, Blank, 1);
-        g_sTempPass := sTemp;
-        EntryMode := NewUserMode;
       end if;
+      
       
 
     --elsif g_EntryMode = EnterPurchaseOrderMode then 
@@ -1458,15 +1466,7 @@ end;
       --end if;
 
     if g_iWidget = btnSetup then
-      if g_sPassword = Blank then
-        PromptForEntry("Enter Admin Password to Create New User", AdminPasswordMode, Blank,1);
-
-        if g_sTempPass = g_ciBackDoorPassword then 
-          locked := False;
-          PromptForEntry("Enter New User ID", NewUserMode, Blank, 0);
-          PromptForEntry("Enter New Password", NewPasswordMode, Blank, 0);
-        end if;  
-      end if;
+      PromptForEntry("Enter Admin Password to Create New User", AdminPasswordMode, Blank,1); 
 
     elsif g_iWidget = lbl18 then
       PromptForEntry("Enter User ID", UserIdMode, Blank, 0);
@@ -1476,6 +1476,20 @@ end;
 
     elsif g_iWidget = btnLogin then
       ProcessingLoginEntry;
+
+    elsif g_iWidget = lbl24 then
+      PromptForEntry("Enter New User ID", NewUserMode, Blank, 0);
+
+    elsif g_iWidget = lbl25 then
+      PromptForEntry("Enter New Password", NewPasswordMode, Blank, 0);
+    
+    elsif g_iWidget = AddUser then
+      AddNewUser;
+
+    elsif g_iWidget = Ext5 then
+      EntryMode := NoMode;
+      SelectScreen(g_ciMainLogin);
+      
 
     --elsif g_iWidget = lbYes then
       --EntryMode := SetupClearTransactions;
