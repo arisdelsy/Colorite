@@ -287,6 +287,7 @@ begin
       end if;
     else
       DisplayStatus("Incorrect Credentials. Please try again.");
+      ClearUserVars;
       EntryMode := LoginMode;  
     end if;
   
@@ -1487,6 +1488,10 @@ end;
       AddNewUser;
 
     elsif g_iWidget = Ext5 then
+      EntryMode := NoMode;
+      SelectScreen(g_ciMainLogin);
+
+    elsif g_iWidget = Ext2 then
       EntryMode := NoMode;
       SelectScreen(g_ciMainLogin);
       

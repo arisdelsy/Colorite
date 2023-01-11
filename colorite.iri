@@ -68,6 +68,7 @@ AddUser   : constant integer := 28;
 lbl29     : constant integer := 29;
 lbl30     : constant integer := 30;
 lbl31     : constant integer := 31;
+Ext2      : constant integer := 32;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
