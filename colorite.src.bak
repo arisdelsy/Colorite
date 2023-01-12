@@ -61,7 +61,7 @@ program Colorite;
   --New Modes ARIS
   EntryMode         : integer;
   g_EntryMode       : integer;
-  ScannedMode       : constant integer := 1000;
+  ScannMode       : constant integer := 1000;
   LoginMode         : constant integer := 1001;
   SetOrderNumMode   : constant integer := 1002;
   UserIdMode        : constant integer := 1003;
@@ -87,6 +87,7 @@ program Colorite;
   g_sScannerInput : string; 
   g_ciDebug: constant integer := 0;
   g_bLogin: stored boolean;
+  g_sOrderNum : stored string;
 
   locked : boolean := True;
 
@@ -224,10 +225,6 @@ program Colorite;
   end;
   
 
- 
-
-
-
 procedure ClearUserVars;
 begin
   g_sUserId := Blank;
@@ -284,6 +281,9 @@ begin
       if g_bLogin = True then
         SelectScreen(g_ciScanBar);
         EntryMode := SetOrderNumMode;
+        SetWidgetVisibility(lbl8, Voff);
+        SetWidgetVisibility(lbl31, Voff);
+        
       end if;
     else
       DisplayStatus("Incorrect Credentials. Please try again.");
@@ -1085,12 +1085,20 @@ end;
         locked := false;
         EntryMode := SetupMenuMode;
         SelectScreen(g_ciSetUpUsers);
+        SetWidgetVisibility(AddUser, Voff);
       else
         PromptForEntry("INVALID Please Enter Admin Password", AdminPasswordMode, Blank, 1);
       end if;
       
-      
-
+    elsif g_EntryMode = SetOrderNumMode then
+      if sTemp = Blank then
+        PromptForEntry("INVALID Order Entry", SetOrderNumMode, Blank, 0);
+      end if;
+      g_sOrderNum := sTemp;
+      SetLabelText(lbl7, g_sOrderNum);
+      EntryMode := ScannMode;
+      SetWidgetVisibility(lbl8, Von);
+      SetWidgetVisibility(lbl31, Von);
     --elsif g_EntryMode = EnterPurchaseOrderMode then 
       --if sTemp = Blank then 
         --PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
@@ -1121,7 +1129,7 @@ end;
          WriteLn(g_ciDebug, "Raw Scanner Input: ", "     ", g_sScannerInput);
          g_sScannerInput :=  Right$(g_sScannerInput, Len(g_sScannerInput) - 5);
          WriteLn(g_ciDebug, "Cropped Scanner Input: ", "     ", g_sScannerInput);  
-         EntryMode := ScannedMode;
+         EntryMode := ScannMode;
          --SetKeys; --look into this, do we need it?
          ProcessDataEntry(g_sScannerInput);
          g_sScannerInput := Blank;               
@@ -1490,7 +1498,13 @@ end;
     elsif g_iWidget = Ext5 then
       EntryMode := NoMode;
       SelectScreen(g_ciMainLogin);
+
+    elsif g_iWidget = Ext2 then
+      EntryMode := NoMode;
+      SelectScreen(g_ciMainLogin);
       
+    elsif g_iWidget = lbl7 then
+      PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
 
     --elsif g_iWidget = lbYes then
       --EntryMode := SetupClearTransactions;
