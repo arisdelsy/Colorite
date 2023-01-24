@@ -61,7 +61,7 @@ program Colorite;
   --New Modes ARIS
   EntryMode         : integer;
   g_EntryMode       : integer;
-  ScannMode       : constant integer := 1000;
+  ScanMode          : constant integer := 1000;
   LoginMode         : constant integer := 1001;
   SetOrderNumMode   : constant integer := 1002;
   UserIdMode        : constant integer := 1003;
@@ -71,7 +71,8 @@ program Colorite;
   SetupMenuMode     : constant integer := 1007;
   AdminPasswordMode : constant integer := 1008;
   ProcessNewUser    : constant integer := 1009;
-
+  ScannedItemMode   : constant integer := 1010;
+  
 
   Blank : constant string := "";      
   type boolean is (False,True); 
@@ -118,6 +119,10 @@ program Colorite;
   g_rTargetWgt : stored real;
   g_rLastSavedWgt : real;
   g_bPrintPressed : boolean;
+  g_sTempScanned : string;
+  g_sItemId   :string;
+  g_sItemLot  : string;
+  g_rItemWeight : stored real;
 
   
   --DATABASES AND ARRAYS
@@ -1014,7 +1019,12 @@ end;
 
 -------------------------------------------
 
---KEEP/NO REVISIONS
+-- attempt to add 
+  procedure ProcessTempOrders;
+  begin
+
+  end;
+
   
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
@@ -1100,6 +1110,18 @@ end;
       EntryMode := ScannMode;
       SetWidgetVisibility(lbl8, Von);
       SetWidgetVisibility(lbl31, Von);
+    
+    elsif g_EntryMode = ScannedItemMode then
+      g_sItemId := Left$(g_sScannerInput,9);
+      DisplayStatus(g_sItemId); --PRINT FLAG FOR MY OWN USE
+      SetLabelText(lbl10, g_sItemId);
+      g_sTempScanned := Left$(g_sScannerInput, 18);
+      g_sItemLot := Right$(g_sTempScanned, 8);
+      DisplayStatus(g_sItemLot); --PRINT FLAG
+      g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-19);
+      g_rItemWeight := StringToReal(g_sTempScanned);
+      SetLabelText(lbl13, g_rItemWeight);
+      if 
     --elsif g_EntryMode = EnterPurchaseOrderMode then 
       --if sTemp = Blank then 
         --PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
@@ -1123,15 +1145,18 @@ end;
   handler Port2CharReceived;  -- Scanner
   begin 
     
-    if EntryMode = NoMode then
+    if EntryMode = ScanMode then
 
-       if EventChar = Chr$(13) then 
+       if EventChar = Chr$(13) then -- this means if eventchar = carriage return then
                
          WriteLn(g_ciDebug, "Raw Scanner Input: ", "     ", g_sScannerInput);
-         g_sScannerInput :=  Right$(g_sScannerInput, Len(g_sScannerInput) - 5);
-         WriteLn(g_ciDebug, "Cropped Scanner Input: ", "     ", g_sScannerInput);  
-         EntryMode := ScannMode;
+         --g_sScannerInput :=  Right$(g_sScannerInput, Len(g_sScannerInput) - 5);
+         --WriteLn(g_ciDebug, "Cropped Scanner Input: ", "     ", g_sScannerInput);  
+         EntryMode := ScannedItemMode;
          --SetKeys; --look into this, do we need it?
+         
+         g_sScannerInput := ;
+         EntryMode := ScannnedItemMode;
          ProcessDataEntry(g_sScannerInput);
          g_sScannerInput := Blank;               
                           
@@ -1544,7 +1569,8 @@ begin
     g_iAutoPrint := 1;
     g_bWeighVault := False;
   end if;    
-  
-  Ready;       
+  g_sScannerInput := Blank;
+  Ready;
+
 
 end Colorite; 
