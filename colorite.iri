@@ -20,9 +20,22 @@ type UsersDatabase is database ("Users")
      login: String;
   password: String;
 end database;
+type OrdersDatabase is database ("Orders")
+    letter: String;
+    itemID: String;
+    lotNum: String;
+    weight: Real;
+  orderNum: String;
+end database;
 
 Users_login    : constant integer := 1;
 Users_password : constant integer := 2;
+
+Orders_letter   : constant integer := 1;
+Orders_itemID   : constant integer := 2;
+Orders_lotNum   : constant integer := 3;
+Orders_weight   : constant integer := 4;
+Orders_orderNum : constant integer := 5;
 
 
 
@@ -42,7 +55,7 @@ TCPC2     : constant string := "TCPC2";
 
 -- Widget Aliases
 btnLogin  : constant integer := 3;
-lbl5      : constant integer := 5;
+lbAOU     : constant integer := 5;
 lbl6      : constant integer := 6;
 lbl7      : constant integer := 7;
 lbl8      : constant integer := 8;
@@ -69,6 +82,9 @@ lbl29     : constant integer := 29;
 lbl30     : constant integer := 30;
 lbl31     : constant integer := 31;
 Ext2      : constant integer := 32;
+lbSts1    : constant integer := 33;
+Ext3      : constant integer := 34;
+Nxt2      : constant integer := 35;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";

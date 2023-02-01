@@ -72,6 +72,7 @@ program Colorite;
   AdminPasswordMode : constant integer := 1008;
   ProcessNewUser    : constant integer := 1009;
   ScannedItemMode   : constant integer := 1010;
+  OrderMode         : constant integer := 1011;
   
 
   Blank : constant string := "";      
@@ -83,12 +84,16 @@ program Colorite;
   g_sUserId :stored string;
   g_sPassword: stored string;
   --g_sTempPass: stored string;
-  g_sTUser : stored string;
+  g_sTUser : stored string; 
   g_sTPass : stored string;
   g_sScannerInput : string; 
   g_ciDebug: constant integer := 0;
   g_bLogin: stored boolean;
   g_sOrderNum : stored string;
+  g_sTempScanned : string;
+  g_sItemId   :string;
+  g_sItemLot  : string;
+  g_rItemWeight : stored real;
 
   locked : boolean := True;
 
@@ -104,7 +109,7 @@ program Colorite;
   g_sysResult1 : SysCode; 
   g_sysResult2 : SysCode;  
   g_iDebug : integer;
-  g_sItemId : stored string;   
+  --g_sItemId : stored string;   
   g_sItemName : stored string;  
   g_rLowWeight : stored real;
   g_rHighWeight : stored real;     
@@ -119,17 +124,14 @@ program Colorite;
   g_rTargetWgt : stored real;
   g_rLastSavedWgt : real;
   g_bPrintPressed : boolean;
-  g_sTempScanned : string;
-  g_sItemId   :string;
-  g_sItemLot  : string;
-  g_rItemWeight : stored real;
+
 
   
   --DATABASES AND ARRAYS
   type UserArrays is array [1000] of string; 
   
-  UsersDB :UsersDatabase;  
-
+  UsersDB  :UsersDatabase;  
+  OrdersDB :OrdersDatabase;
 
 
 
@@ -285,7 +287,7 @@ begin
       g_bLogin := True;
       if g_bLogin = True then
         SelectScreen(g_ciScanBar);
-        EntryMode := SetOrderNumMode;
+        EntryMode := OrderMode;
         SetWidgetVisibility(lbl8, Voff);
         SetWidgetVisibility(lbl31, Voff);
         
@@ -1022,6 +1024,21 @@ end;
 -- attempt to add 
   procedure ProcessTempOrders;
   begin
+    --OrdersDB.letter := ; 
+    OrdersDB.itemID := g_sItemId;
+    OrdersDB.lotNum := g_sItemLot;
+    OrdersDB.weight := g_rItemWeight;
+    OrdersDB.orderNum := g_sOrderNum; 
+
+
+    g_sysResult := OrdersDB.FindFirst(Orders_letter); --This will equal SysOk if found in DB
+    if g_sysResult <> SysOk then
+      OrdersDB.Add;
+      SelectScreen(g_ciStatus);
+        --EntryMode := SetOrderNumMode;
+        --SetWidgetVisibility(lbl8, Voff);
+        --SetWidgetVisibility(lbl31, Voff);
+    end if;
 
   end;
 
@@ -1042,9 +1059,26 @@ end;
         g_sPassword := Blank;
         SetLabelText(lbl19, Blank);
         SelectScreen(g_ciMainLogin);
+      elsif g_EntryMode = SetOrderNumMode then
+        EntryMode := OrderMode;
+        g_sOrderNum := Blank;
+        SetLabelText(lbl7, Blank);
+        SelectScreen(g_ciScanBar);
+      elsif g_EntryMode = NewUserMode then
+        EntryMode := SetupMenuMode;
+        g_sTUser := Blank;
+        SetLabelText(lbl18, Blank);
+        SelectScreen(g_ciMainLogin);
+      elsif g_EntryMode = NewPasswordMode then
+        EntryMode := SetupMenuMode;
+        g_sTPass := Blank;
+        SetLabelText(lbl19, Blank);
+        SelectScreen(g_ciMainLogin);
       else    
         EntryMode := NoMode;  
       end if;
+
+
       
 
     end; 
@@ -1107,11 +1141,12 @@ end;
       end if;
       g_sOrderNum := sTemp;
       SetLabelText(lbl7, g_sOrderNum);
-      EntryMode := ScannMode;
+      EntryMode := ScanMode;
       SetWidgetVisibility(lbl8, Von);
       SetWidgetVisibility(lbl31, Von);
     
     elsif g_EntryMode = ScannedItemMode then
+      SelectScreen(g_ciStatus);
       g_sItemId := Left$(g_sScannerInput,9);
       DisplayStatus(g_sItemId); --PRINT FLAG FOR MY OWN USE
       SetLabelText(lbl10, g_sItemId);
@@ -1120,8 +1155,18 @@ end;
       DisplayStatus(g_sItemLot); --PRINT FLAG
       g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-19);
       g_rItemWeight := StringToReal(g_sTempScanned);
-      SetLabelText(lbl13, g_rItemWeight);
-      if 
+      --SetLabelText(lbl13, g_rItemWeight);
+
+      -- we take the value from the barcode, anything before the decimal place is displayed 
+      -- as pounds and after the decimal place it gets calculated as ounces
+      -- we are displaying the target weight, pounds and ounces
+      -- when we are counting the final total we are printing in pounds
+
+
+
+
+
+
     --elsif g_EntryMode = EnterPurchaseOrderMode then 
       --if sTemp = Blank then 
         --PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
@@ -1141,22 +1186,24 @@ end;
   end;
 
 
---REVISE TO PORT 2
-  handler Port2CharReceived;  -- Scanner
+--REVISE TO PORT 1
+  handler Port1CharReceived;  -- Scanner
   begin 
     
     if EntryMode = ScanMode then
 
        if EventChar = Chr$(13) then -- this means if eventchar = carriage return then
                
-         WriteLn(g_ciDebug, "Raw Scanner Input: ", "     ", g_sScannerInput);
+         --WriteLn(g_ciDebug, "Raw Scanner Input: ", "     ", g_sScannerInput);
          --g_sScannerInput :=  Right$(g_sScannerInput, Len(g_sScannerInput) - 5);
          --WriteLn(g_ciDebug, "Cropped Scanner Input: ", "     ", g_sScannerInput);  
-         EntryMode := ScannedItemMode;
+         --EntryMode := ScannedItemMode;
          --SetKeys; --look into this, do we need it?
          
-         g_sScannerInput := ;
-         EntryMode := ScannnedItemMode;
+         --g_sScannerInput := ;
+
+         EntryMode := ScannedItemMode;
+         SetLabelText(lbl31,g_sScannerInput);
          ProcessDataEntry(g_sScannerInput);
          g_sScannerInput := Blank;               
                           
@@ -1164,7 +1211,7 @@ end;
          
          g_sScannerInput := g_sScannerInput + EventChar;  
          DisplayStatus(g_sScannerInput);  
-
+        
        end if;  
        
     end if;
@@ -1307,29 +1354,29 @@ end;
       --SetLabelText(lbSts1,  Blank);  
                         
       if rNetWgt < g_rLowWeight then                       
-        --SetLabelText(lbAOU, "UNDER");
-				--SetWidgetColor(lbAOU, "Orange"); 
+        SetLabelText(lbAOU, "UNDER");
+				SetWidgetColor(lbAOU, "Orange"); 
 				SetDigout(0, g_coUnder, g_ciDigOutOn);
 				--TransDB.Status := "U";
         setwidgetColor(1, "Orange");
         g_rLastSavedWgt := rNetWgt;
       elsif rNetWgt > g_rHighWeight then
-        --SetLabelText(lbAOU, "OVER");
-				--SetWidgetColor(lbAOU, "Red"); 
+        SetLabelText(lbAOU, "OVER");
+				SetWidgetColor(lbAOU, "Red"); 
 				SetDigout(0, g_coOver, g_ciDigOutOn);
 				--TransDB.Status := "O";	
         setwidgetColor(1, "Red");	
         g_rLastSavedWgt := rNetWgt;
       else
-        --SetLabelText(lbAOU, "ACCEPTED");
-				--SetWidgetColor(lbAOU, "Green");
+        SetLabelText(lbAOU, "ACCEPTED");
+				SetWidgetColor(lbAOU, "Green");
         setwidgetColor(1, "Green"); 	
 				SetDigout(0, g_coAccept, g_ciDigOutOn);
 				--TransDB.Status := "A";	
         g_rLastSavedWgt := rNetWgt;
       end if; 
 
-      --SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+      SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
 
       if g_bPrintPressed = True then
         StopTimer(25);
@@ -1532,6 +1579,8 @@ end;
     elsif g_iWidget = lbl7 then
       PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
 
+    --elsif g_iWidget = lbl31 then
+      --Port1CharReceived;
     --elsif g_iWidget = lbYes then
       --EntryMode := SetupClearTransactions;
       --SelectScreen(g_cisetup);
