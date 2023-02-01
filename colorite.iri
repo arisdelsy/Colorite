@@ -56,8 +56,6 @@ TCPC2     : constant string := "TCPC2";
 -- Widget Aliases
 btnLogin  : constant integer := 3;
 lbAOU     : constant integer := 5;
-lbl6      : constant integer := 6;
-lbl7      : constant integer := 7;
 lbl8      : constant integer := 8;
 lbl9      : constant integer := 9;
 lbl10     : constant integer := 10;
@@ -85,6 +83,10 @@ Ext2      : constant integer := 32;
 lbSts1    : constant integer := 33;
 Ext3      : constant integer := 34;
 Nxt2      : constant integer := 35;
+lbl37     : constant integer := 37;
+lbl38     : constant integer := 38;
+Ext6      : constant integer := 39;
+Nxt6      : constant integer := 40;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";

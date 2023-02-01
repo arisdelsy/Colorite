@@ -1,7 +1,7 @@
 
 ------------------------------------------------------------------------------
 -- Program Name: Colorite
--- This 1280 custom made program 
+-- This 1280 custom made program '
 ------------------------------------------------------------------------------
 
 program Colorite; 
@@ -32,6 +32,7 @@ program Colorite;
   g_ciStatus       : constant integer := 3;
   g_ciSearching    : constant integer := 4;
   g_ciSetUpUsers   : constant integer := 5;
+  g_ciOrderNum     : constant integer := 6;
 
 
 
@@ -286,10 +287,10 @@ begin
     if g_sysResult = SysOk then
       g_bLogin := True;
       if g_bLogin = True then
-        SelectScreen(g_ciScanBar);
+        SelectScreen(g_ciOrderNum);
         EntryMode := OrderMode;
-        SetWidgetVisibility(lbl8, Voff);
-        SetWidgetVisibility(lbl31, Voff);
+        --SetWidgetVisibility(lbl8, Voff);
+        --SetWidgetVisibility(lbl31, Voff);
         
       end if;
     else
@@ -1062,8 +1063,8 @@ end;
       elsif g_EntryMode = SetOrderNumMode then
         EntryMode := OrderMode;
         g_sOrderNum := Blank;
-        SetLabelText(lbl7, Blank);
-        SelectScreen(g_ciScanBar);
+        SetLabelText(lbl38, Blank);
+        SelectScreen(g_ciOrderNum);
       elsif g_EntryMode = NewUserMode then
         EntryMode := SetupMenuMode;
         g_sTUser := Blank;
@@ -1140,23 +1141,40 @@ end;
         PromptForEntry("INVALID Order Entry", SetOrderNumMode, Blank, 0);
       end if;
       g_sOrderNum := sTemp;
-      SetLabelText(lbl7, g_sOrderNum);
-      EntryMode := ScanMode;
-      SetWidgetVisibility(lbl8, Von);
-      SetWidgetVisibility(lbl31, Von);
+      SetLabelText(lbl38, g_sOrderNum);
+      --EntryMode := ScanMode;
+      --SelectScreen(g_ciScanBar);
+      --SetWidgetVisibility(lbl8, Von);
+      --SetWidgetVisibility(lbl31, Von);
     
+    ------------------------------------------------------------------------------
+ --   elsif g_EntryMode = ScannedItemMode then
+ --     SelectScreen(g_ciStatus);
+ --     g_sItemId := Left$(g_sScannerInput,9);
+ --     DisplayStatus(g_sItemId); --PRINT FLAG FOR MY OWN USE
+ --     SetLabelText(lbl10, g_sItemId);
+ --     g_sTempScanned := Left$(g_sScannerInput, 18);
+ --     g_sItemLot := Right$(g_sTempScanned, 8);
+ --     DisplayStatus(g_sItemLot); --PRINT FLAG
+ --     g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-19);
+ --     g_rItemWeight := StringToReal(g_sTempScanned);
+ --     --SetLabelText(lbl13, g_rItemWeight);
+    -----------------------------------------------------------------------
+
     elsif g_EntryMode = ScannedItemMode then
       SelectScreen(g_ciStatus);
       g_sItemId := Left$(g_sScannerInput,9);
-      DisplayStatus(g_sItemId); --PRINT FLAG FOR MY OWN USE
-      SetLabelText(lbl10, g_sItemId);
-      g_sTempScanned := Left$(g_sScannerInput, 18);
-      g_sItemLot := Right$(g_sTempScanned, 8);
-      DisplayStatus(g_sItemLot); --PRINT FLAG
-      g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-19);
-      g_rItemWeight := StringToReal(g_sTempScanned);
-      --SetLabelText(lbl13, g_rItemWeight);
-      
+      DisplayStatus(g_sItemId);
+      -- we take the value from the barcode, anything before the decimal place is displayed 
+      -- as pounds and after the decimal place it gets calculated as ounces
+      -- we are displaying the target weight, pounds and ounces
+      -- when we are counting the final total we are printing in pounds
+
+
+
+
+
+
     --elsif g_EntryMode = EnterPurchaseOrderMode then 
       --if sTemp = Blank then 
         --PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
@@ -1176,7 +1194,7 @@ end;
   end;
 
 
---REVISE TO PORT 2
+--REVISE TO PORT 1
   handler Port1CharReceived;  -- Scanner
   begin 
     
@@ -1193,6 +1211,7 @@ end;
          --g_sScannerInput := ;
 
          EntryMode := ScannedItemMode;
+         g_EntryMode := ScannedItemMode;
          SetLabelText(lbl31,g_sScannerInput);
          ProcessDataEntry(g_sScannerInput);
          g_sScannerInput := Blank;               
@@ -1201,7 +1220,7 @@ end;
          
          g_sScannerInput := g_sScannerInput + EventChar;  
          DisplayStatus(g_sScannerInput);  
-
+        
        end if;  
        
     end if;
@@ -1559,16 +1578,29 @@ end;
       AddNewUser;
 
     elsif g_iWidget = Ext5 then
+      g_sOrderNum := Blank;
+      SetLabelText(lbl38, Blank);
       EntryMode := NoMode;
       SelectScreen(g_ciMainLogin);
 
     elsif g_iWidget = Ext2 then
+      EntryMode := OrderMode;
+      SelectScreen(g_ciOrderNum);
+      
+    elsif g_iWidget = lbl38 then
+      PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
+    
+    elsif g_iWidget = Nxt6 then
+      EntryMode := ScanMode;
+      SelectScreen(g_ciScanBar);
+
+    elsif g_iWidget = Ext6 then
       EntryMode := NoMode;
       SelectScreen(g_ciMainLogin);
-      
-    elsif g_iWidget = lbl7 then
-      PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
 
+    elsif g_iWidget = Ext3 then
+      EntryMode := ScanMode;
+      SelectScreen(g_ciScanBar);
     --elsif g_iWidget = lbl31 then
       --Port1CharReceived;
     --elsif g_iWidget = lbYes then
