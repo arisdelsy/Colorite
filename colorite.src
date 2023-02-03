@@ -134,6 +134,7 @@ program Colorite;
   UsersDB  :UsersDatabase;  
   OrdersDB :OrdersDatabase;
 
+  type Sample is array [40] of string;
 
 
 
@@ -821,6 +822,10 @@ end;
     SetupStartTimer(29, iTime, TimerOneShot);
   end;  
 
+ -- procedure PrintingArray;
+ -- begin
+
+ -- end;
   
 	--procedure StoreorSendTransaction(rWeight : real);
 	--begin
@@ -1102,7 +1107,8 @@ end;
       end if;
       locked := False;
       g_sPassword := sTemp;
-      SetLabelText(lbl19, g_sPassword);
+      --SetLabelText(lbl19, g_sPassword);
+      SetLabelText(lbl19, "**********");
       EntryMode := LoginMode;
       
     elsif g_EntryMode = NewUserMode then
@@ -1164,7 +1170,10 @@ end;
     elsif g_EntryMode = ScannedItemMode then
       SelectScreen(g_ciStatus);
       g_sItemId := Left$(g_sScannerInput,9);
-      DisplayStatus(g_sItemId);
+     -- DisplayStatus(g_sItemId);
+      g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
+      DisplayStatus(g_sTempScanned);
+      --WriteLn(2, g_sTempScanned);
       -- we take the value from the barcode, anything before the decimal place is displayed 
       -- as pounds and after the decimal place it gets calculated as ounces
       -- we are displaying the target weight, pounds and ounces
@@ -1585,6 +1594,8 @@ end;
 
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
+      SetLabelText(38, Blank);
+      g_sOrderNum := Blank;
       SelectScreen(g_ciOrderNum);
       
     elsif g_iWidget = lbl38 then
@@ -1596,10 +1607,14 @@ end;
 
     elsif g_iWidget = Ext6 then
       EntryMode := NoMode;
+      ClearWidgetsLogin;
+      ClearLoginUser;
       SelectScreen(g_ciMainLogin);
 
     elsif g_iWidget = Ext3 then
       EntryMode := ScanMode;
+      SetLabelText(lbl31, Blank);
+      g_sScannerInput := Blank;
       SelectScreen(g_ciScanBar);
     --elsif g_iWidget = lbl31 then
       --Port1CharReceived;
