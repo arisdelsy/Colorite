@@ -134,7 +134,7 @@ program Colorite;
   UsersDB  :UsersDatabase;  
   OrdersDB :OrdersDatabase;
 
-  type Sample is array [40] of string;
+  type Barcode is array [40] of string;
 
 
 
@@ -822,10 +822,33 @@ end;
     SetupStartTimer(29, iTime, TimerOneShot);
   end;  
 
- -- procedure PrintingArray;
- -- begin
+ procedure GetLotandWeight(tempScan :string);
+    tempI : integer;
+    tempS : string;
+    finalLot : string := "";
+    finalWeight : string;
+		i			: integer;	
+    temp1 : string;
+ begin
+    tempI := Len(tempScan);
+    for i := 1 to tempI	 
+    loop
+      -- take the first letter of the string
+      temp1 := Left$(tempScan, 1);
+      tempScan := Right$( tempScan, tempI-i);
+      if temp1 <> Chr$(96) then
+        finalLot := finalLot + temp1;
+      elsif temp1 = Chr$(96) then
+        finalWeight := tempScan;
+        exit;
+      end if;
+    end loop;
+    DisplayStatus(finalWeight);
+    g_sItemLot := finalLot;
+    --g_rItemWeight := 
 
- -- end;
+ end;
+
   
 	--procedure StoreorSendTransaction(rWeight : real);
 	--begin
@@ -1172,7 +1195,10 @@ end;
       g_sItemId := Left$(g_sScannerInput,9);
      -- DisplayStatus(g_sItemId);
       g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
-      DisplayStatus("THIS IS"+ g_sTempScanned);
+      --DisplayStatus(g_sTempScanned);
+      GetLotandWeight(g_sTempScanned);
+
+
       --WriteLn(2, g_sTempScanned);
       -- we take the value from the barcode, anything before the decimal place is displayed 
       -- as pounds and after the decimal place it gets calculated as ounces
