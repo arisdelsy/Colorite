@@ -87,6 +87,7 @@ lbl37     : constant integer := 37;
 lbl38     : constant integer := 38;
 Ext6      : constant integer := 39;
 Nxt6      : constant integer := 40;
+lbl6      : constant integer := 6;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";

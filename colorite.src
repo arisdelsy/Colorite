@@ -849,6 +849,7 @@ end;
 
  end;
 
+
   
 	--procedure StoreorSendTransaction(rWeight : real);
 	--begin
@@ -1171,31 +1172,11 @@ end;
       end if;
       g_sOrderNum := sTemp;
       SetLabelText(lbl38, g_sOrderNum);
-      --EntryMode := ScanMode;
-      --SelectScreen(g_ciScanBar);
-      --SetWidgetVisibility(lbl8, Von);
-      --SetWidgetVisibility(lbl31, Von);
-    
-    ------------------------------------------------------------------------------
- --   elsif g_EntryMode = ScannedItemMode then
- --     SelectScreen(g_ciStatus);
- --     g_sItemId := Left$(g_sScannerInput,9);
- --     DisplayStatus(g_sItemId); --PRINT FLAG FOR MY OWN USE
- --     SetLabelText(lbl10, g_sItemId);
- --     g_sTempScanned := Left$(g_sScannerInput, 18);
- --     g_sItemLot := Right$(g_sTempScanned, 8);
- --     DisplayStatus(g_sItemLot); --PRINT FLAG
- --     g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-19);
- --     g_rItemWeight := StringToReal(g_sTempScanned);
- --     --SetLabelText(lbl13, g_rItemWeight);
-    -----------------------------------------------------------------------
 
     elsif g_EntryMode = ScannedItemMode then
       SelectScreen(g_ciStatus);
       g_sItemId := Left$(g_sScannerInput,9);
-     -- DisplayStatus(g_sItemId);
       g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
-      --DisplayStatus(g_sTempScanned);
       GetLotandWeight(g_sTempScanned);
 
 
