@@ -97,8 +97,8 @@ program Colorite;
   g_sItemLot  : string;
   g_sItemWeight : string;
   g_rItemWeight : stored real;
-  g_iPounds : stored real;
-  g_iOunces : stored real;
+  g_rPounds : stored real;
+  g_rOunces : stored real;
 
   locked : boolean := True;
 
@@ -880,11 +880,16 @@ procedure processingWeight;
     end if;
   
   end loop;
-  g_iPounds := StringToReal(final_pounds);
+  g_rPounds := StringToReal(final_pounds);
 	
 	
-  DisplayStatus(final_pounds);
-  g_iOunces := StringToReal(final_ounces); 
+  --DisplayStatus(final_pounds);
+  g_rOunces := StringToReal(final_ounces);
+
+-- calculation for ounces
+  g_rOunces := g_rOunces * 16;
+  
+
   --DisplayStatus(final_ounces);
 	
   end;
@@ -1094,7 +1099,7 @@ procedure processingWeight;
 -- attempt to add 
   procedure ProcessTempOrders;
   begin
-    --OrdersDB.letter := ; 
+    OrdersDB.letter := "A"; 
     OrdersDB.itemID := g_sItemId;
     OrdersDB.lotNum := g_sItemLot;
     OrdersDB.weight := g_rItemWeight;
@@ -1104,9 +1109,10 @@ procedure processingWeight;
     g_sysResult := OrdersDB.FindFirst(Orders_letter); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       OrdersDB.Add;
-      SelectScreen(g_ciStatus);
       
+    elsif 
       
+
     end if;
 
   end;
@@ -1211,27 +1217,8 @@ procedure processingWeight;
       end if;
       g_sOrderNum := sTemp;
       SetLabelText(lbl38, g_sOrderNum);
-      --EntryMode := ScanMode;
-      --SelectScreen(g_ciScanBar);
-      --SetWidgetVisibility(lbl8, Von);
-      --SetWidgetVisibility(lbl31, Von);
-    
-    ------------------------------------------------------------------------------
- --   elsif g_EntryMode = ScannedItemMode then
- --     SelectScreen(g_ciStatus);
- --     g_sItemId := Left$(g_sScannerInput,9);
- --     DisplayStatus(g_sItemId); --PRINT FLAG FOR MY OWN USE
- --     SetLabelText(lbl10, g_sItemId);
- --     g_sTempScanned := Left$(g_sScannerInput, 18);
- --     g_sItemLot := Right$(g_sTempScanned, 8);
- --     DisplayStatus(g_sItemLot); --PRINT FLAG
- --     g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-19);
- --     g_rItemWeight := StringToReal(g_sTempScanned);
- --     --SetLabelText(lbl13, g_rItemWeight);
-    -----------------------------------------------------------------------
-
+      
     elsif g_EntryMode = ScannedItemMode then
-      --SelectScreen(g_ciStatus);
       g_sItemId := Left$(g_sScannerInput,9);
       g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
       GetLotandWeight(g_sTempScanned);
@@ -1662,6 +1649,7 @@ procedure processingWeight;
     elsif g_iWidget = Nxt2 then
       EntryMode := StatusMode;
       SelectScreen(g_ciStatus);
+      
 
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
@@ -1687,6 +1675,7 @@ procedure processingWeight;
       SetLabelText(lbl31, Blank);
       g_sScannerInput := Blank;
       SelectScreen(g_ciScanBar);
+    
     --elsif g_iWidget = lbl31 then
       --Port1CharReceived;
     --elsif g_iWidget = lbYes then
