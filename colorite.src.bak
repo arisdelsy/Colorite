@@ -74,6 +74,7 @@ program Colorite;
   ProcessNewUser    : constant integer := 1009;
   ScannedItemMode   : constant integer := 1010;
   OrderMode         : constant integer := 1011;
+  StatusMode        : constant integer := 1012;
   
 
   Blank : constant string := "";      
@@ -94,7 +95,10 @@ program Colorite;
   g_sTempScanned : string;
   g_sItemId   :string;
   g_sItemLot  : string;
+  g_sItemWeight : string;
   g_rItemWeight : stored real;
+  g_iPounds : stored real;
+  g_iOunces : stored real;
 
   locked : boolean := True;
 
@@ -843,11 +847,49 @@ end;
         exit;
       end if;
     end loop;
-    DisplayStatus(finalWeight);
+    --DisplayStatus(finalWeight);
     g_sItemLot := finalLot;
-    --g_rItemWeight := 
+    g_sItemWeight := finalWeight;
+    g_rItemWeight := StringToReal(finalWeight);
 
  end;
+
+procedure processingWeight;
+  tempI : integer;
+  tempS : string;
+  i : integer;
+  temp1 : string;
+  temp_weight : string;
+  final_pounds : string;
+  final_ounces : string;
+  begin
+    temp_weight := g_sItemWeight;
+    tempI := len(temp_weight);
+    for i := 1 to tempI
+    loop
+    -- taking first number in string
+    temp1 := Left$(temp_weight, 1);
+    temp_weight := Right$(temp_weight, tempI - i);
+
+    if temp1 <> Chr$(46) then
+      final_pounds := final_pounds + temp1;
+    
+    elsif temp1 = Chr$(46) then
+      final_ounces := temp_weight;
+    exit;
+    end if;
+  
+  end loop;
+  g_iPounds := StringToReal(final_pounds);
+	
+	
+  --DisplayStatus(final_pounds);
+  --StringToReal(final_ounces)
+  g_iOunces := StringToReal(final_ounces); 
+  DisplayStatus(final_ounces);
+	
+  end;
+
 
   
 	--procedure StoreorSendTransaction(rWeight : real);
@@ -1191,12 +1233,11 @@ end;
     -----------------------------------------------------------------------
 
     elsif g_EntryMode = ScannedItemMode then
-      SelectScreen(g_ciStatus);
+      --SelectScreen(g_ciStatus);
       g_sItemId := Left$(g_sScannerInput,9);
-     -- DisplayStatus(g_sItemId);
       g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
-      --DisplayStatus(g_sTempScanned);
       GetLotandWeight(g_sTempScanned);
+      processingWeight;
 
 
       --WriteLn(2, g_sTempScanned);
@@ -1617,6 +1658,10 @@ end;
       SetLabelText(lbl38, Blank);
       EntryMode := NoMode;
       SelectScreen(g_ciMainLogin);
+
+    elsif g_iWidget = Nxt2 then
+      EntryMode := StatusMode;
+      SelectScreen(g_ciStatus);
 
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
