@@ -703,22 +703,22 @@ end;
     
   end; 
 
-  procedure TurnOffAllOutputs;  -- Turn off All Outputs
-    i : integer;
-  begin
+  --procedure TurnOffAllOutputs;  -- Turn off All Outputs
+    --i : integer;
+  --begin
     
-    for i := 1 to 3
-    loop
-      SetDigout(0, i, g_ciDigOutOff);
-    end loop;  
+    --for i := 1 to 3
+    --loop
+      --SetDigout(0, i, g_ciDigOutOff);
+    --end loop;  
   
-  end;     
+  --end;     
 
 --KEEP AND REVISE
   procedure TurnOffWidgets;
   begin
 
-    setwidgetColor(1, "#F0EEEE");
+    SetwidgetColor(1, "#F0EEEE");
     --SetLabelText(lbSts1, Blank);
 		--SetLabelText(lbAOU, Blank);	
 
@@ -1105,9 +1105,8 @@ procedure processingWeight;
     if g_sysResult <> SysOk then
       OrdersDB.Add;
       SelectScreen(g_ciStatus);
-        --EntryMode := SetOrderNumMode;
-        --SetWidgetVisibility(lbl8, Voff);
-        --SetWidgetVisibility(lbl31, Voff);
+      
+      
     end if;
 
   end;
@@ -1384,25 +1383,25 @@ procedure processingWeight;
 
     -- Get Net Command
     if g_sysResult1 <> SysOk then
-      --SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
-      TurnOffAllOutputs;
-      TurnOffWidgets; 
+      -SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
+      --TurnOffAllOutputs;
+      --TurnOffWidgets; 
       return;
     end if;
     
     -- Check In Range
     if g_sysResult2 <> SysOk then
-      --SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
-      TurnOffAllOutputs;
-      TurnOffWidgets;
+      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
+      --TurnOffAllOutputs;
+      --TurnOffWidgets;
       return;
     end if;			
     
     -- Validate InRage
     if iInRange = 0 then  
-      --SetLabelText(lbSts1, "Scale NOT In Range");  
-      TurnOffAllOutputs;
-      TurnOffWidgets;
+      SetLabelText(lbSts1, "Scale NOT In Range");  
+      --TurnOffAllOutputs;
+      --TurnOffWidgets;
       return;
     end if;  
 
@@ -1506,7 +1505,7 @@ procedure processingWeight;
     EntryMode := NoMode;
     StopTimer(25);  
     --SetLabelText(lbSts1, Blank);
-		TurnOffAllOutputs;
+		--TurnOffAllOutputs;
     TurnOffWidgets;
     --SetWidgetVisibility(setup, Von);
 
