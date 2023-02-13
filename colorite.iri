@@ -21,7 +21,7 @@ type UsersDatabase is database ("Users")
   password: String;
 end database;
 type OrdersDatabase is database ("Orders")
-    letter: String;
+       num: Integer;
     itemID: String;
     lotNum: String;
     weight: Real;
@@ -31,7 +31,7 @@ end database;
 Users_login    : constant integer := 1;
 Users_password : constant integer := 2;
 
-Orders_letter   : constant integer := 1;
+Orders_num      : constant integer := 1;
 Orders_itemID   : constant integer := 2;
 Orders_lotNum   : constant integer := 3;
 Orders_weight   : constant integer := 4;
@@ -89,6 +89,10 @@ lbl37     : constant integer := 37;
 lbl38     : constant integer := 38;
 Ext6      : constant integer := 39;
 Nxt6      : constant integer := 40;
+lbl42     : constant integer := 42;
+lbltare   : constant integer := 44;
+Ext7      : constant integer := 46;
+Nxt7      : constant integer := 47;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
