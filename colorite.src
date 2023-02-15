@@ -1096,48 +1096,48 @@ procedure processingWeight;
   --end; 
 
 -------------------------------------------
-
+--I JUST GOT RID OF THIS STEPHEN 
 -- attempt to add 
-  procedure ProcessTempOrders;
-  begin
-    x := g_iBags;
-    
-    for i = 1 to x
-    loop
-      OrdersDB.num := i; 
-      OrdersDB.itemID := g_sItemId;
-      OrdersDB.lotNum := g_sItemLot;
-      OrdersDB.weight := g_rItemWeight;
-      OrdersDB.orderNum := g_sOrderNum; 
-
-
-      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
-      if g_sysResult <> SysOk then
-        OrdersDB.Add;
-      end if;
-
-  end;
+--  procedure ProcessTempOrders;
+--  begin
+--    x := g_iBags;
+--    
+--    for i = 1 to x
+--    loop
+--      OrdersDB.num := i; 
+--      OrdersDB.itemID := g_sItemId;
+--     OrdersDB.lotNum := g_sItemLot;
+--      OrdersDB.weight := g_rItemWeight;
+--      OrdersDB.orderNum := g_sOrderNum; 
+--
+--
+--      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+--      if g_sysResult <> SysOk then
+--        OrdersDB.Add;
+--      end if;
+--
+--  end;
 
 -- extract
-  procedure ExtractTempOrders;
-  begin
-    x := g_iBags;
-    
-    for i = 1 to x
-    loop
-      OrdersDB.num := i; 
-      OrdersDB.itemID := g_sItemId;
-      OrdersDB.lotNum := g_sItemLot;
-      OrdersDB.weight := g_rItemWeight;
-      OrdersDB.orderNum := g_sOrderNum; 
-
-
-      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
-      if g_sysResult <> SysOk then
-        OrdersDB.Add;
-      end if;
-
-  end;
+--  procedure ExtractTempOrders;
+--  begin
+--    x := g_iBags;
+--    
+--    for i = 1 to x
+--    loop
+--      OrdersDB.num := i; 
+--      OrdersDB.itemID := g_sItemId;
+--      OrdersDB.lotNum := g_sItemLot;
+--      OrdersDB.weight := g_rItemWeight;
+--      OrdersDB.orderNum := g_sOrderNum; 
+--
+--
+--     g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+--      if g_sysResult <> SysOk then
+--        OrdersDB.Add;
+--      end if;
+--
+--  end;
   
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
@@ -1368,29 +1368,29 @@ procedure processingWeight;
     g_sysResult2 := InRange(CurrentScale, iInRange);   
     GetTare(CurrentScale, g_uUnits, g_rTareWgt);
 
-    -- Get Net Command
-    if g_sysResult1 <> SysOk then
-      -SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
-      --TurnOffAllOutputs;
-      --TurnOffWidgets; 
-      return;
-    end if;
-    
-    -- Check In Range
-    if g_sysResult2 <> SysOk then
-      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
-      --TurnOffAllOutputs;
-      --TurnOffWidgets;
-      return;
-    end if;			
-    
-    -- Validate InRage
-    if iInRange = 0 then  
-      SetLabelText(lbSts1, "Scale NOT In Range");  
-      --TurnOffAllOutputs;
-      --TurnOffWidgets;
-      return;
-    end if;  
+    -- Get Net Command   I JUST GOT RID OF THIS STEPHEN
+--    if g_sysResult1 <> SysOk then
+--      -SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
+--      --TurnOffAllOutputs;
+--      --TurnOffWidgets; 
+--      return;
+--    end if;
+--    
+--    -- Check In Range
+--    if g_sysResult2 <> SysOk then
+--      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
+--      --TurnOffAllOutputs;
+--      --TurnOffWidgets;
+--      return;
+--    end if;			
+--    
+--    -- Validate InRage
+--    if iInRange = 0 then  
+--      SetLabelText(lbSts1, "Scale NOT In Range");  
+--      --TurnOffAllOutputs;
+--      --TurnOffWidgets;
+--      return;
+--    end if;  
 
     if EntryMode = NoMode then  
       return;
@@ -1638,15 +1638,17 @@ procedure processingWeight;
       SelectScreen(g_ciMainLogin);
 
     elsif g_iWidget = Nxt2 then
+     -- test : string;
       EntryMode := StatusMode;
       SelectScreen(g_ciStatus);
-
+      --targetweight := RealToString(g_rItemWeight, 1, 2);
+      SetLabelText(lbl13, g_sItemWeight);
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
       SetLabelText(38, Blank);
       g_sOrderNum := Blank;
       SelectScreen(g_ciOrderNum);
-         
+
     elsif g_iWidget = lbl38 then
       PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
     

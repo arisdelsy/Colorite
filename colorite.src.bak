@@ -97,8 +97,9 @@ program Colorite;
   g_sItemLot  : string;
   g_sItemWeight : string;
   g_rItemWeight : stored real;
-  g_iPounds : stored real;
-  g_iOunces : stored real;
+  g_rPounds : stored real;
+  g_rOunces : stored real;
+  g_iBags   : integer;
 
   locked : boolean := True;
 
@@ -703,22 +704,22 @@ end;
     
   end; 
 
-  procedure TurnOffAllOutputs;  -- Turn off All Outputs
-    i : integer;
-  begin
+  --procedure TurnOffAllOutputs;  -- Turn off All Outputs
+    --i : integer;
+  --begin
     
-    for i := 1 to 3
-    loop
-      SetDigout(0, i, g_ciDigOutOff);
-    end loop;  
+    --for i := 1 to 3
+    --loop
+      --SetDigout(0, i, g_ciDigOutOff);
+    --end loop;  
   
-  end;     
+  --end;     
 
 --KEEP AND REVISE
   procedure TurnOffWidgets;
   begin
 
-    setwidgetColor(1, "#F0EEEE");
+    SetwidgetColor(1, "#F0EEEE");
     --SetLabelText(lbSts1, Blank);
 		--SetLabelText(lbAOU, Blank);	
 
@@ -880,11 +881,16 @@ procedure processingWeight;
     end if;
   
   end loop;
-  g_iPounds := StringToReal(final_pounds);
+  g_rPounds := StringToReal(final_pounds);
 	
 	
-  DisplayStatus(final_pounds);
-  g_iOunces := StringToReal(final_ounces); 
+  --DisplayStatus(final_pounds);
+  g_rOunces := StringToReal(final_ounces);
+
+-- calculation for ounces
+  g_rOunces := g_rOunces * 16;
+  
+
   --DisplayStatus(final_ounces);
 	
   end;
@@ -1090,28 +1096,48 @@ procedure processingWeight;
   --end; 
 
 -------------------------------------------
-
+--I JUST GOT RID OF THIS STEPHEN 
 -- attempt to add 
-  procedure ProcessTempOrders;
-  begin
-    --OrdersDB.letter := ; 
-    OrdersDB.itemID := g_sItemId;
-    OrdersDB.lotNum := g_sItemLot;
-    OrdersDB.weight := g_rItemWeight;
-    OrdersDB.orderNum := g_sOrderNum; 
+--  procedure ProcessTempOrders;
+--  begin
+--    x := g_iBags;
+--    
+--    for i = 1 to x
+--    loop
+--      OrdersDB.num := i; 
+--      OrdersDB.itemID := g_sItemId;
+--     OrdersDB.lotNum := g_sItemLot;
+--      OrdersDB.weight := g_rItemWeight;
+--      OrdersDB.orderNum := g_sOrderNum; 
+--
+--
+--      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+--      if g_sysResult <> SysOk then
+--        OrdersDB.Add;
+--      end if;
+--
+--  end;
 
-
-    g_sysResult := OrdersDB.FindFirst(Orders_letter); --This will equal SysOk if found in DB
-    if g_sysResult <> SysOk then
-      OrdersDB.Add;
-      SelectScreen(g_ciStatus);
-        --EntryMode := SetOrderNumMode;
-        --SetWidgetVisibility(lbl8, Voff);
-        --SetWidgetVisibility(lbl31, Voff);
-    end if;
-
-  end;
-
+-- extract
+--  procedure ExtractTempOrders;
+--  begin
+--    x := g_iBags;
+--    
+--    for i = 1 to x
+--    loop
+--      OrdersDB.num := i; 
+--      OrdersDB.itemID := g_sItemId;
+--      OrdersDB.lotNum := g_sItemLot;
+--      OrdersDB.weight := g_rItemWeight;
+--      OrdersDB.orderNum := g_sOrderNum; 
+--
+--
+--     g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+--      if g_sysResult <> SysOk then
+--        OrdersDB.Add;
+--      end if;
+--
+--  end;
   
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
@@ -1212,27 +1238,8 @@ procedure processingWeight;
       end if;
       g_sOrderNum := sTemp;
       SetLabelText(lbl38, g_sOrderNum);
-      --EntryMode := ScanMode;
-      --SelectScreen(g_ciScanBar);
-      --SetWidgetVisibility(lbl8, Von);
-      --SetWidgetVisibility(lbl31, Von);
-    
-    ------------------------------------------------------------------------------
- --   elsif g_EntryMode = ScannedItemMode then
- --     SelectScreen(g_ciStatus);
- --     g_sItemId := Left$(g_sScannerInput,9);
- --     DisplayStatus(g_sItemId); --PRINT FLAG FOR MY OWN USE
- --     SetLabelText(lbl10, g_sItemId);
- --     g_sTempScanned := Left$(g_sScannerInput, 18);
- --     g_sItemLot := Right$(g_sTempScanned, 8);
- --     DisplayStatus(g_sItemLot); --PRINT FLAG
- --     g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-19);
- --     g_rItemWeight := StringToReal(g_sTempScanned);
- --     --SetLabelText(lbl13, g_rItemWeight);
-    -----------------------------------------------------------------------
-
+      
     elsif g_EntryMode = ScannedItemMode then
-      --SelectScreen(g_ciStatus);
       g_sItemId := Left$(g_sScannerInput,9);
       g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
       GetLotandWeight(g_sTempScanned);
@@ -1341,28 +1348,7 @@ procedure processingWeight;
             
   end;    
 
-  --handler Timer2Trip;
-  --begin
-
-    --SEtLabelTExt(lbPC, Blank);
-
-  --end;
-
-  --handler Timer10Trip;  -- PC Timeout
-  --begin
-
-    --EnableHandler(WidgetClicked);
-    --if EntryMode = SendingPCTest then 
-      --DisplayStatus("No PC Response");
-      --EntryMode := Setup1Mode;
-    --elsif EntryMode = GetId then
-      --SetLabelText(lbPC, "Network Problems - Contact Office"); 
-      --EntryMode := NoMode;      
-    --else
-      --SetLabelText(lbPC, "Network Problems - Contact Office");       
-    --end if;
-
-  --end; 	     
+   
   
   handler Timer25Trip;  -- Wait for Standstill check
     iMotion : integer;   
@@ -1382,73 +1368,65 @@ procedure processingWeight;
     g_sysResult2 := InRange(CurrentScale, iInRange);   
     GetTare(CurrentScale, g_uUnits, g_rTareWgt);
 
-    -- Get Net Command
-    if g_sysResult1 <> SysOk then
-      --SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
-      TurnOffAllOutputs;
-      TurnOffWidgets; 
-      return;
-    end if;
-    
-    -- Check In Range
-    if g_sysResult2 <> SysOk then
-      --SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
-      TurnOffAllOutputs;
-      TurnOffWidgets;
-      return;
-    end if;			
-    
-    -- Validate InRage
-    if iInRange = 0 then  
-      --SetLabelText(lbSts1, "Scale NOT In Range");  
-      TurnOffAllOutputs;
-      TurnOffWidgets;
-      return;
-    end if;  
+    -- Get Net Command   I JUST GOT RID OF THIS STEPHEN
+--    if g_sysResult1 <> SysOk then
+--      -SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
+--      --TurnOffAllOutputs;
+--      --TurnOffWidgets; 
+--      return;
+--    end if;
+--    
+--    -- Check In Range
+--    if g_sysResult2 <> SysOk then
+--      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
+--      --TurnOffAllOutputs;
+--      --TurnOffWidgets;
+--      return;
+--    end if;			
+--    
+--    -- Validate InRage
+--    if iInRange = 0 then  
+--      SetLabelText(lbSts1, "Scale NOT In Range");  
+--      --TurnOffAllOutputs;
+--      --TurnOffWidgets;
+--      return;
+--    end if;  
 
     if EntryMode = NoMode then  
       return;
     end if;
     
-    if rNetWgt < g_rLowWeight then                       
+    if rNetWgt < g_rItemWeight then                       
       SetLabelText(lbAOU, "UNDER");
       SetWidgetColor(lbAOU, "Orange"); 
-      --SetDigout(0, g_coAccept, g_ciDigOutOff);
-      --SetDigout(0, g_coOver, g_ciDigOutOff);
-      --SetDigout(0, g_coUnder, g_ciDigOutOn);
       setwidgetColor(1, "Orange");
-    elsif rNetWgt > g_rHighWeight then 
+
+    elsif rNetWgt > g_rItemWeight then 
       SetLabelText(lbAOU, "OVER");
-      SetWidgetColor(lbAOU, "Red"); 
-      --SetDigout(0, g_coAccept, g_ciDigOutOff);
-      --SetDigout(0, g_coUnder, g_ciDigOutOff);      
-      --SetDigout(0, g_coOver, g_ciDigOutOn);
+      SetWidgetColor(lbAOU, "Red");
       setwidgetColor(1, "Red");	
+
     else
       SetLabelText(lbAOU, "ACCEPTED");
       SetWidgetColor(lbAOU, "Green");
       setwidgetColor(1, "Green"); 	
-      --SetDigout(0, g_coUnder, g_ciDigOutOff);
-      --SetDigout(0, g_coOver, g_ciDigOutOff);      
-      --SetDigout(0, g_coAccept, g_ciDigOutOn);
     end if;
+
 
     if iMotion = 0 and EntryMode = ProductOnScale then    
       DisplayStatus(Blank);  
       SetLabelText(lbSts1,  Blank);  
                         
-      if rNetWgt < g_rLowWeight then                       
+      if rNetWgt < g_rItemWeight then                       
         SetLabelText(lbAOU, "UNDER");
 				SetWidgetColor(lbAOU, "Orange"); 
-				--SetDigout(0, g_coUnder, g_ciDigOutOn);
 				--TransDB.Status := "U";
         setwidgetColor(1, "Orange");
         g_rLastSavedWgt := rNetWgt;
 
-      elsif rNetWgt > g_rHighWeight then
+      elsif rNetWgt > g_rItemWeight then
         SetLabelText(lbAOU, "OVER");
 				SetWidgetColor(lbAOU, "Red"); 
-				--SetDigout(0, g_coOver, g_ciDigOutOn);
 				--TransDB.Status := "O";	
         setwidgetColor(1, "Red");	
         g_rLastSavedWgt := rNetWgt;
@@ -1457,7 +1435,6 @@ procedure processingWeight;
         SetLabelText(lbAOU, "ACCEPTED");
 				SetWidgetColor(lbAOU, "Green");
         setwidgetColor(1, "Green"); 	
-				--SetDigout(0, g_coAccept, g_ciDigOutOn);
 				--TransDB.Status := "A";	
         g_rLastSavedWgt := rNetWgt;
       end if; 
@@ -1506,7 +1483,7 @@ procedure processingWeight;
     EntryMode := NoMode;
     StopTimer(25);  
     --SetLabelText(lbSts1, Blank);
-		TurnOffAllOutputs;
+		--TurnOffAllOutputs;
     TurnOffWidgets;
     --SetWidgetVisibility(setup, Von);
 
@@ -1661,15 +1638,17 @@ procedure processingWeight;
       SelectScreen(g_ciMainLogin);
 
     elsif g_iWidget = Nxt2 then
+     -- test : string;
       EntryMode := StatusMode;
       SelectScreen(g_ciStatus);
-
+      --targetweight := RealToString(g_rItemWeight, 1, 2);
+      SetLabelText(lbl13, g_sItemWeight);
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
       SetLabelText(38, Blank);
       g_sOrderNum := Blank;
       SelectScreen(g_ciOrderNum);
-      
+
     elsif g_iWidget = lbl38 then
       PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
     
@@ -1688,6 +1667,7 @@ procedure processingWeight;
       SetLabelText(lbl31, Blank);
       g_sScannerInput := Blank;
       SelectScreen(g_ciScanBar);
+    
     --elsif g_iWidget = lbl31 then
       --Port1CharReceived;
     --elsif g_iWidget = lbYes then
