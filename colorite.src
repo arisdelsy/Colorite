@@ -97,6 +97,8 @@ program Colorite;
   g_sItemLot  : string;
   g_sItemWeight : string;
   g_rItemWeight : stored real;
+  g_sPounds : string;
+  g_sOunces : string;
   g_rPounds : stored real;
   g_rOunces : stored real;
   g_iBags   : integer;
@@ -881,10 +883,12 @@ procedure processingWeight;
     end if;
   
   end loop;
+  g_sPounds := final_pounds;
   g_rPounds := StringToReal(final_pounds);
 	
 	
   --DisplayStatus(final_pounds);
+  g_sOunces := final_ounces;
   g_rOunces := StringToReal(final_ounces);
 
 -- calculation for ounces
@@ -1643,6 +1647,9 @@ procedure processingWeight;
       SelectScreen(g_ciStatus);
       --targetweight := RealToString(g_rItemWeight, 1, 2);
       SetLabelText(lbl13, g_sItemWeight);
+      SetLabelText(lbl10, g_sItemId);
+      SetLabelText(lbl52, g_sItemLot);
+      SetLabelText(lbl6, g_sPounds + " " + g_sOunces);
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
       SetLabelText(38, Blank);
@@ -1667,6 +1674,9 @@ procedure processingWeight;
       SetLabelText(lbl31, Blank);
       g_sScannerInput := Blank;
       SelectScreen(g_ciScanBar);
+    
+    elsif g_iWidget = Ext7 then
+      Selectscreen(g_ciScanBar);
     
     --elsif g_iWidget = lbl31 then
       --Port1CharReceived;
