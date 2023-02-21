@@ -630,74 +630,6 @@ end;
   end; 
 
 
-  --   Called to calculate the CRC16 on given data.
-  --function CRC16(Buffer : string;
-  --               CRCValue : integer;
-  --               Length : integer;
-  --               Filter : integer) : integer;
-  --  crc : integer;
-  --  count : integer;
-  --  charIndex : integer;
-  --  char : string;
-  --  highByte : integer;
-  --  lowByte : integer;
-  --begin
-  --	crc := CRCValue;
-  --	count := Length;
-  --	charIndex := 1;
-  
-  --	while count > 0
-  --	loop
-  --		char := Mid$(Buffer, charIndex, 1);
-  
-  --		charIndex := charIndex + 1;
-  
-  --		crc := BitAnd(
-  --		     BitXor(
-  --		          crc * 256,
-  --		     crcTable[BitAnd(BitXor(crc / 256, Asc(char)), 255) + 1]),
-  --		     65535);
-  
-  --	     count := count - 1;
-  --	end loop;
-  
-          --
-          -- Filter out common bytes used in the protocol from the CRC
-          --
-  --	if Filter <> 0 then
-  	        -- Adjust the low byte if necessary
-  --		lowByte := BitAnd(crc, 255);
-  
-  --		if lowByte = 13 or lowByte = 10 or lowByte = 0 then  
-  --			lowByte := 1;
-  --		end if;  
-  
-                  -- Adjust the high byte if necessary
-  --		highByte := BitAnd(crc, 65280) / 256;
-  
-  --		if highByte = 13 or highByte = 10 or highByte = 0 then
-  --			highByte := 1;
-  --		end if;   
-  		
-  
-  --		crc := BitOr(BitAnd(highByte, 255) * 256, lowByte);
-  --	end if;
-       
-  --     return crc;     
-
-  --end;   
-
---   Get the two-byte CRCR16 valid (as a string) based from the data that
---   is sent in.
-  --function CalculateCRC16(Data : string) : string;
-  --  crc : integer;
-  --begin         
-  
-  --  crc := CRC16(Data, 0, Len(Data), 1);
-  --  return Chr$(BitAnd(crc, 255)) + Chr$(BitAnd(crc, 65280) / 256); 
-    
-  --end;   
-
   procedure DisplayVersion;    -- Displays Version Number and program name on startup or exiting config   
   begin   
   
@@ -899,27 +831,6 @@ procedure processingWeight;
 	
   end;
 
-
-  
-	--procedure StoreorSendTransaction(rWeight : real);
-	--begin
-	
-		--TransDB.ItemId := g_sItemId;
-		--TransDB.ItemName := g_sItemName;
-		--TransDB.Weight := rWeight;
-		--TransDB.DT := SystemTime;
-
-    --if g_bWeighVault = False then
-      --g_sysResult1 := TransDB.Add;
-      --if g_sysResult1 <> SysOk then
-        --DisplayStatus("DB Error " + SysCodeToString(g_sysResult1));
-      --end if;
-    --else    
-      --SendDatatoPC("TRANS");
-    --end if;
-		
-	--end;  
-  
   
   
   --procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
@@ -1099,49 +1010,48 @@ procedure processingWeight;
           
   --end; 
 
--------------------------------------------
+
 --I JUST GOT RID OF THIS STEPHEN 
 -- attempt to add 
---  procedure ProcessTempOrders;
---  begin
---    x := g_iBags;
---    
---    for i = 1 to x
---    loop
---      OrdersDB.num := i; 
---      OrdersDB.itemID := g_sItemId;
---     OrdersDB.lotNum := g_sItemLot;
---      OrdersDB.weight := g_rItemWeight;
---      OrdersDB.orderNum := g_sOrderNum; 
---
---
---      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
---      if g_sysResult <> SysOk then
---        OrdersDB.Add;
---      end if;
---
---  end;
+  procedure ProcessTempOrders;
+  begin
+    x := g_iBags;
+    
+    for i = 1 to x
+    loop
+      OrdersDB.num := i; 
+      OrdersDB.itemID := g_sItemId;
+     OrdersDB.lotNum := g_sItemLot;
+      OrdersDB.weight := g_rItemWeight;
+      OrdersDB.orderNum := g_sOrderNum; 
+
+
+      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+      if g_sysResult <> SysOk then
+        OrdersDB.Add;
+      end if;
+
+  end;
 
 -- extract
---  procedure ExtractTempOrders;
---  begin
---    x := g_iBags;
---    
---    for i = 1 to x
---    loop
---      OrdersDB.num := i; 
---      OrdersDB.itemID := g_sItemId;
---      OrdersDB.lotNum := g_sItemLot;
---      OrdersDB.weight := g_rItemWeight;
---      OrdersDB.orderNum := g_sOrderNum; 
---
---
---     g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
---      if g_sysResult <> SysOk then
---        OrdersDB.Add;
---      end if;
---
---  end;
+  procedure ExtractTempOrders;
+  begin
+    x := g_iBags;
+    
+    for i = 1 to x
+    loop
+      OrdersDB.num := i; 
+      OrdersDB.itemID := g_sItemId;
+      OrdersDB.lotNum := g_sItemLot;
+      OrdersDB.weight := g_rItemWeight;
+      OrdersDB.orderNum := g_sOrderNum; 
+
+     g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+      if g_sysResult <> SysOk then
+        OrdersDB.Add;
+      end if;
+
+  end;
   
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
@@ -1200,9 +1110,13 @@ procedure processingWeight;
         PromptForEntry("Invalid Password Entry - Retry", PasswordMode, Blank, 1); 
       end if;
       locked := False;
-      g_sPassword := sTemp;
+      --g_sPassword := sTemp;
       --SetLabelText(lbl19, g_sPassword);
-      SetLabelText(lbl19, "**********");
+      for i := 1 to Len(sTemp)
+		  loop
+			  g_sPassword := g_sPassword + "*";
+		  end loop;  
+      SetLabelText(lbl19, g_sPassword);
       EntryMode := LoginMode;
       
     elsif g_EntryMode = NewUserMode then
@@ -1373,28 +1287,28 @@ procedure processingWeight;
     GetTare(CurrentScale, g_uUnits, g_rTareWgt);
 
     -- Get Net Command   I JUST GOT RID OF THIS STEPHEN
---    if g_sysResult1 <> SysOk then
---      -SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
---      --TurnOffAllOutputs;
---      --TurnOffWidgets; 
---      return;
---    end if;
+    if g_sysResult1 <> SysOk then
+      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
+      --TurnOffAllOutputs;
+      --TurnOffWidgets; 
+      return;
+    end if;
 --    
---    -- Check In Range
---    if g_sysResult2 <> SysOk then
---      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
---      --TurnOffAllOutputs;
---      --TurnOffWidgets;
---      return;
---    end if;			
---    
---    -- Validate InRage
---    if iInRange = 0 then  
---      SetLabelText(lbSts1, "Scale NOT In Range");  
---      --TurnOffAllOutputs;
---      --TurnOffWidgets;
---      return;
---    end if;  
+    -- Check In Range
+    if g_sysResult2 <> SysOk then
+      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
+      --TurnOffAllOutputs;
+      --TurnOffWidgets;
+      return;
+    end if;			
+    
+    -- Validate InRage
+    if iInRange = 0 then  
+      SetLabelText(lbSts1, "Scale NOT In Range");  
+      --TurnOffAllOutputs;
+      --TurnOffWidgets;
+      return;
+    end if;  
 
     if EntryMode = NoMode then  
       return;
