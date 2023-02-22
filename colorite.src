@@ -75,6 +75,7 @@ program Colorite;
   ScannedItemMode   : constant integer := 1010;
   OrderMode         : constant integer := 1011;
   StatusMode        : constant integer := 1012;
+  GetBagsMode          : constant integer := 1013;
   
 
   Blank : constant string := "";      
@@ -1015,15 +1016,15 @@ procedure processingWeight;
 -- attempt to add 
   procedure ProcessTempOrders;
   begin
-    x := g_iBags;
+    --x := g_iBags;
     
-    for i = 1 to x
-    loop
-      OrdersDB.num := i; 
-      OrdersDB.itemID := g_sItemId;
-     OrdersDB.lotNum := g_sItemLot;
-      OrdersDB.weight := g_rItemWeight;
-      OrdersDB.orderNum := g_sOrderNum; 
+    --for i = 1 to x
+    --loop
+    OrdersDB.num := i; 
+    OrdersDB.itemID := g_sItemId;
+    OrdersDB.lotNum := g_sItemLot;
+    OrdersDB.weight := g_rItemWeight;
+    OrdersDB.orderNum := g_sOrderNum; 
 
 
       g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
@@ -1046,7 +1047,7 @@ procedure processingWeight;
       OrdersDB.weight := g_rItemWeight;
       OrdersDB.orderNum := g_sOrderNum; 
 
-     g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
       if g_sysResult <> SysOk then
         OrdersDB.Add;
       end if;
@@ -1156,6 +1157,12 @@ procedure processingWeight;
       end if;
       g_sOrderNum := sTemp;
       SetLabelText(lbl38, g_sOrderNum);
+    
+    elsif g_EntryMode = GetBagsMode then
+    if sTemp = Blank then
+      PromptForEntry("INVALID Entry", GetBagsMode, Blank, 2);
+    end if;
+    g_iBags := StringToInteger(sTemp);
       
     elsif g_EntryMode = ScannedItemMode then
       g_sItemId := Left$(g_sScannerInput,9);
@@ -1591,6 +1598,10 @@ procedure processingWeight;
     
     elsif g_iWidget = Ext7 then
       Selectscreen(g_ciScanBar);
+    
+    elsif g_iWidget = lbl48 then
+      PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 0);
+
     
     --elsif g_iWidget = lbl31 then
       --Port1CharReceived;
