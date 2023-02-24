@@ -75,7 +75,8 @@ program Colorite;
   ScannedItemMode   : constant integer := 1010;
   OrderMode         : constant integer := 1011;
   StatusMode        : constant integer := 1012;
-  GetBagsMode          : constant integer := 1013;
+  GetBagsMode       : constant integer := 1013;
+  AddScanMode       : constant integer := 1014;
   
 
   Blank : constant string := "";      
@@ -103,6 +104,7 @@ program Colorite;
   g_rPounds : stored real;
   g_rOunces : stored real;
   g_iBags   : integer;
+  g_iNums   : integer;
 
   locked : boolean := True;
 
@@ -827,6 +829,8 @@ procedure processingWeight;
 -- calculation for ounces
   g_rOunces := g_rOunces * 16;
   
+  g_rOunces := Realtostring(g_rOunces)
+  --DisplayStatus(g_rOunces);
 
   --DisplayStatus(final_ounces);
 	
@@ -1020,7 +1024,7 @@ procedure processingWeight;
     
     --for i = 1 to x
     --loop
-    OrdersDB.num := i; 
+    OrdersDB.num := g_iNums; 
     OrdersDB.itemID := g_sItemId;
     OrdersDB.lotNum := g_sItemLot;
     OrdersDB.weight := g_rItemWeight;
@@ -1036,10 +1040,12 @@ procedure processingWeight;
 
 -- extract
   procedure ExtractTempOrders;
+  x : integer;
+  i : integer;
   begin
     x := g_iBags;
     
-    for i = 1 to x
+    for i := 1 to x
     loop
       OrdersDB.num := i; 
       OrdersDB.itemID := g_sItemId;
@@ -1051,7 +1057,7 @@ procedure processingWeight;
       if g_sysResult <> SysOk then
         OrdersDB.Add;
       end if;
-
+    end loop;
   end;
   
 
@@ -1096,6 +1102,7 @@ procedure processingWeight;
  
 
   procedure ProcessDataEntry(sTemp : string); --Processes different data entries based on the entry mode the program is in
+  i : integer;
   begin
     --This is only going to show up for OPERATOR ENTRY
     if g_Entrymode = UserIdMode then 
@@ -1226,7 +1233,7 @@ procedure processingWeight;
        else  
          
          g_sScannerInput := g_sScannerInput + EventChar;  
-         DisplayStatus(g_sScannerInput);  
+         --DisplayStatus(g_sScannerInput);  
         
        end if;  
        
@@ -1570,7 +1577,7 @@ procedure processingWeight;
       SetLabelText(lbl13, g_sItemWeight);
       SetLabelText(lbl10, g_sItemId);
       SetLabelText(lbl52, g_sItemLot);
-      SetLabelText(lbl6, g_sPounds + " " + g_sOunces);
+      SetLabelText(lbl6, g_sPounds + " " + g_rOunces);
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
       SetLabelText(38, Blank);

@@ -1,0 +1,2 @@
+C:\Users\Aris\Documents\GitHub\Colorite\colorite.src:831:17:: Parameter type mismatch
+C:\Users\Aris\Documents\GitHub\Colorite\colorite.src:1580:42:: Operand type mismatch
