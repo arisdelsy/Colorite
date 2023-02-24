@@ -824,13 +824,14 @@ procedure processingWeight;
 	
   --DisplayStatus(final_pounds);
   g_sOunces := final_ounces;
-
+  g_rOunces := StringToReal(g_sOunces);
 
 -- calculation for ounces
-  g_rOunces := g_rOunces * 16;
-  DisplayStatus(g_rOunces);
-  --g_rOunces := StringToReal(g_sOunces);
+  g_rOunces := (g_rOunces / 10) * 16;
   
+  g_sOunces := RealToString(g_rOunces, 1, 2);
+
+  --DisplayStatus(g_rOunces);
 
   --DisplayStatus(final_ounces);
 	
@@ -1577,7 +1578,7 @@ procedure processingWeight;
       SetLabelText(lbl13, g_sItemWeight);
       SetLabelText(lbl10, g_sItemId);
       SetLabelText(lbl52, g_sItemLot);
-      SetLabelText(lbl6, g_sPounds + " " + g_rOunces);
+      SetLabelText(lbl6, g_sPounds + "lbs" + " " + g_sOunces + "oz");
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
       SetLabelText(38, Blank);
