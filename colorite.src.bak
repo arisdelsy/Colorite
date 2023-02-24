@@ -1578,7 +1578,7 @@ procedure processingWeight;
       SetLabelText(lbl13, g_sItemWeight);
       SetLabelText(lbl10, g_sItemId);
       SetLabelText(lbl52, g_sItemLot);
-      SetLabelText(lbl6, g_sPounds + "lbs" + " " + g_sOunces + "oz");
+      SetLabelText(lbl6, g_sPounds + " lbs" + " " + g_sOunces + " oz");
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
       SetLabelText(38, Blank);
