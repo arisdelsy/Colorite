@@ -72,11 +72,12 @@ program Colorite;
   SetupMenuMode     : constant integer := 1007;
   AdminPasswordMode : constant integer := 1008;
   ProcessNewUser    : constant integer := 1009;
-  ScannedItemMode   : constant integer := 1010;
+  ScannedItemMode1  : constant integer := 1010;
   OrderMode         : constant integer := 1011;
   StatusMode        : constant integer := 1012;
   GetBagsMode       : constant integer := 1013;
-  AddScanMode       : constant integer := 1014;
+  NewScanMode       : constant integer := 1014;
+  ScannedItemMode2  : constant integer := 1015;
   
 
   Blank : constant string := "";      
@@ -105,6 +106,7 @@ program Colorite;
   g_rOunces : stored real;
   g_iBags   : integer;
   g_iNums   : integer;
+  g_iCounter : integer := 1;
 
   locked : boolean := True;
 
@@ -1172,7 +1174,7 @@ procedure processingWeight;
     end if;
     g_iBags := StringToInteger(sTemp);
       
-    elsif g_EntryMode = ScannedItemMode then
+    elsif g_EntryMode = ScannedItemMode1 then
       g_sItemId := Left$(g_sScannerInput,9);
       g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
       GetLotandWeight(g_sTempScanned);
@@ -1215,29 +1217,34 @@ procedure processingWeight;
     
     if EntryMode = ScanMode then
 
-       if EventChar = Chr$(13) then -- this means if eventchar = carriage return then
-               
-         --WriteLn(g_ciDebug, "Raw Scanner Input: ", "     ", g_sScannerInput);
-         --g_sScannerInput :=  Right$(g_sScannerInput, Len(g_sScannerInput) - 5);
-         --WriteLn(g_ciDebug, "Cropped Scanner Input: ", "     ", g_sScannerInput);  
-         --EntryMode := ScannedItemMode;
-         --SetKeys; --look into this, do we need it?
-         
-         --g_sScannerInput := ;
-
-         EntryMode := ScannedItemMode;
-         g_EntryMode := ScannedItemMode;
-         SetLabelText(lbl31,g_sScannerInput);
-         ProcessDataEntry(g_sScannerInput);
-         g_sScannerInput := Blank;               
+      if EventChar = Chr$(13) then -- this means if eventchar = carriage return then
+        EntryMode := ScannedItemMode1;
+        g_EntryMode := ScannedItemMode1;
+        SetLabelText(lbl31,g_sScannerInput);
+        ProcessDataEntry(g_sScannerInput);
+        g_sScannerInput := Blank;               
                           
-       else  
+      else  
          
-         g_sScannerInput := g_sScannerInput + EventChar;  
-         --DisplayStatus(g_sScannerInput);  
+        g_sScannerInput := g_sScannerInput + EventChar;  
+        --DisplayStatus(g_sScannerInput);  
         
-       end if;  
-       
+      end if;  
+
+    elsif EntryMode = NewScanMode then
+
+      if EventChar = Chr$(13) then 
+        EntryMode := ScannedItemMode2;
+        g_EntryMode := ScannedItemMode2;
+        --SetLabelText(lbl31,g_sScannerInput);
+        ProcessDataEntry(g_sScannerInput);
+        g_sScannerInput := Blank;
+        g_iCounter := g_iCounter + 1;               
+                          
+      else  
+         
+        g_sScannerInput := g_sScannerInput + EventChar;  
+        --DisplayStatus(g_sScannerInput);       
     end if;
          
   end;   
@@ -1247,8 +1254,8 @@ procedure processingWeight;
   begin
     
     UnLockMajorKeys;
-    --SetLabelText(lbSts1, Blank);    
-		--SetLabelText(lbAOU, Blank);
+    SetLabelText(lbSts1, Blank);    
+		SetLabelText(lbAOU, Blank);
     
     if GetUnits(CurrentScale, g_uUnits) = SysOk then
       if GetCountBy(CurrentScale, g_uUnits, g_rCountby) = SysOk then
@@ -1342,35 +1349,40 @@ procedure processingWeight;
     else
       SetLabelText(lbAOU, "ACCEPTED");
       SetWidgetColor(lbAOU, "Green");
-      setwidgetColor(1, "Green"); 	
+      setwidgetColor(1, "Green");
+      EntryMode := NewScanMode;
+      g_iCounter := g_iCounter + 1; 	
     end if;
 
 
-    if iMotion = 0 and EntryMode = ProductOnScale then    
-      DisplayStatus(Blank);  
-      SetLabelText(lbSts1,  Blank);  
+    --if iMotion = 0 and EntryMode = ProductOnScale then    
+      --DisplayStatus(Blank);  
+      --SetLabelText(lbSts1,  Blank);  
                         
-      if rNetWgt < g_rItemWeight then                       
-        SetLabelText(lbAOU, "UNDER");
-				SetWidgetColor(lbAOU, "Orange"); 
+      --if rNetWgt < g_rItemWeight then                       
+        --SetLabelText(lbAOU, "UNDER");
+				--SetWidgetColor(lbAOU, "Orange"); 
 				--TransDB.Status := "U";
-        setwidgetColor(1, "Orange");
-        g_rLastSavedWgt := rNetWgt;
+        --setwidgetColor(1, "Orange");
+        --g_rLastSavedWgt := rNetWgt;
 
-      elsif rNetWgt > g_rItemWeight then
-        SetLabelText(lbAOU, "OVER");
-				SetWidgetColor(lbAOU, "Red"); 
+      --elsif rNetWgt > g_rItemWeight then
+        --SetLabelText(lbAOU, "OVER");
+				--SetWidgetColor(lbAOU, "Red"); 
 				--TransDB.Status := "O";	
-        setwidgetColor(1, "Red");	
-        g_rLastSavedWgt := rNetWgt;
+        --setwidgetColor(1, "Red");	
+        --g_rLastSavedWgt := rNetWgt;
 
-      else
-        SetLabelText(lbAOU, "ACCEPTED");
-				SetWidgetColor(lbAOU, "Green");
-        setwidgetColor(1, "Green"); 	
+      --else
+        --SetLabelText(lbAOU, "ACCEPTED");
+				--SetWidgetColor(lbAOU, "Green");
+        --setwidgetColor(1, "Green"); 	
 				--TransDB.Status := "A";	
-        g_rLastSavedWgt := rNetWgt;
-      end if; 
+        --g_rLastSavedWgt := rNetWgt;
+        --EntryMode := NewScanMode;
+        --g_iCounter := g_iCounter + 1;
+
+      --end if; 
 
       SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
 
@@ -1385,39 +1397,39 @@ procedure processingWeight;
  
   end;       
 
-  handler SP1Trip; -- Item Above Threshold
-    sUnits : string;
-  begin 
+  --handler SP1Trip; -- Item Above Threshold
+    --sUnits : string;
+  --begin 
 
-    DisableSP(1); 
-    GetUnits(CurrentScale, g_uUnits);
-    GetUnitsString(CurrentScale, g_uUnits, sUnits);
+    --DisableSP(1); 
+    --GetUnits(CurrentScale, g_uUnits);
+    --GetUnitsString(CurrentScale, g_uUnits, sUnits);
     --SetWidgetVisibility(setup, Voff);
-    g_bPrintPressed := False;
-    if g_bWeighVault = True then
-      if UCase$(sUnits) = UCase$(g_sUnits) then  
-        EntryMode := ProductOnScale;
-        SetupStartTimer(25, 5, TimerContinuous); 
+    --g_bPrintPressed := False;
+    --if g_bWeighVault = True then
+      --if UCase$(sUnits) = UCase$(g_sUnits) then  
+        --EntryMode := ProductOnScale;
+        --SetupStartTimer(25, 5, TimerContinuous); 
       --else
         --SetLabelText(lbSts1, "Unit Configuration Mis-Match");
-      end if;
-    else
-      EntryMode := ProductOnScale;
-      SetupStartTimer(25, 5, TimerContinuous); 
-    end if;
-    EnableSP(2);
+      --end if;
+    --else
+      --EntryMode := ProductOnScale;
+      --SetupStartTimer(25, 5, TimerContinuous); 
+    --end if;
+    --EnableSP(2);
     
-  end;  
+  --end;  
 
-  handler SP2Trip; -- Item Dropped below Threshold
-  begin
+  --handler SP2Trip; -- Item Dropped below Threshold
+  --begin
 
-    DisableSP(2);
-    EntryMode := NoMode;
-    StopTimer(25);  
+    --DisableSP(2);
+    --EntryMode := NoMode;
+    --StopTimer(25);  
     --SetLabelText(lbSts1, Blank);
 		--TurnOffAllOutputs;
-    TurnOffWidgets;
+    --TurnOffWidgets;
     --SetWidgetVisibility(setup, Von);
 
     --if g_bPrintPressed = False then
@@ -1436,9 +1448,9 @@ procedure processingWeight;
       --end if;
     --end if;
 
-    EnableSP(1);
+    --EnableSP(1);
  
-  end;   
+  --end;   
 
   handler PrintKeyPressed;
   begin
@@ -1575,6 +1587,7 @@ procedure processingWeight;
       EntryMode := StatusMode;
       SelectScreen(g_ciStatus);
       --targetweight := RealToString(g_rItemWeight, 1, 2);
+      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2));
       SetLabelText(lbl13, g_sItemWeight);
       SetLabelText(lbl10, g_sItemId);
       SetLabelText(lbl52, g_sItemLot);

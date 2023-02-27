@@ -72,7 +72,7 @@ lbl19     : constant integer := 19;
 lbl20     : constant integer := 20;
 lbl21     : constant integer := 21;
 btnSetup  : constant integer := 22;
-btnScan   : constant integer := 23;
+xofn      : constant integer := 23;
 lbl24     : constant integer := 24;
 lbl25     : constant integer := 25;
 lbl26     : constant integer := 26;
@@ -99,6 +99,7 @@ img49     : constant integer := 49;
 img50     : constant integer := 50;
 lbl51     : constant integer := 51;
 lbl52     : constant integer := 52;
+line53    : constant integer := 53;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
