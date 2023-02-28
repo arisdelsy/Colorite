@@ -33,6 +33,9 @@ program Colorite;
   g_ciSearching    : constant integer := 4;
   g_ciSetUpUsers   : constant integer := 5;
   g_ciOrderNum     : constant integer := 6;
+  g_ciTare         : constant integer := 7; 
+  g_ciBags         : constant integer := 8;
+ 
 
 
 
@@ -78,6 +81,7 @@ program Colorite;
   GetBagsMode       : constant integer := 1013;
   NewScanMode       : constant integer := 1014;
   ScannedItemMode2  : constant integer := 1015;
+  GetTareMode       : constant integer := 1016;
   
 
   Blank : constant string := "";      
@@ -268,6 +272,15 @@ procedure ClearWidgetsNewUser; --ckears widgets for NEW USER PAGE
 begin
   SetLabelText(lbl24, Blank);
   SetLabelText(lbl25, Blank);
+end;
+
+procedure ClearStatusWidgets;
+begin
+  SetLabelText(lbl10, Blank);
+  SetLabelText(lbl52, Blank);
+  SetLabelText(lbl13, Blank);
+  SetLabelText(lbl6, Blank);
+  SetLabelText(xofn, Blank);
 end;
 
 procedure AddNewUser;
@@ -802,36 +815,49 @@ procedure processingWeight;
   temp_weight : string;
   final_pounds : string;
   final_ounces : string;
+  ouncesLength : real; 
   begin
     temp_weight := g_sItemWeight;
     tempI := len(temp_weight);
     for i := 1 to tempI
     loop
     -- taking first number in string
-    temp1 := Left$(temp_weight, 1);
-    temp_weight := Right$(temp_weight, tempI - i);
+      temp1 := Left$(temp_weight, 1);
+      temp_weight := Right$(temp_weight, tempI - i);
 
-    if temp1 <> Chr$(46) then
-      final_pounds := final_pounds + temp1;
+      if temp1 <> Chr$(46) then
+        final_pounds := final_pounds + temp1;
+      
+      elsif temp1 = Chr$(46) then
+        final_ounces := temp_weight;
+        exit;
+      end if;
+  
+    end loop;
+    g_sPounds := final_pounds;
+    g_rPounds := StringToReal(final_pounds);
     
-    elsif temp1 = Chr$(46) then
-      final_ounces := temp_weight;
-    exit;
-    end if;
-  
-  end loop;
-  g_sPounds := final_pounds;
-  g_rPounds := StringToReal(final_pounds);
-	
-	
-  --DisplayStatus(final_pounds);
-  g_sOunces := final_ounces;
-  g_rOunces := StringToReal(g_sOunces);
+    --DisplayStatus(final_pounds);
+    g_sOunces := final_ounces;
+    g_rOunces := StringToReal(g_sOunces);
 
--- calculation for ounces
-  g_rOunces := (g_rOunces / 10) * 16;
-  
-  g_sOunces := RealToString(g_rOunces, 1, 2);
+  -- calculation for ounces
+    ouncesLength := Len(g_sOunces);
+      
+    if ouncesLength =  1 then
+      g_rOunces := g_rOunces / 10;
+
+    elsif ouncesLength = 2 then
+      g_rOunces := g_rOunces / 100;
+    
+    elsif ouncesLength = 3 then
+      g_rOunces := g_rOunces / 100;
+    end if;
+
+
+    g_rOunces := g_rOunces * 16;
+    
+    g_sOunces := RealToString(g_rOunces, 1, 2);
 
   --DisplayStatus(g_rOunces);
 
@@ -1244,7 +1270,8 @@ procedure processingWeight;
       else  
          
         g_sScannerInput := g_sScannerInput + EventChar;  
-        --DisplayStatus(g_sScannerInput);       
+        --DisplayStatus(g_sScannerInput);
+      end if;       
     end if;
          
   end;   
@@ -1393,7 +1420,7 @@ procedure processingWeight;
       end if;
 
 
-		end if; 
+		--end if; 
  
   end;       
 
@@ -1584,14 +1611,9 @@ procedure processingWeight;
 
     elsif g_iWidget = Nxt2 then
      -- test : string;
-      EntryMode := StatusMode;
-      SelectScreen(g_ciStatus);
-      --targetweight := RealToString(g_rItemWeight, 1, 2);
-      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2));
-      SetLabelText(lbl13, g_sItemWeight);
-      SetLabelText(lbl10, g_sItemId);
-      SetLabelText(lbl52, g_sItemLot);
-      SetLabelText(lbl6, g_sPounds + " lbs" + " " + g_sOunces + " oz");
+      EntryMode := GetBagsMode;
+      SelectScreen(g_ciBags);
+      
     elsif g_iWidget = Ext2 then
       EntryMode := OrderMode;
       SetLabelText(38, Blank);
@@ -1605,20 +1627,40 @@ procedure processingWeight;
       EntryMode := ScanMode;
       SelectScreen(g_ciScanBar);
 
+    elsif g_iWidget = Nxt8 then
+      EntryMode := GetTareMode;
+      SelectScreen(g_ciTare);
+    
+    elsif g_iWidget = Nxt7 then
+      EntryMode := StatusMode;
+      SelectScreen(g_ciStatus);
+      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2));
+      SetLabelText(lbl13, g_sItemWeight + "lbs");
+      SetLabelText(lbl10, g_sItemId);
+      SetLabelText(lbl52, g_sItemLot);
+      SetLabelText(lbl6, g_sPounds + " lbs" + " " + g_sOunces + " oz");
+
     elsif g_iWidget = Ext6 then
       EntryMode := NoMode;
       ClearWidgetsLogin;
       ClearLoginUser;
       SelectScreen(g_ciMainLogin);
 
-    elsif g_iWidget = Ext3 then
+    elsif g_iWidget = Ext8 then
       EntryMode := ScanMode;
       SetLabelText(lbl31, Blank);
       g_sScannerInput := Blank;
-      SelectScreen(g_ciScanBar);
+      SelectScreen(g_ciScanBar);    
+
+    elsif g_iWidget = Ext3 then
+      ClearStatusWidgets;
+      EntryMode := GetTareMode;
+      SelectScreen(g_ciTare);
     
     elsif g_iWidget = Ext7 then
-      Selectscreen(g_ciScanBar);
+      EntryMode := GetBagsMode;
+      SetLabelText(lbl48, Blank);
+      Selectscreen(g_ciBags);
     
     elsif g_iWidget = lbl48 then
       PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 0);
