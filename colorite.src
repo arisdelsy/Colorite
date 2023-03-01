@@ -1265,7 +1265,7 @@ procedure processingWeight;
         --SetLabelText(lbl31,g_sScannerInput);
         ProcessDataEntry(g_sScannerInput);
         g_sScannerInput := Blank;
-        g_iCounter := g_iCounter + 1;               
+        --g_iCounter := g_iCounter + 1;               
                           
       else  
          
@@ -1322,6 +1322,8 @@ procedure processingWeight;
     rNetWgt : real;
 		iInRange : integer;
     rTareWgt : real;
+    lowAccepted : real;
+    highAccepted : real;
   begin 
 
     -- Make sure Item selected
@@ -1333,7 +1335,7 @@ procedure processingWeight;
     GetUnits(CurrentScale, g_uUnits);
     g_sysResult1 := GetNet(CurrentScale, g_uUnits, rNetWgt); 
     g_sysResult2 := InRange(CurrentScale, iInRange);   
-    GetTare(CurrentScale, g_uUnits, g_rTareWgt);
+    --GetTare(CurrentScale, g_uUnits, g_rTareWgt);
 
     -- Get Net Command   I JUST GOT RID OF THIS STEPHEN
     if g_sysResult1 <> SysOk then
@@ -1363,12 +1365,15 @@ procedure processingWeight;
       return;
     end if;
     
-    if rNetWgt < g_rItemWeight then                       
+    lowAccepted := (g_rItemWeight - (g_rItemWeight * 0.005)); 
+    highAccepted := (g_rItemWeight + (g_rItemWeight * 0.005));
+
+    if rNetWgt < lowAccepted then                       
       SetLabelText(lbAOU, "UNDER");
       SetWidgetColor(lbAOU, "Orange"); 
       setwidgetColor(1, "Orange");
 
-    elsif rNetWgt > g_rItemWeight then 
+    elsif rNetWgt > highAccepted then 
       SetLabelText(lbAOU, "OVER");
       SetWidgetColor(lbAOU, "Red");
       setwidgetColor(1, "Red");	
@@ -1377,8 +1382,10 @@ procedure processingWeight;
       SetLabelText(lbAOU, "ACCEPTED");
       SetWidgetColor(lbAOU, "Green");
       setwidgetColor(1, "Green");
+      StopTimer(25);
       EntryMode := NewScanMode;
-      g_iCounter := g_iCounter + 1; 	
+      g_iCounter := g_iCounter + 1;
+       	
     end if;
 
 
@@ -1413,11 +1420,11 @@ procedure processingWeight;
 
       SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
 
-      if g_bPrintPressed = True then
-        StopTimer(25);
+      --if g_bPrintPressed = True then
+        --StopTimer(25);
         --StoreorSendTransaction(g_rLastSavedWgt);
-        PrintTicket;
-      end if;
+        --PrintTicket;
+      --end if;
 
 
 		--end if; 
@@ -1520,6 +1527,7 @@ procedure processingWeight;
 	end;
 
  handler WidgetClicked;
+  sys : SysCode;
   begin
 
   	DisableHandler(WidgetClicked);
@@ -1630,9 +1638,20 @@ procedure processingWeight;
     elsif g_iWidget = Nxt8 then
       EntryMode := GetTareMode;
       SelectScreen(g_ciTare);
-    
+      SetWidgetVisibility(Nxt7, Voff);
+      SetLabelText(lbl42, "Place Bag on Scale and Press Tare");
+
+    elsif g_iWidget = lbltare then
+      sys := ZeroScale(1);
+      if sys = SysOk then
+        SetLabelText(lbl42, "Tare Complete");
+        SetWidgetVisibility(Nxt7, VOn);
+      end if;
+
+      
     elsif g_iWidget = Nxt7 then
       EntryMode := StatusMode;
+      SetupStartTimer(25, 10,TimerContinuous);
       SelectScreen(g_ciStatus);
       SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2));
       SetLabelText(lbl13, g_sItemWeight + "lbs");
