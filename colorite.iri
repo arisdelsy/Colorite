@@ -26,6 +26,7 @@ type OrdersDatabase is database ("Orders")
     lotNum: String;
     weight: Real;
   orderNum: String;
+        dt: DateTime;
 end database;
 
 Users_login    : constant integer := 1;
@@ -36,6 +37,7 @@ Orders_itemID   : constant integer := 2;
 Orders_lotNum   : constant integer := 3;
 Orders_weight   : constant integer := 4;
 Orders_orderNum : constant integer := 5;
+Orders_dt       : constant integer := 6;
 
 
 

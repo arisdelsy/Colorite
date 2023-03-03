@@ -4,7 +4,7 @@
   <IndicatorModel value="1280" />
   <IndicatorVersion value="2.00" />
   <ChildAssembly value="rev1280.v306.dll" />
-  <ConfigHash value="194 45 163 192 60 191 120 87 86 145 137 64 163 243 20 75 47 119 215 181 " />
+  <ConfigHash value="25 180 248 84 212 232 193 94 48 181 175 14 219 12 206 220 9 152 51 131 " />
   <CODFile value="" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=10000
@@ -706,7 +706,7 @@ DIO.8#0=OFF
 DIO.ALIAS.8#0=DIO0_8
 DB.SCHEMA#1=1000,0,login,7,40,password,7,40
 DB.ALIAS#1=Users
-DB.SCHEMA#2=100,0,num,3,4,itemID,7,20,lotNum,7,20,weight,5,8,orderNum,7,20
+DB.SCHEMA#2=100,0,num,3,4,itemID,7,20,lotNum,7,20,weight,5,8,orderNum,7,20,dt,8,8
 DB.ALIAS#2=Orders
 EDP.ADDRESS#1=0
 EDP.ALIAS#1=Port1

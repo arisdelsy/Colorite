@@ -1057,7 +1057,8 @@ procedure processingWeight;
     OrdersDB.itemID := g_sItemId;
     OrdersDB.lotNum := g_sItemLot;
     OrdersDB.weight := g_rItemWeight;
-    OrdersDB.orderNum := g_sOrderNum; 
+    OrdersDB.orderNum := g_sOrderNum;
+    OrdersDB.dt := DateTime; 
 
 
       g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
@@ -1080,7 +1081,8 @@ procedure processingWeight;
       OrdersDB.itemID := g_sItemId;
       OrdersDB.lotNum := g_sItemLot;
       OrdersDB.weight := g_rItemWeight;
-      OrdersDB.orderNum := g_sOrderNum; 
+      OrdersDB.orderNum := g_sOrderNum;
+      OrdersDB.dt := DateTime 
 
       g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
       if g_sysResult <> SysOk then
