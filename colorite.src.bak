@@ -111,6 +111,7 @@ program Colorite;
   g_iBags   : integer;
   g_iNums   : integer;
   g_iCounter : integer := 1;
+  g_dDateTime : DateTime;
 
   locked : boolean := True;
 
@@ -274,14 +275,14 @@ begin
   SetLabelText(lbl25, Blank);
 end;
 
-procedure ClearStatusWidgets;
-begin
-  SetLabelText(lbl10, Blank);
-  SetLabelText(lbl52, Blank);
-  SetLabelText(lbl13, Blank);
-  SetLabelText(lbl6, Blank);
-  SetLabelText(xofn, Blank);
-end;
+--procedure ClearStatusWidgets;
+--begin
+  --SetLabelText(lbl10, Blank);
+  --SetLabelText(lbl52, Blank);
+  --SetLabelText(lbl13, Blank);
+  --SetLabelText(lbl6, Blank);
+  --SetLabelText(xofn, Blank);
+--end;
 
 procedure AddNewUser;
 begin
@@ -1057,7 +1058,8 @@ procedure processingWeight;
     OrdersDB.itemID := g_sItemId;
     OrdersDB.lotNum := g_sItemLot;
     OrdersDB.weight := g_rItemWeight;
-    OrdersDB.orderNum := g_sOrderNum; 
+    OrdersDB.orderNum := g_sOrderNum;
+    OrdersDB.dt := g_dDateTime; 
 
 
       g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
@@ -1080,7 +1082,8 @@ procedure processingWeight;
       OrdersDB.itemID := g_sItemId;
       OrdersDB.lotNum := g_sItemLot;
       OrdersDB.weight := g_rItemWeight;
-      OrdersDB.orderNum := g_sOrderNum; 
+      OrdersDB.orderNum := g_sOrderNum;
+      OrdersDB.dt := g_dDateTime; 
 
       g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
       if g_sysResult <> SysOk then
@@ -1198,6 +1201,7 @@ procedure processingWeight;
     if sTemp = Blank then
       PromptForEntry("INVALID Entry", GetBagsMode, Blank, 2);
     end if;
+    SetLabelText(lbl48 ,sTemp);
     g_iBags := StringToInteger(sTemp);
       
     elsif g_EntryMode = ScannedItemMode1 then
@@ -1265,7 +1269,7 @@ procedure processingWeight;
         --SetLabelText(lbl31,g_sScannerInput);
         ProcessDataEntry(g_sScannerInput);
         g_sScannerInput := Blank;
-        g_iCounter := g_iCounter + 1;               
+        --g_iCounter := g_iCounter + 1;               
                           
       else  
          
@@ -1381,10 +1385,10 @@ procedure processingWeight;
     else
       SetLabelText(lbAOU, "ACCEPTED");
       SetWidgetColor(lbAOU, "Green");
-      setwidgetColor(1, "Green");
+      SetWidgetColor(1, "Green");
       EntryMode := NewScanMode;
       g_iCounter := g_iCounter + 1;
-      StopTimer(25); 	
+       	
     end if;
 
 
@@ -1650,9 +1654,9 @@ procedure processingWeight;
       
     elsif g_iWidget = Nxt7 then
       EntryMode := StatusMode;
-      SetupStartTimer(25, 10,TimerContinuous);
+      SetupStartTimer(25, 5,TimerContinuous);
       SelectScreen(g_ciStatus);
-      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2));
+      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + "bags");
       SetLabelText(lbl13, g_sItemWeight + "lbs");
       SetLabelText(lbl10, g_sItemId);
       SetLabelText(lbl52, g_sItemLot);
@@ -1670,10 +1674,10 @@ procedure processingWeight;
       g_sScannerInput := Blank;
       SelectScreen(g_ciScanBar);    
 
-    elsif g_iWidget = Ext3 then
-      ClearStatusWidgets;
-      EntryMode := GetTareMode;
-      SelectScreen(g_ciTare);
+    --elsif g_iWidget = Ext3 then
+      --ClearStatusWidgets;
+      --EntryMode := GetTareMode;
+      --SelectScreen(g_ciTare);
     
     elsif g_iWidget = Ext7 then
       EntryMode := GetBagsMode;
@@ -1681,7 +1685,7 @@ procedure processingWeight;
       Selectscreen(g_ciBags);
     
     elsif g_iWidget = lbl48 then
-      PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 0);
+      PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 2);
 
     
     --elsif g_iWidget = lbl31 then

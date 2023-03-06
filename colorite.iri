@@ -85,7 +85,6 @@ lbl30     : constant integer := 30;
 lbl31     : constant integer := 31;
 Ext2      : constant integer := 32;
 lbSts1    : constant integer := 33;
-Ext3      : constant integer := 34;
 Nxt2      : constant integer := 35;
 lbl37     : constant integer := 37;
 lbl38     : constant integer := 38;
@@ -102,6 +101,9 @@ Nxt8      : constant integer := 50;
 lbl51     : constant integer := 51;
 lbl52     : constant integer := 52;
 line53    : constant integer := 53;
+Ext3      : constant integer := 34;
+lbl54     : constant integer := 54;
+lbl55     : constant integer := 55;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
