@@ -1271,6 +1271,7 @@ procedure processingWeight;
         --g_sScannerInput := Blank;
 
         g_iCounter := g_iCounter + 1;
+        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + "bags");
         SetupStartTimer(25,5, TimerContinuous);
         -- RESTART THE TIMER               
                           
@@ -1378,20 +1379,22 @@ procedure processingWeight;
     if rNetWgt < lowAccepted then                       
       SetLabelText(lbAOU, "UNDER");
       SetWidgetColor(lbAOU, "Orange"); 
-      setwidgetColor(1, "Orange");
+      setwidgetColor(2, "Orange");
 
     elsif rNetWgt > highAccepted then 
       SetLabelText(lbAOU, "OVER");
       SetWidgetColor(lbAOU, "Red");
-      setwidgetColor(1, "Red");	
+      setwidgetColor(2, "Red");	
 
     else
       SetLabelText(lbAOU, "ACCEPTED");
       SetWidgetColor(lbAOU, "Green");
-      SetWidgetColor(1, "Green");
-      --StopTimer(25);
-      EntryMode := NewScanMode;
-      --g_iCounter := g_iCounter + 1;
+      SetWidgetColor(2, "Green");
+        
+        if 
+          StopTimer(25);
+          EntryMode := NewScanMode;
+      
        	
     end if;
 
@@ -1427,14 +1430,6 @@ procedure processingWeight;
 
       SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
 
-      --if g_bPrintPressed = True then
-        --StopTimer(25);
-        --StoreorSendTransaction(g_rLastSavedWgt);
-        --PrintTicket;
-      --end if;
-
-
-		--end if; 
  
   end;       
 

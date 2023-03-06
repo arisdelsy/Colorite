@@ -1264,12 +1264,16 @@ procedure processingWeight;
     elsif EntryMode = NewScanMode then
 
       if EventChar = Chr$(13) then 
-        EntryMode := ScannedItemMode2;
-        g_EntryMode := ScannedItemMode2;
+        --EntryMode := ScannedItemMode2;
+        --g_EntryMode := ScannedItemMode2;
         --SetLabelText(lbl31,g_sScannerInput);
-        ProcessDataEntry(g_sScannerInput);
-        g_sScannerInput := Blank;
-        --g_iCounter := g_iCounter + 1;               
+        --ProcessDataEntry(g_sScannerInput);
+        --g_sScannerInput := Blank;
+
+        g_iCounter := g_iCounter + 1;
+        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + "bags");
+        SetupStartTimer(25,5, TimerContinuous);
+        -- RESTART THE TIMER               
                           
       else  
          
@@ -1375,19 +1379,20 @@ procedure processingWeight;
     if rNetWgt < lowAccepted then                       
       SetLabelText(lbAOU, "UNDER");
       SetWidgetColor(lbAOU, "Orange"); 
-      setwidgetColor(1, "Orange");
+      setwidgetColor(2, "Orange");
 
     elsif rNetWgt > highAccepted then 
       SetLabelText(lbAOU, "OVER");
       SetWidgetColor(lbAOU, "Red");
-      setwidgetColor(1, "Red");	
+      setwidgetColor(2, "Red");	
 
     else
       SetLabelText(lbAOU, "ACCEPTED");
       SetWidgetColor(lbAOU, "Green");
-      SetWidgetColor(1, "Green");
+      SetWidgetColor(2, "Green");
+      StopTimer(25);
       EntryMode := NewScanMode;
-      g_iCounter := g_iCounter + 1;
+      --g_iCounter := g_iCounter + 1;
        	
     end if;
 
