@@ -1376,24 +1376,36 @@ procedure processingWeight;
     lowAccepted := (g_rItemWeight - (g_rItemWeight * 0.005)); 
     highAccepted := (g_rItemWeight + (g_rItemWeight * 0.005));
 
-    if rNetWgt < lowAccepted then                       
-      SetLabelText(lbAOU, "UNDER");
-      SetWidgetColor(lbAOU, "Orange"); 
-      setwidgetColor(2, "Orange");
+    if iMotion = 0 then    
+      DisplayStatus(Blank);  
+      SetLabelText(lbSts1,  Blank); 
 
-    elsif rNetWgt > highAccepted then 
-      SetLabelText(lbAOU, "OVER");
-      SetWidgetColor(lbAOU, "Red");
-      setwidgetColor(2, "Red");	
+      if rNetWgt < lowAccepted then                       
+        SetLabelText(lbAOU, "UNDER");
+        SetWidgetColor(lbAOU, "Orange"); 
+        setwidgetColor(2, "Orange");
+        g_rLastSavedWgt := rNetWgt;
 
-    else
-      SetLabelText(lbAOU, "ACCEPTED");
-      SetWidgetColor(lbAOU, "Green");
-      SetWidgetColor(2, "Green");
-      StopTimer(25);
-      EntryMode := NewScanMode;
-      --g_iCounter := g_iCounter + 1;
-       	
+      elsif rNetWgt > highAccepted then 
+        SetLabelText(lbAOU, "OVER");
+        SetWidgetColor(lbAOU, "Red");
+        setwidgetColor(2, "Red");
+        g_rLastSavedWgt := rNetWgt;	
+
+      else
+        SetLabelText(lbAOU, "ACCEPTED");
+        SetWidgetColor(lbAOU, "Green");
+        SetWidgetColor(2, "Green");
+        g_rLastSavedWgt := rNetWgt;
+        --StopTimer(25);
+        
+        EntryMode := NewScanMode;
+        --g_iNums := g_iNums + 1;
+        
+          
+      end if;
+      SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+      
     end if;
 
 
@@ -1426,16 +1438,8 @@ procedure processingWeight;
 
       --end if; 
 
-      SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+      
 
-      --if g_bPrintPressed = True then
-        --StopTimer(25);
-        --StoreorSendTransaction(g_rLastSavedWgt);
-        --PrintTicket;
-      --end if;
-
-
-		--end if; 
  
   end;       
 
@@ -1661,7 +1665,9 @@ procedure processingWeight;
       EntryMode := StatusMode;
       SetupStartTimer(25, 5,TimerContinuous);
       SelectScreen(g_ciStatus);
+      SetLabelText(lbl55, g_sOrderNum);
       SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + "bags");
+      g_iNums := g_iCounter;
       SetLabelText(lbl13, g_sItemWeight + "lbs");
       SetLabelText(lbl10, g_sItemId);
       SetLabelText(lbl52, g_sItemLot);
