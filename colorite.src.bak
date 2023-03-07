@@ -276,14 +276,18 @@ begin
   SetLabelText(lbl25, Blank);
 end;
 
---procedure ClearStatusWidgets;
---begin
-  --SetLabelText(lbl10, Blank);
-  --SetLabelText(lbl52, Blank);
-  --SetLabelText(lbl13, Blank);
-  --SetLabelText(lbl6, Blank);
-  --SetLabelText(xofn, Blank);
---end;
+procedure ClearStatusWidgets;
+begin
+  SetLabelText(lbl18, Blank);
+  SetLabelText(lbl19, Blank);
+  SetLabelText(lbl10, Blank);
+  SetLabelText(lbl52, Blank);
+  SetLabelText(lbl13, Blank);
+  SetLabelText(lbl6, Blank);
+  SetLabelText(lbl31, Blank);
+  SetLabelText(lbl55, Blank);
+  SetLabelText(xofn, Blank);
+end;
 
 procedure AddNewUser;
 begin
@@ -1265,7 +1269,7 @@ procedure processingWeight;
 
     elsif EntryMode = NewScanMode then
 
-      if EventChar = Chr$(13) and g_iCounter <= g_iBags then 
+      if EventChar = Chr$(13) and g_iCounter < g_iBags then 
         --EntryMode := ScannedItemMode2;
         --g_EntryMode := ScannedItemMode2;
         --SetLabelText(lbl31,g_sScannerInput);
@@ -1274,7 +1278,7 @@ procedure processingWeight;
         ProcessTempOrders;
         DisplayStatus("Entry Added");
         g_iCounter := g_iCounter + 1;
-        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + "bags");
+        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + " bags");
         SetupStartTimer(25,5, TimerContinuous);
         -- RESTART THE TIMER               
                           
@@ -1396,13 +1400,15 @@ procedure processingWeight;
         g_rLastSavedWgt := rNetWgt;	
 
       else
+        EntryMode := NewScanMode;
         SetLabelText(lbAOU, "ACCEPTED");
         SetWidgetColor(lbAOU, "Green");
         SetWidgetColor(2, "Green");
+        SetLabelText(lbSts1, "Remove Weight and Scan");
         g_rLastSavedWgt := rNetWgt;
         --StopTimer(25);
       
-        EntryMode := NewScanMode;
+        
         --g_iNums := g_iNums + 1;
         
           
@@ -1691,8 +1697,7 @@ procedure processingWeight;
     elsif g_iWidget = Ext3 then
       EntryMode := YesandNoMode;
       SelectScreen(9);
-
-      --ClearStatusWidgets;
+      ClearStatusWidgets;
       --EntryMode := GetTareMode;
       --SelectScreen(g_ciTare);
     
@@ -1703,7 +1708,7 @@ procedure processingWeight;
     elsif g_iWidget = btnNo then
       EntryMode := StatusMode;
       SelectScreen(g_ciStatus);
-      
+
     elsif g_iWidget = Ext7 then
       EntryMode := GetBagsMode;
       SetLabelText(lbl48, Blank);
