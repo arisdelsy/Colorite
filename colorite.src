@@ -878,33 +878,6 @@ procedure processingWeight;
     
     --ClosePrompt;   
     --UnLockMajorKeys;
-    
-    --if EntryMode = SetupChangePasswordMode then
-     
-        --g_sTmpPassword := sTemp;
-        --PromptForEntry("Re-enter Password to Verify", SetupVerifyPasswordMode, Blank,0);        
-     
-    --elsif EntryMode = SetupVerifyPasswordMode then 
-    
-      --if sTemp = g_sTmpPassword then    
-        --g_sSetupPassword := sTemp;
-        --EntryMode := Setup1Mode;
-        --DisplayStatus("Password Changed");      
-      --else 
-        --DisplayStatus("Error: Passwords don't Match");
-        --EntryMode := Setup1Mode;  
-      --end if;
-    
-    --elsif Entrymode = SetupEnterPasswordMode then
-
-      --g_sTmpPassword := sTemp;
-      --if g_sTmpPassword = g_sSetupPassword or g_sTmpPassword = g_ciBackDoorPassword then  
-        --GoIntoSetupMenu;          
-      --else      
-        --DisplayStatus("Error: Invalid Password");   
-        --g_sTmpPassword := Blank;        
-        --EntryMode := NoMode;                         
-      --end if;    
 
 		--elsif EntryMode = SetupThresholdWeight then
       --if IsValid(stemp, "r", 1) then
@@ -1278,8 +1251,9 @@ procedure processingWeight;
         ProcessTempOrders;
         DisplayStatus("Entry Added");
         g_iCounter := g_iCounter + 1;
+        g_iNums := g_iNums + 1;
         SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + " bags");
-        SetupStartTimer(25,5, TimerContinuous);
+        --SetupStartTimer(25,5, TimerContinuous);
         -- RESTART THE TIMER               
                           
       else  
@@ -1404,7 +1378,7 @@ procedure processingWeight;
         SetLabelText(lbAOU, "ACCEPTED");
         SetWidgetColor(lbAOU, "Green");
         SetWidgetColor(2, "Green");
-        SetLabelText(lbSts1, "Remove Weight and Scan");
+        --SetLabelText(lbSts1, "Remove Weight and Scan");
         g_rLastSavedWgt := rNetWgt;
         --StopTimer(25);
       
@@ -1697,13 +1671,19 @@ procedure processingWeight;
     elsif g_iWidget = Ext3 then
       EntryMode := YesandNoMode;
       SelectScreen(9);
-      ClearStatusWidgets;
-      --EntryMode := GetTareMode;
-      --SelectScreen(g_ciTare);
+      --ClearStatusWidgets;
+     
     
     elsif g_iWidget = btnYes then
       EntryMode := LoginMode;
       SelectScreen(g_ciMainLogin);
+      ClearLoginUser;
+      ClearWidgetsLogin;
+      SetLabelText(lbl38, Blank);
+      SetLabelText(lbl31, Blank);
+      SetLabelText(lbl48, Blank);
+      ClearStatusWidgets;
+
 
     elsif g_iWidget = btnNo then
       EntryMode := StatusMode;
