@@ -10,7 +10,7 @@ program Colorite;
 
   -- Constants and aliases definitions 
   g_csProgName          : constant string  := "Colorite"; --Program Name 
-  g_csVersion           : constant string  := "1.00"; --Program Version   
+  g_csVersion           : constant string  := "V1.01"; --Program Version   
   --g_ciPrinter           : constant integer := 0;
   g_ciPort1             : constant integer := 1;
   g_ciPort2             : constant integer := 2;
@@ -35,6 +35,7 @@ program Colorite;
   g_ciOrderNum     : constant integer := 6;
   g_ciTare         : constant integer := 7; 
   g_ciBags         : constant integer := 8;
+  g_ciYesNo        : constant integer := 9;
  
 
 
@@ -82,7 +83,7 @@ program Colorite;
   NewScanMode       : constant integer := 1014;
   ScannedItemMode2  : constant integer := 1015;
   GetTareMode       : constant integer := 1016;
-  
+  YesandNoMode      : Constant integer := 1017;
 
   Blank : constant string := "";      
   type boolean is (False,True); 
@@ -1057,7 +1058,8 @@ procedure processingWeight;
     OrdersDB.num := g_iNums; 
     OrdersDB.itemID := g_sItemId;
     OrdersDB.lotNum := g_sItemLot;
-    OrdersDB.weight := g_rItemWeight;
+    --OrdersDB.weight := g_rItemWeight;
+    OrdersDB.weight := g_rLastSavedWgt;
     OrdersDB.orderNum := g_sOrderNum;
     OrdersDB.dt := g_dDateTime; 
 
@@ -1263,13 +1265,14 @@ procedure processingWeight;
 
     elsif EntryMode = NewScanMode then
 
-      if EventChar = Chr$(13) then 
+      if EventChar = Chr$(13) and g_iCounter <= g_iBags then 
         --EntryMode := ScannedItemMode2;
         --g_EntryMode := ScannedItemMode2;
         --SetLabelText(lbl31,g_sScannerInput);
         --ProcessDataEntry(g_sScannerInput);
         --g_sScannerInput := Blank;
-
+        ProcessTempOrders;
+        DisplayStatus("Entry Added");
         g_iCounter := g_iCounter + 1;
         SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + "bags");
         SetupStartTimer(25,5, TimerContinuous);
@@ -1398,7 +1401,7 @@ procedure processingWeight;
         SetWidgetColor(2, "Green");
         g_rLastSavedWgt := rNetWgt;
         --StopTimer(25);
-        
+      
         EntryMode := NewScanMode;
         --g_iNums := g_iNums + 1;
         
@@ -1685,11 +1688,22 @@ procedure processingWeight;
       g_sScannerInput := Blank;
       SelectScreen(g_ciScanBar);    
 
-    --elsif g_iWidget = Ext3 then
+    elsif g_iWidget = Ext3 then
+      EntryMode := YesandNoMode;
+      SelectScreen(9);
+
       --ClearStatusWidgets;
       --EntryMode := GetTareMode;
       --SelectScreen(g_ciTare);
     
+    elsif g_iWidget = btnYes then
+      EntryMode := LoginMode;
+      SelectScreen(g_ciMainLogin);
+
+    elsif g_iWidget = btnNo then
+      EntryMode := StatusMode;
+      SelectScreen(g_ciStatus);
+      
     elsif g_iWidget = Ext7 then
       EntryMode := GetBagsMode;
       SetLabelText(lbl48, Blank);
