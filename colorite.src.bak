@@ -113,7 +113,9 @@ program Colorite;
   g_iNums   : integer;
   g_iCounter : integer := 1;
   g_dDateTime : DateTime;
-
+  g_rTareweight : real;
+  g_sTareweight : string;
+  g_rsettareweight : real := 5;
   locked : boolean := True;
 
 ---- Previous global variables from Checkweight Program
@@ -252,6 +254,10 @@ program Colorite;
   end;
   
 
+--procedure getDT();
+
+
+
 procedure ClearLoginUser; 
 begin
   g_sUserId := Blank;
@@ -279,14 +285,26 @@ end;
 procedure ClearStatusWidgets;
 begin
   SetLabelText(lbl18, Blank);
+  g_sUserId := Blank;
   SetLabelText(lbl19, Blank);
+  g_sPassword := Blank;
   SetLabelText(lbl10, Blank);
+  g_sItemId := Blank;
   SetLabelText(lbl52, Blank);
+  g_sItemLot := Blank;
   SetLabelText(lbl13, Blank);
+  g_sItemWeight := Blank;
   SetLabelText(lbl6, Blank);
-  SetLabelText(lbl31, Blank);
+  g_sPounds := Blank;
+  g_sOunces := Blank;
+  --SetLabelText(lbl31, Blank);
+  --g_sScannerInput := Blank;
   SetLabelText(lbl55, Blank);
+  --g_sOrderNum := Blank;
   SetLabelText(xofn, Blank);
+  --g_iCounter := Blank;
+  --g_iBags := Blank;
+
 end;
 
 procedure AddNewUser;
@@ -472,6 +490,7 @@ end;
 --  end; 
 
 --KEEP
+
   function GetFormattedDate (dtTemp : datetime) : string; -- Format Date DDMMYYYY 
     iYear : integer;
     iMonth : integer;
@@ -1038,8 +1057,8 @@ procedure processingWeight;
     --OrdersDB.weight := g_rItemWeight;
     OrdersDB.weight := g_rLastSavedWgt;
     OrdersDB.orderNum := g_sOrderNum;
+    --OrdersDB.dt := DTToString(g_dDateTime); 
     OrdersDB.dt := g_dDateTime; 
-
 
       g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
       if g_sysResult <> SysOk then
@@ -1252,8 +1271,8 @@ procedure processingWeight;
         DisplayStatus("Entry Added");
         g_iCounter := g_iCounter + 1;
         g_iNums := g_iNums + 1;
-        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + "of" + IntegerToString(g_iBags,2) + " bags");
-        --SetupStartTimer(25,5, TimerContinuous);
+        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
+        SetupStartTimer(25,5, TimerContinuous);
         -- RESTART THE TIMER               
                           
       else  
@@ -1366,28 +1385,36 @@ procedure processingWeight;
         SetWidgetColor(lbAOU, "Orange"); 
         setwidgetColor(2, "Orange");
         g_rLastSavedWgt := rNetWgt;
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+        EntryMode := StatusMode;
+    
 
       elsif rNetWgt > highAccepted then 
         SetLabelText(lbAOU, "OVER");
         SetWidgetColor(lbAOU, "Red");
         setwidgetColor(2, "Red");
         g_rLastSavedWgt := rNetWgt;	
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+        EntryMode := StatusMode;
 
+        
       else
-        EntryMode := NewScanMode;
-        SetLabelText(lbAOU, "ACCEPTED");
-        SetWidgetColor(lbAOU, "Green");
-        SetWidgetColor(2, "Green");
-        --SetLabelText(lbSts1, "Remove Weight and Scan");
-        g_rLastSavedWgt := rNetWgt;
+        if iMotion = 0 then
+          EntryMode := NewScanMode;
+          SetLabelText(lbAOU, "ACCEPTED");
+          SetWidgetColor(lbAOU, "Green");
+          SetWidgetColor(2, "Green");
+          --SetLabelText(lbSts1, "Remove Weight and Scan");
+          g_rLastSavedWgt := rNetWgt;
+          SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
         --StopTimer(25);
-      
+        end if;
         
         --g_iNums := g_iNums + 1;
         
           
       end if;
-      SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+      --SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
       
     end if;
 
@@ -1637,12 +1664,25 @@ procedure processingWeight;
       SetLabelText(lbl42, "Place Bag on Scale and Press Tare");
 
     elsif g_iWidget = lbltare then
-      --CHANGED TO SCALE 2
-      sys := ZeroScale(2);
-      if sys = SysOk then
-        SetLabelText(lbl42, "Tare Complete");
-        SetWidgetVisibility(Nxt7, VOn);
-      end if;
+      SetTare(1,Primary,g_rsettareweight);
+      GetTare(1,Primary, g_rTareweight);
+         g_sTareweight := RealToString(g_rTareweight,0,1);
+        SetLabelText(lbl42, g_sTareweight);
+--      sys := ZeroScale(1);
+--      if sys = SysOk then
+--        SetLabelText(lbl42, "Tare Complete");
+--        SetWidgetVisibility(Nxt7, VOn);
+--      elsif sys = SysOutOfRange then
+--        SetLabelText(lbl42, "SysOutOfRange");
+--     elsif sys = SysDeviceError then
+--        SetlabelText(lbl42, "SysDeviceError");
+--      elsif sys = SysInvalidRequest then
+--        SetlabelText(lbl42, "SysInvalidRequest");
+--      elsif sys = SysInvalidScale then
+--        SetlabelText(lbl42, "SysInvalidScale");
+--      elsif sys = SysLFTViolation then
+--        SetlabelText(lbl42, "SysLFTViolation");
+--      end if;
 
       
     elsif g_iWidget = Nxt7 then
@@ -1650,7 +1690,7 @@ procedure processingWeight;
       SetupStartTimer(25, 5,TimerContinuous);
       SelectScreen(g_ciStatus);
       SetLabelText(lbl55, g_sOrderNum);
-      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of" + IntegerToString(g_iBags,2) + " bags");
+      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
       g_iNums := g_iCounter;
       SetLabelText(lbl13, g_sItemWeight + "lbs");
       SetLabelText(lbl10, g_sItemId);
@@ -1681,8 +1721,11 @@ procedure processingWeight;
       ClearLoginUser;
       ClearWidgetsLogin;
       SetLabelText(lbl38, Blank);
+      g_sOrderNum := Blank;
       SetLabelText(lbl31, Blank);
+      g_sScannerInput := Blank;
       SetLabelText(lbl48, Blank);
+      g_iBags := 0;
       ClearStatusWidgets;
 
 
