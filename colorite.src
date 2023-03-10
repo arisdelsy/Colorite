@@ -894,157 +894,6 @@ procedure processingWeight;
   end;
 
   
-  
-  --procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
-  --begin 
-    
-    --ClosePrompt;   
-    --UnLockMajorKeys;
-
-		--elsif EntryMode = SetupThresholdWeight then
-      --if IsValid(stemp, "r", 1) then
-        --g_rThresholdWeight := StringToReal(sTemp);  
-    		--SetSPValue(1, g_rThresholdWeight);
-    		--SetSPValue(2, g_rThresholdWeight);  
-				--EntryMode := Setup1Mode;
-      --end if;   
-
-    --elsif EntryMode = SetupItemId then
-      --if IsValid(stemp, "s", 15) then
-        --ItemDB.Id  :=  sTemp;
-        --if ItemDB.FindFirst(Item_Id) = SysOk then
-          --g_bUpdate := True;
-          --PromptForEntry("Enter Item Name", SetupItemName, ItemDB.Name,0);
-        --else
-          --g_bUpdate := False;
-          --PromptForEntry("Enter Item Name", SetupItemName, Blank,0);
-        --end if;
-      --end if;
-
-    --elsif EntryMode = SetupItemName then
-      --if IsValid(stemp, "s",15) then
-        --ItemDB.Name  :=  sTemp;
-        --if g_bUpdate = True then
-          --PromptForEntry("Enter Item Low Weight", SetupItemLowWeight, RealToString(ItemDB.Low,0,g_iDecimal1),2);
-        --else
-          --PromptForEntry("Enter Item Low Weight", SetupItemLowWeight, Blank,2);
-        --end if;
-      --end if;
-
-    --elsif EntryMode = SetupItemLowWeight then
-      --if IsValid(stemp, "r", 1) then
-        --ItemDB.Low := StringToReal(sTemp);  
-        --if g_bUpdate = True then
-          --PromptForEntry("Enter Item High Weight", SetupItemHighWeight, RealToString(ItemDB.High,0,g_iDecimal1),2);
-        --else
-          --PromptForEntry("Enter Item High Weight", SetupItemHighWeight, Blank,2);
-        --end if;       
-      --end if;   
-
-    --elsif EntryMode = SetupItemHighWeight then
-      --if IsValid(stemp, "r", 1 ) then 
-        --if StringToReal(sTemp) > ItemDB.Low then
-          --ItemDB.High := StringToReal(sTemp);  
-          --if g_bUpdate = True then
-            --if ItemDB.Update = SysOk then
-              --DisplayStatus("Item Updated");
-            --else 
-              --DisplayStatus("Error: Item DB");
-            --end if;
-						-- If Item selected was updated were updating screen
-						--if ItemDB.Id = g_sItemId then 
-        			--g_sItemId := ItemDB.Id;    
-        			--g_sItemName := ItemDB.Name;
-        			--g_rLowWeight := ItemDB.Low;
-        			--g_rHighWeight := ItemDB.High;  
-              --g_rLastSavedWgt := 0;  
-        			--RefreshMainDisplay;   
-        			--SetLabelText(lbSts1, Blank);  	
-						--end if;						
-          --else
-            --if ItemDB.Add = SysOk then
-              --DisplayStatus("Item Added");
-            --else 
-              --DisplayStatus("Error: Item DB");
-            --end if;
-          --end if; 				
-          --EntryMode := Setup1Mode;      
-        --else
-          --PromptForEntry("Error High < Low", SetupItemHighWeight, Blank,2);
-        --end if; 
-      --end if;       
-
-    --elsif EntryMode = SetupDeleteItem then
-      --ItemDB.Id := sTemp;
-      --if ItemDB.FindFirst(Item_Id) = SysOk then
-        --if ItemDB.Delete = SysOk then    
-          --DisplayStatus("Item Deleted"); 
-        --else  
-          --DisplayStatus("Error: Item DB");
-        --end if;
-				
-				-- If Item selected was updated were updating screen
-				--if ItemDB.Id = g_sItemId then 
-        	--g_sItemId := Blank;    
-        	--g_sItemName := Blank;
-        	--g_rLowWeight := 0.0;
-        	--g_rHighWeight := 0.0;   
-          --g_rLastSavedWgt := 0; 
-        	--RefreshMainDisplay;   
-        	--SetLabelText(lbSts1, Blank);  	
-				--end if;	
-				
-      --else
-        --DisplayStatus("ID NOT FOUND");
-      --end if;
-      --EntryMode := Setup1Mode;
-
-    --elsif EntryMode = EnterItemID then
-
-      --if g_bWeighVault = True then
-        --if StringToInteger(sTemp) <= 9999 then
-          --SendDatatoPC("GET_ID|" + sTemp); 
-        --else
-          --PromptForEntry("WeighVault Accepts (1-9999) - Retry", EnterItemID, Blank,0);   
-        --end if;
-      --else
-        --ItemDB.Id := sTemp;
-        
-        --if ItemDB.FindFirst(Item_Id) = SysOk then
-          --g_sItemId := ItemDB.Id;    
-          --g_sItemName := ItemDB.Name;
-          --g_rLowWeight := ItemDB.Low;
-          --g_rHighWeight := ItemDB.High;   
-          --g_rLastSavedWgt := 0; 
-          --RefreshMainDisplay;   
-          --SetLabelText(lbSts1, Blank);   
-          --EntryMode := NoMode;
-        --else
-          --PromptForEntry("ID NOT Found - Retry", EnterItemID, Blank,0); 
-        --end if; 
-      --end if;
-			
-		--elsif EntryMode = SetupClearTransactions then
-			
-			--if sTemp = "Y" then
-				--if TransDB.Clear = SysOk then
-				 	--DisplayStatus("Transactions Database Cleared");
-				--else
-					--DisplayStatus("Error Clearing Transaction Database");
-				--end if;
-			--else
-				--DisplayStatus("Transaction Database NOT Cleared");
-			--end if;
-			--EntryMode := Setup1Mode;
-   
-    --end if; 
-
-    --if EntryMode >=  Setup1Mode then
-      --RefreshSetupDisplay;
-    --end if; 
-          
-  --end; 
-
 
 
 -- attempt to add 
@@ -1079,16 +928,16 @@ procedure processingWeight;
     
     for i := 1 to x
     loop
-      OrdersDB.num := i; 
-      OrdersDB.itemID := g_sItemId;
-      OrdersDB.lotNum := g_sItemLot;
-      OrdersDB.weight := g_rItemWeight;
-      OrdersDB.orderNum := g_sOrderNum;
-      OrdersDB.dt := SystemTime; 
+      --OrdersDB.num := i; 
+      --OrdersDB.itemID := g_sItemId;
+      --OrdersDB.lotNum := g_sItemLot;
+      --OrdersDB.weight := g_rItemWeight;
+      --OrdersDB.orderNum := g_sOrderNum;
+      --OrdersDB.dt := SystemTime; 
 
-      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+      g_sysResult := OrdersDB.FindFirst; --This will equal SysOk if found in DB
       if g_sysResult <> SysOk then
-        OrdersDB.Add;
+        OrdersDB.GetNext;
       end if;
     end loop;
   end;
@@ -1241,13 +1090,13 @@ procedure processingWeight;
     end if;
   end;
 
-  procedure FinalPrintFormat;
-    i: integer;
-  begin
+  --procedure FinalPrintFormat;
+    --i: integer;
+  --begin
     
-    for
+    --for
 
-  end;
+  --end;
 
 
 --REVISE TO PORT 1
@@ -1710,6 +1559,8 @@ procedure processingWeight;
     elsif g_iWidget = Ext3 then
       EntryMode := YesandNoMode;
       SelectScreen(9);
+      SetLabelText(sts9, "Are you sure you want to end batch?");
+
       --ClearStatusWidgets;
      
     
