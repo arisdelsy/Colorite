@@ -108,8 +108,6 @@ lbl56     : constant integer := 56;
 btnYes    : constant integer := 57;
 btnNo     : constant integer := 58;
 lbl59     : constant integer := 59;
-btnScan   : constant integer := 60;
-lbl53     : constant integer := 53;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
