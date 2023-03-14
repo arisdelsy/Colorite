@@ -83,10 +83,10 @@ program Colorite;
   NewScanMode       : constant integer := 1014;
   ScannedItemMode2  : constant integer := 1015;
   GetTareMode       : constant integer := 1016;
-  YesandNoMode      : Constant integer := 1017;
+  FinalExitMode      : Constant integer := 1017;
   FinalPrintMode    : constant integer := 1018;
   ScanAgainButton   : constant integer := 1019;
-
+  ReprintMode       : constant integer := 1020;
   Blank : constant string := "";      
   type boolean is (False,True); 
 
@@ -761,23 +761,6 @@ end;
   
   end;
 
-  --procedure SetupScreens;
-  --i : integer;
-  --begin
-    --SetBargraphLevel(barSet1, 100);
-    --SetBargraphLevel(barSet2, 100);
-    --SetBargraphLevel(barSet3, 100);
-    --SetBargraphLevel(barSet4, 100);
-    --SetBargraphLevel(barSet5, 100);
-    --SetBargraphLevel(barSet6, 100);
-    --SetBargraphLevel(barSet7, 100);
-    --SetBargraphLevel(barSet8, 100);
-    --SetBargraphLevel(barSet9, 100);
-    --SetBargraphLevel(barSet10, 100);
-    --SetBargraphLevel(barSet12, 100);
-    --SetBargraphLevel(barSet13, 100);
-
-  --end;
 
   procedure ToggleOutput(iOUtput : integer);
     iDigOutSts : integer;
@@ -922,8 +905,8 @@ procedure processingWeight;
 
 -- extract
   --procedure ExtractTempOrders;
-  --x : integer;
-  --i : integer;
+    --x : integer;
+    --i : integer;
   --begin
     --x := g_iBags;
     
@@ -936,12 +919,14 @@ procedure processingWeight;
       --OrdersDB.orderNum := g_sOrderNum;
       --OrdersDB.dt := SystemTime; 
 
-      --g_sysResult := OrdersDB.FindFirst; --This will equal SysOk if found in DB
+      --g_sysResult := OrdersDB.FindFirst(i); --This will equal SysOk if found in DB
       --if g_sysResult <> SysOk then
         --OrdersDB.GetNext;
       --end if;
     --end loop;
   --end;
+
+ 
   
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
@@ -1101,12 +1086,14 @@ procedure processingWeight;
       WriteLn(2, "^E18");
       WriteLn(2, "^XSET,ROTATION,0");
       WriteLn(2, "^L");
-      WriteLn(2, "AD,35,47,1,1,0,0E,OrderNumber");
-      WriteLn(2, "AD,541,52,1,1,0,0E,OperatorID");
-      WriteLn(2, "AD,550,151,1,1,0,0E,TargetWeight");
-      WriteLn(2, "AD,36,152,1,1,0,0E,ItemID");
-      WriteLn(2, "AD,35,100,1,1,0,0E,LotID");
-      WriteLn(2, "AD,296,182,1,1,0,0E,Summary");
+      WriteLn(2, "AD,35,47,1,1,0,0E," + g_sOrderNum);
+      WriteLn(2, "AD,541,52,1,1,0,0E," + g_sUserID);
+      WriteLn(2, "AD,550,151,1,1,0,0E, Target Weight:" + g_sItemWeight);
+      WriteLn(2, "AD,36,152,1,1,0,0E, Item ID: " + g_sItemId);
+      WriteLn(2, "AD,35,100,1,1,0,0E, Lot ID: " + g_sItemId);
+      WriteLn(2, "AD,296,182,1,1,0,0E, Summary");
+
+
       WriteLn(2, "AB,372,286,1,1,0,0E,DT1.");
       WriteLn(2, "AB,372,312,1,1,0,0E,DT2.");
       WriteLn(2, "AB,372,338,1,1,0,0E,DT3.");
@@ -1122,6 +1109,8 @@ procedure processingWeight;
       WriteLn(2, "AB,372,598,1,1,0,0E,DT13.");
       WriteLn(2, "AB,372,624,1,1,0,0E,DT14.");
       WriteLn(2, "AB,372,650,1,1,0,0E,DT15.");
+
+      
       WriteLn(2, "AB,96,288,1,1,0,0E,1.");
       WriteLn(2, "AB,96,314,1,1,0,0E,2.");
       WriteLn(2, "AB,96,340,1,1,0,0E,3.");
@@ -1433,62 +1422,6 @@ procedure processingWeight;
 		g_iWidget := EventWidget;
 		DisplayStatus("");
 
-    --if g_iWidget = lbSet1 or g_iWidget = lbSet11 then
-			--PromptForEntry("Enter New Password", SetupChangePasswordMode, Blank,0); 
-    --elsif g_iWidget = lbSet2 or g_iWidget = lbSet22 then
-      --PromptForEntry("Enter Threshold Weight", SetupThresholdWeight, RealToString(g_rThresholdWeight, 0, g_iDecimal1),2);  
-    --elsif g_iWidget = lbSet3 then
-		  --if g_iAutoPrint = 1 then
-        --g_iAutoPrint := 0;
-      --else        
-        --g_iAutoPrint := 1;
-      --end if;
-      --RefreshSetupDisplay;      
-    --elsif g_iWidget = lbSet4 then 
-		  --Setlabeltext(lbl116,"Clear Transaction Database?");
-      --EntryMode := SetupClearTransactions;
-      --SelectSCreen(5);
-    --elsif g_iWidget = lbSet5 then 
-      ---PromptForEntry("Enter Item Id", SetupItemId, Blank,0);
-    --elsif g_iWidget = lbSet6 then
-      --PromptForEntry("Enter Item Id", SetupDeleteItem, Blank,0);        
-    --elsif g_iWidget = lbSet7 then 
-      --KeyPress(DatabaseKey);
-    --elsif g_iWidget = lbSet8 or g_iWidget = lbSet88 then 	  
-      --if g_bWeighVault = True then
-        --g_bWeighVault := False;    
-      --else
-        --g_bWeighVault := True;    
-      --end if;
-      --g_sItemId := Blank;    
-      --g_sItemName := Blank;
-      --g_rLowWeight := 0.0;
-      --g_rHighWeight := 0.0; 
-      --g_rLastSavedWgt := 0;
-      --RefreshMainDisplay;         
-      --RefreshSetupDisplay;       
-    --elsif g_iWidget = lbSet9 or g_iWidget = lbSet99 then
-      --SendDataToPC("TEST");        
-    --elsif g_iWidget = lbUnder or g_iWidget = sym36 then
-      --ToggleOutput(g_coUnder);
-    --elsif g_iWidget = lbAccept or g_iWidget = sym70 then
-      --ToggleOutput(g_coAccept);
-    --elsif g_iWidget = lbOver or g_iWidget = sym83 then
-      --ToggleOutput(g_coOver);
-    --elsif g_iWidget = lbID1 then
-      --PromptForEntry("Enter ID to Checkweigh", EnterItemID, Blank,0); 
-    
-    --elsif g_iWidget = Setup then 
-
-      --if EntryMode = noMode then        
-        -- Bypassing password entry if zero or blank
-        --if g_sSetupPassword = "0" or g_sSetupPassword = Blank then
-          --GoIntoSetupMenu;           
-        --else       
-          --PromptForEntry("Enter Password", SetupEnterPasswordMode, Blank, 1);
-        --end if; 
-      --end if;
-
     if g_iWidget = btnSetup then
       PromptForEntry("Enter Admin Password to Create New User", AdminPasswordMode, Blank,1); 
 
@@ -1554,12 +1487,8 @@ procedure processingWeight;
       SetTare (1, Primary,g_rbagweight);
       g_sbagweight := RealToString(g_rbagweight,0,1);
       SetLabelText(lbl42, "Bag Weight: " + g_sbagweight + "lbs");
-      --SetWidgetVisibility(lbltare, Von);
-      --SetTare(1,Primary,g_rsettareweight);
-      --GetTare(1,Primary, g_rTareweight);
-      --g_sTareweight := RealToString(g_rTareweight,0,1);
-      --SetLabelText(lbl42, g_sTareweight);
-      --sys := ZeroScale(1);
+   
+
       if sys = SysOk then
         SetLabelText(lbl42, "Tare Complete: " + g_sTareweight);
         SetWidgetVisibility(Nxt7, VOn);
@@ -1603,30 +1532,60 @@ procedure processingWeight;
       SelectScreen(g_ciScanBar);    
 
     elsif g_iWidget = Ext3 then
-      EntryMode := YesandNoMode;
-      SelectScreen(9);
+      EntryMode := FinalExitMode;
+      SelectScreen(g_ciYesNo);
       SetLabelText(sts9, "Are you sure you want to end batch?");
 
       --ClearStatusWidgets;
      
     
     elsif g_iWidget = btnYes then
-      EntryMode := LoginMode;
-      SelectScreen(g_ciMainLogin);
-      ClearLoginUser;
-      ClearWidgetsLogin;
-      SetLabelText(lbl38, Blank);
-      g_sOrderNum := Blank;
-      SetLabelText(lbl31, Blank);
-      g_sScannerInput := Blank;
-      SetLabelText(lbl48, Blank);
-      g_iBags := 0;
-      ClearStatusWidgets;
-
+      if EntryMode = FinalExitMode then
+        EntryMode := LoginMode;
+        SelectScreen(g_ciMainLogin);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank);
+        g_iBags := 0;
+        ClearStatusWidgets;
+      
+      elsif EntryMode = ReprintMode then
+        GodexPrintFormat;
+        EntryMode := LoginMode;
+        SelectScreen(g_ciMainLogin);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank);
+        g_iBags := 0;
+        ClearStatusWidgets;
+      end if;
 
     elsif g_iWidget = btnNo then
-      EntryMode := StatusMode;
-      SelectScreen(g_ciStatus);
+      if EntryMode = FinalExitMode then
+        EntryMode := StatusMode;
+        SelectScreen(g_ciStatus);
+      
+      elsif EntryMode = ReprintMode then
+        EntryMode := LoginMode;
+        SelectScreen(g_ciMainLogin);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank);
+        g_iBags := 0;
+        ClearStatusWidgets;
+      end if;
 
     elsif g_iWidget = Ext7 then
       EntryMode := GetBagsMode;
@@ -1639,30 +1598,24 @@ procedure processingWeight;
     elsif g_iWidget = btnScan then
       EntryMode := NewScanMode;
 
-    elsif g_iWidget = btnPrint then 
-      --EntryMode := FinalPrintMode;
+    elsif g_iWidget = btnPrint then
+      EntryMode := ReprintMode;
       GodexPrintFormat;
       DisplayStatus("PRINTED");
+      SetLabelText(sts9, "Do you want to reprint the label?");
+      SetLabelText(btnYes, "Yes");
+      SetLabelText(btnNo, "No");
+      Selectscreen(g_ciYesNo);
+      --change the mode
+      -- select the screen
+      -- set labels accordingly asking for a reprint
+      -- yes and no buttons have to be programmed accordingly
+      -- yes -> we call godexprintformat again
+      -- no -> we delete db (aris is working on this function rn)
+      -- make sure alllllllll variables and widgets are clear and go back to main
 
     
-    --elsif g_iWidget = lbl31 then
-      --Port1CharReceived;
-    --elsif g_iWidget = lbYes then
-      --EntryMode := SetupClearTransactions;
-      --SelectScreen(g_cisetup);
-      --ProcessDataEntry("Y");  
 
-    --elsif g_iWidget = lbNo then
-      --EntryMode := SetupClearTransactions;
-      --SelectScreen(g_ciSetup);
-      --ProcessDataEntry("N");  
-    --elsif g_iWidget = Exit8 then
-      --TurnOffAllOutputs;
-      --SelectScreen(g_ciMainLogin);
-      --EntryMode := NoMode;
-      --SetLabelText(lbPC, Blank); 
-			--DisplayStatus(Blank);
-			--EnableSP(1);
     end if;
 
     EnableHandler(WidgetClicked);
