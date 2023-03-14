@@ -1094,7 +1094,10 @@ procedure processingWeight;
   procedure GodexPrintFormat;
     i: integer;
   begin
-    
+      -- ideas to fix: print as one whole string, check port by a simple print
+      -- maybe its a setting, 
+      
+      
       WriteLn(2, "^E18");
       WriteLn(2, "^XSET,ROTATION,0");
       WriteLn(2, "^L");
@@ -1134,8 +1137,8 @@ procedure processingWeight;
       WriteLn(2, "AB,96,600,1,1,0,0E,13.");
       WriteLn(2, "AB,96,626,1,1,0,0E,14.");
       WriteLn(2, "AB,96,652,1,1,0,0E,15.");
-      WriteLn(2,"E");
-
+      WriteLn(2, "E");
+      
   end;
 
 

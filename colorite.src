@@ -921,14 +921,14 @@ procedure processingWeight;
   end;
 
 -- extract
-  --procedure ExtractTempOrders;
-  --x : integer;
-  --i : integer;
-  --begin
-    --x := g_iBags;
+  procedure ExtractTempOrders;
+    x : integer;
+    i : integer;
+  begin
+    x := g_iBags;
     
-    --for i := 1 to x
-    --loop
+    for i := 1 to x
+    loop
       --OrdersDB.num := i; 
       --OrdersDB.itemID := g_sItemId;
       --OrdersDB.lotNum := g_sItemLot;
@@ -936,12 +936,12 @@ procedure processingWeight;
       --OrdersDB.orderNum := g_sOrderNum;
       --OrdersDB.dt := SystemTime; 
 
-      --g_sysResult := OrdersDB.FindFirst; --This will equal SysOk if found in DB
-      --if g_sysResult <> SysOk then
-        --OrdersDB.GetNext;
-      --end if;
-    --end loop;
-  --end;
+      g_sysResult := OrdersDB.FindFirst(); --This will equal SysOk if found in DB
+      if g_sysResult <> SysOk then
+        OrdersDB.GetNext;
+      end if;
+    end loop;
+  end;
   
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
@@ -1096,15 +1096,19 @@ procedure processingWeight;
   begin
       -- ideas to fix: print as one whole string, check port by a simple print
       -- maybe its a setting, 
+      
+      
       WriteLn(2, "^E18");
       WriteLn(2, "^XSET,ROTATION,0");
       WriteLn(2, "^L");
-      WriteLn(2, "AD,35,47,1,1,0,0E,OrderNumber");
-      WriteLn(2, "AD,541,52,1,1,0,0E,OperatorID");
-      WriteLn(2, "AD,550,151,1,1,0,0E,TargetWeight");
-      WriteLn(2, "AD,36,152,1,1,0,0E,ItemID");
-      WriteLn(2, "AD,35,100,1,1,0,0E,LotID");
-      WriteLn(2, "AD,296,182,1,1,0,0E,Summary");
+      WriteLn(2, "AD,35,47,1,1,0,0E," + g_sOrderNum);
+      WriteLn(2, "AD,541,52,1,1,0,0E," + g_sUserID);
+      WriteLn(2, "AD,550,151,1,1,0,0E, Target Weight:" + g_sItemWeight);
+      WriteLn(2, "AD,36,152,1,1,0,0E, Item ID: " + g_sItemId);
+      WriteLn(2, "AD,35,100,1,1,0,0E, Lot ID: " + g_sItemId);
+      WriteLn(2, "AD,296,182,1,1,0,0E, Summary");
+
+      for 
       WriteLn(2, "AB,372,286,1,1,0,0E,DT1.");
       WriteLn(2, "AB,372,312,1,1,0,0E,DT2.");
       WriteLn(2, "AB,372,338,1,1,0,0E,DT3.");
@@ -1120,6 +1124,8 @@ procedure processingWeight;
       WriteLn(2, "AB,372,598,1,1,0,0E,DT13.");
       WriteLn(2, "AB,372,624,1,1,0,0E,DT14.");
       WriteLn(2, "AB,372,650,1,1,0,0E,DT15.");
+
+      
       WriteLn(2, "AB,96,288,1,1,0,0E,1.");
       WriteLn(2, "AB,96,314,1,1,0,0E,2.");
       WriteLn(2, "AB,96,340,1,1,0,0E,3.");
@@ -1135,8 +1141,8 @@ procedure processingWeight;
       WriteLn(2, "AB,96,600,1,1,0,0E,13.");
       WriteLn(2, "AB,96,626,1,1,0,0E,14.");
       WriteLn(2, "AB,96,652,1,1,0,0E,15.");
-      WriteLn(2,"E");
-
+      WriteLn(2, "E");
+      
   end;
 
 
