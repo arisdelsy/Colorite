@@ -930,10 +930,18 @@ procedure processingWeight;
  
   --procedure ExtractTempOrders;
     --x : integer;
+    --i : integer;
+    --x_weight : real;
+    --y_time : datetime;
   --begin
+    --x := g_iBags;
     
-    --if x := 
-      --g_sysResult := Orders
+    --for i := 1 to x
+    --loop
+      --if i := 1 then
+        --g_sysResult := OrdersDB.GetFirst;
+        --if g_sysResult = SysOk then
+
   --end;
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
@@ -1577,8 +1585,8 @@ procedure processingWeight;
         g_iBags := 0;
         ClearStatusWidgets;
 
-      else 
-        DisplayStatus("not working");
+      --else 
+        --DisplayStatus("not working");
       end if;
 
     elsif g_iWidget = btnNo then
@@ -1599,8 +1607,8 @@ procedure processingWeight;
         g_iBags := 0;
         ClearStatusWidgets;
       
-      else 
-        DisplayStatus("not working");
+      --else 
+        --DisplayStatus("not working");
       end if;
 
     elsif g_iWidget = Ext7 then
@@ -1616,6 +1624,7 @@ procedure processingWeight;
 
     -- this is for after print
     elsif g_iWidget = btnPrint then
+      StopTimer(25);
       EntryMode := ReprintMode;
       GodexPrintFormat;
       DisplayStatus("PRINTED");
