@@ -1565,7 +1565,7 @@ procedure processingWeight;
         ClearWidgetsLogin;
         SetLabelText(lbl38, Blank);
         g_sOrderNum := Blank;
-        SetLabelText(lbl31, Blank);
+        SetLabelText(lbl31, Blank);   
         g_sScannerInput := Blank;
         SetLabelText(lbl48, Blank);
         g_iBags := 0;
