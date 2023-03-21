@@ -1,7 +1,11 @@
 
 ------------------------------------------------------------------------------
 -- Program Name: Colorite
--- This 1280 custom made program '
+-- This 1280 custom made program is a take on the original Checkweight program.
+-- This program includes multiple screens to allow for a better user experience.
+-- In addition it allows for users to scan in a product.
+-- New features can be added (adding a database of products given by a company
+-- to allow for identification of scanned items).
 ------------------------------------------------------------------------------
 
 program Colorite; 
@@ -83,10 +87,11 @@ program Colorite;
   NewScanMode       : constant integer := 1014;
   ScannedItemMode2  : constant integer := 1015;
   GetTareMode       : constant integer := 1016;
-  FinalExitMode      : Constant integer := 1017;
+  FinalExitMode     : Constant integer := 1017;
   FinalPrintMode    : constant integer := 1018;
   ScanAgainButton   : constant integer := 1019;
   ReprintMode       : constant integer := 1020;
+  LogOutMode        : constant integer := 1021;
   TestEntryMode : string;
   Blank : constant string := "";      
   type boolean is (False,True); 
@@ -345,8 +350,14 @@ begin
     if g_sysResult = SysOk then
       g_bLogin := True;
       if g_bLogin = True then
+
+
+      ------------------------
+      -- start timer 3
+      ------------------------
         SelectScreen(g_ciOrderNum);
         EntryMode := OrderMode;
+      ------------------------
         --SetWidgetVisibility(lbl8, Voff);
         --SetWidgetVisibility(lbl31, Voff);
         
@@ -360,49 +371,7 @@ begin
   
 end;
 
---keep/revise
-  --function IsDigits(sNumeric : string) : boolean;  -- Makes ure user entry is numeric       
-    --i : integer;
-    --sTemp : string;
-    --bResult : boolean := True;
-    --bDecimal : boolean := False;
-  --begin
-  
-    --if sNumeric = "." or StringToInteger(sNumeric) >= g_ciInt32_Max then   
-      --bResult := False;
-      --return bResult;
-    --end if;  
 
-    --for i := 1 to Len(sNumeric)
-    --loop                              
-    
-      --sTemp := Mid$(sNumeric, i, 1); 
-      
-      -- ignore first decimal point
-      --if sTemp = "." then  
-        --if bDecimal = True then   
-          --bResult := False;
-          --exit;   
-        --end if;     
-        --bDecimal := True;  
-      --end if; 
-      
-      -- ignore negative if first character
-      --if i <> 1 and sTemp = "-" then
-        --bResult := False;
-        --exit;
-      --end if;
-      
-      --if (sTemp < "0" or sTemp > "9") and sTemp <> "." and sTemp <> "-" then        
-        --bResult := False;
-        --exit;
-      --end if; 
-      
-    --end loop;
-        
-    --return bResult; 
-    
-  --end;   
 
 
 --keep/revise
@@ -420,32 +389,7 @@ end;
         sMessage := "Required Entry - Try Again";  
       end if;      
         
-    --elsif sValidFor = "I" then
-      
-      --if isDigits(sTemp) = False then
-        --bResult := False;  
-        --sMessage := "Invalid Number - Try Again";        
-      --elsif (Len(sTemp) = 0 or StringToInteger(sTemp) < 1) and iLength = 0 then   -- iLength to 1 will allow zero for an entry
-        --bResult := False;  
-        --sMessage := "Invalid Number (0) - Try Again";
-      --end if;      
-    
-    --elsif sValidFor = "R" then
-    
-      --if isDigits(sTemp) = False or StringToReal(sTemp) < 0 then     
-        --bResult := False;    
-        --sMessage := "Invalid Number - Try Again";
-      --elsif (Len(sTemp) = 0 or StringToReal(sTemp) = 0) and iLength = 0 then  -- iLength to 1 will allow zero for an entry
-        --bResult := False;    
-        --sMessage := "Invalid Number (0) - Try Again";              
-      --end if;  
-
-    --elsif sValidFor = "P" then
-    
-      --if isDigits(sTemp) = False or StringToReal(sTemp) < 0 or StringToReal(sTemp) > 100 then 
-        --bResult := False; 
-        --sMessage := "Invalid Number (0-100) - Try Again";
-      --end if; 
+ 
                 
     else
       
@@ -887,10 +831,7 @@ procedure processingWeight;
 -- attempt to add 
   procedure ProcessTempOrders;
   begin
-    --x := g_iBags;
     
-    --for i = 1 to x
-    --loop
     OrdersDB.num := g_iNums; 
     OrdersDB.itemID := g_sItemId;
     OrdersDB.lotNum := g_sItemLot;
@@ -907,30 +848,8 @@ procedure processingWeight;
 
   end;
 
--- extract
-  --procedure ExtractTempOrders;
-    --x : integer;
-    --i : integer;
-  --begin
-    --x := g_iBags;
-    
-    --for i := 1 to x
-    --loop
-      --OrdersDB.num := i; 
-      --OrdersDB.itemID := g_sItemId;
-      --OrdersDB.lotNum := g_sItemLot;
-      --OrdersDB.weight := g_rItemWeight;
-      --OrdersDB.orderNum := g_sOrderNum;
-      --OrdersDB.dt := SystemTime; 
-
-      --g_sysResult := OrdersDB.FindFirst(i); --This will equal SysOk if found in DB
-      --if g_sysResult <> SysOk then
-        --OrdersDB.GetNext;
-      --end if;
-    --end loop;
-  --end;
-
- 
+  -- function grabs each entry in the Orders DB 
+  -- this function isnt called
   procedure ExtractTempOrders;
     x : integer;
     i : integer;
@@ -961,43 +880,40 @@ procedure processingWeight;
   end;
 
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
-    begin 
-    
-      ClosePrompt;  
+  begin 
+  
+    ClosePrompt;  
 
-      if g_Entrymode = UserIdMode then 
-        EntryMode := LoginMode;
-        g_sUserId := Blank;
-        SetLabelText(lbl18, Blank);
-        SelectScreen(g_ciMainLogin);
-      elsif g_EntryMode = PasswordMode then
-        EntryMode := LoginMode;
-        g_sPassword := Blank;
-        SetLabelText(lbl19, Blank);
-        SelectScreen(g_ciMainLogin);
-      elsif g_EntryMode = SetOrderNumMode then
-        EntryMode := OrderMode;
-        g_sOrderNum := Blank;
-        SetLabelText(lbl38, Blank);
-        SelectScreen(g_ciOrderNum);
-      elsif g_EntryMode = NewUserMode then
-        EntryMode := SetupMenuMode;
-        g_sTUser := Blank;
-        SetLabelText(lbl18, Blank);
-        SelectScreen(g_ciMainLogin);
-      elsif g_EntryMode = NewPasswordMode then
-        EntryMode := SetupMenuMode;
-        g_sTPass := Blank;
-        SetLabelText(lbl19, Blank);
-        SelectScreen(g_ciMainLogin);
-      else    
-        EntryMode := NoMode;  
-      end if;
+    if g_Entrymode = UserIdMode then 
+      EntryMode := LoginMode;
+      g_sUserId := Blank;
+      SetLabelText(lbl18, Blank);
+      SelectScreen(g_ciMainLogin);
+    elsif g_EntryMode = PasswordMode then
+      EntryMode := LoginMode;
+      g_sPassword := Blank;
+      SetLabelText(lbl19, Blank);
+      SelectScreen(g_ciMainLogin);
+    elsif g_EntryMode = SetOrderNumMode then
+      EntryMode := OrderMode;
+      g_sOrderNum := Blank;
+      SetLabelText(lbl38, Blank);
+      SelectScreen(g_ciOrderNum);
+    elsif g_EntryMode = NewUserMode then
+      EntryMode := SetupMenuMode;
+      g_sTUser := Blank;
+      SetLabelText(lbl18, Blank);
+      SelectScreen(g_ciMainLogin);
+    elsif g_EntryMode = NewPasswordMode then
+      EntryMode := SetupMenuMode;
+      g_sTPass := Blank;
+      SetLabelText(lbl19, Blank);
+      SelectScreen(g_ciMainLogin);
+    else    
+      EntryMode := NoMode;  
+    end if;
 
-
-      
-
-    end; 
+  end; 
  
 
   procedure ProcessDataEntry(sTemp : string); --Processes different data entries based on the entry mode the program is in
@@ -1078,32 +994,7 @@ procedure processingWeight;
       processingWeight;
 
 
-      --WriteLn(2, g_sTempScanned);
-      -- we take the value from the barcode, anything before the decimal place is displayed 
-      -- as pounds and after the decimal place it gets calculated as ounces
-      -- we are displaying the target weight, pounds and ounces
-      -- when we are counting the final total we are printing in pounds
-
-
-
-
-
-
-    --elsif g_EntryMode = EnterPurchaseOrderMode then 
-      --if sTemp = Blank then 
-        --PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
-      --end if;
-      --t_purchase := sTemp;
-      --EntryMode := ProductSelectMode;
-      --if FileExists("/sdimages/next.png", SDCard) = SysOk then
-        --SetImageWidgetPath(btnNxt, "/next.png");
-      --else
-        --SetImageWidgetPath(btnNxt, "local://10.png");
-      --end if;
-      --SetWidgetVisibility(btnNxt, Voff);
-      --ResetProduct;
-      --FillProductArray;
-      --SelectScreen(g_ciProduct);      
+     
     end if;
   end;
 
@@ -1111,16 +1002,8 @@ procedure processingWeight;
     i: integer := 1;
     textlen1 : integer := 286;
     textlen2 : integer := 288;
-    --a_x : datetime;
-    --b_x : datetime;
-    --c_x : datetime;
-    --a_y : real;
-    --b_y : real;
-    --c_y : real;
+
   begin
-      -- ideas to fix: print as one whole string, check port by a simple print
-      -- maybe its a setting, 
-      
       
     WriteLn(2, "^E18");
     WriteLn(2, "^XSET,ROTATION,0");
@@ -1131,16 +1014,6 @@ procedure processingWeight;
     WriteLn(2, "AD,36,152,1,1,0,0E, Item ID: " + g_sItemId);
     WriteLn(2, "AD,35,100,1,1,0,0E, Lot ID: " + g_sItemLot);
     WriteLn(2, "AD,296,182,1,1,0,0E, Summary");
-
-      --if i = 1 then
-        --g_sysResult := OrdersDB.GetFirst;
-
-        --if g_sysResult = SysOk then
-          --g_rWeightExt := OrdersDB.weight;
-          --g_dDatetimeExt := OrdersDB.dt;
-        --end if; 
-      --end if;
-
     
     
     for i := 1 to g_iBags
@@ -1171,18 +1044,13 @@ procedure processingWeight;
 
       end if;
 
-
-
     end loop;
 
     --WriteLn(2, "AB,372,286,1,1,0,0E, "+ Date$(g_dDatetimeExt) + Time$(g_dDatetimeExt));
 
     --WriteLn(2, "AB,372,312,1,1,0,0E,DT2.");
-
     --WriteLn(2, "AB,372,338,1,1,0,0E,DT3.");
-
     --WriteLn(2, "AB,372,364,1,1,0,0E,DT4.");
-
     --WriteLn(2, "AB,372,390,1,1,0,0E,DT5.");
     --WriteLn(2, "AB,372,416,1,1,0,0E,DT6.");
     --WriteLn(2, "AB,372,442,1,1,0,0E,DT7.");
@@ -1195,7 +1063,6 @@ procedure processingWeight;
     --WriteLn(2, "AB,372,624,1,1,0,0E,DT14.");
     --WriteLn(2, "AB,372,650,1,1,0,0E,DT15.");
 
-    
     --WriteLn(2, "AB,96,288,1,1,0,0E,1) "+ RealToString(g_rWeightExt, 4,2) + "lbs.");
     --WriteLn(2, "AB,96,314,1,1,0,0E,2)");
     --WriteLn(2, "AB,96,340,1,1,0,0E,3)");
@@ -1239,11 +1106,6 @@ procedure processingWeight;
     elsif EntryMode = NewScanMode then
 
       if EventChar = Chr$(13) and g_iCounter < g_iBags then 
-        --EntryMode := ScannedItemMode2;
-        --g_EntryMode := ScannedItemMode2;
-        --SetLabelText(lbl31,g_sScannerInput);
-        --ProcessDataEntry(g_sScannerInput);
-        --g_sScannerInput := Blank;
         ProcessTempOrders;
         DisplayStatus("Entry Added");
         g_iCounter := g_iCounter + 1;
@@ -1269,7 +1131,6 @@ procedure processingWeight;
   end;   
 
 
-  
 
   procedure Ready;  -- Initialization procedure
   begin
@@ -1373,7 +1234,7 @@ procedure processingWeight;
         g_rLastSavedWgt := rNetWgt;
         SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
         EntryMode := StatusMode;
-    
+
 
       elsif rNetWgt > highAccepted then 
         SetLabelText(lbAOU, "OVER");
@@ -1386,13 +1247,15 @@ procedure processingWeight;
         
       else
         if iMotion = 0 then
-          EntryMode := NewScanMode;
+          --EntryMode := NewScanMode;
           SetLabelText(lbAOU, "ACCEPTED");
           SetWidgetColor(lbAOU, "Green");
           SetWidgetColor(2, "Green");
-          SetLabelText(lbSts1, "Remove Weight and Scan Again");
           g_rLastSavedWgt := rNetWgt;
           SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+          ProgramDelay(100);
+          SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
+          SetWidgetVisibility(btnScan, Von);
         --StopTimer(25);
         end if; 
           
@@ -1404,60 +1267,7 @@ procedure processingWeight;
  
   end;       
 
-  --handler SP1Trip; -- Item Above Threshold
-    --sUnits : string;
-  --begin 
-
-    --DisableSP(1); 
-    --GetUnits(CurrentScale, g_uUnits);
-    --GetUnitsString(CurrentScale, g_uUnits, sUnits);
-    --SetWidgetVisibility(setup, Voff);
-    --g_bPrintPressed := False;
-    --if g_bWeighVault = True then
-      --if UCase$(sUnits) = UCase$(g_sUnits) then  
-        --EntryMode := ProductOnScale;
-        --SetupStartTimer(25, 5, TimerContinuous); 
-      --else
-        --SetLabelText(lbSts1, "Unit Configuration Mis-Match");
-      --end if;
-    --else
-      --EntryMode := ProductOnScale;
-      --SetupStartTimer(25, 5, TimerContinuous); 
-    --end if;
-    --EnableSP(2);
-    
-  --end;  
-
-  --handler SP2Trip; -- Item Dropped below Threshold
-  --begin
-
-    --DisableSP(2);
-    --EntryMode := NoMode;
-    --StopTimer(25);  
-    --SetLabelText(lbSts1, Blank);
-		--TurnOffAllOutputs;
-    --TurnOffWidgets;
-    --SetWidgetVisibility(setup, Von);
-
-    --if g_bPrintPressed = False then
-      --if g_rLastSavedWgt <> 0 then
-        --if g_rLastSavedWgt < g_rLowWeight then                       
-          --TransDB.Status := "U";
-        --elsif g_rLastSavedWgt > g_rHighWeight then
-          --TransDB.Status := "O";		     
-        --else
-          --TransDB.Status := "A";	       		
-        --end if; 
-        --StoreorSendTransaction(g_rLastSavedWgt);
-        --if g_iAutoPrint = 1 then
-          --PrintTicket;
-        --end if; 
-      --end if;
-    --end if;
-
-    --EnableSP(1);
  
-  --end;   
 ----------
   handler PrintKeyPressed;
   begin
@@ -1467,6 +1277,13 @@ procedure processingWeight;
     end if;
 
   end;
+
+  handler Timer3Trip;
+  begin
+    SelectScreen(g_ciOrderNum);
+    EntryMode := OrderMode;
+  end;
+
 
   handler Timer29Trip;  -- Removes display status text  
   begin 
@@ -1644,6 +1461,13 @@ procedure processingWeight;
       
       elsif EntryMode = ReprintMode then
         GodexPrintFormat;
+        EntryMode := LogOutMode;
+        SetLabelText(sts9, "Do you want to log out?");
+        SetLabelText(btnYes, "Yes");
+        SetLabelText(btnNo, "No");
+        SelectScreen(g_ciYesNo);
+      
+      elsif EntryMode = LogOutMode then
         EntryMode := LoginMode;
         SelectScreen(g_ciMainLogin);
         ClearLoginUser;
@@ -1667,8 +1491,11 @@ procedure processingWeight;
         SelectScreen(g_ciStatus);
       
       elsif EntryMode = ReprintMode then
-        EntryMode := LoginMode;
-        SelectScreen(g_ciMainLogin);
+        EntryMode := LogOutMode;
+        SetLabelText(sts9, "Do you want to log out?");
+        SetLabelText(btnYes, "Yes");
+        SetLabelText(btnNo, "No");
+        SelectScreen(g_ciYesNo);
         ClearLoginUser;
         ClearWidgetsLogin;
         SetLabelText(lbl38, Blank);
@@ -1679,7 +1506,20 @@ procedure processingWeight;
         g_iBags := 0;
         g_iCounter :=0;
         ClearStatusWidgets;
-      
+
+      elsif EntryMode = LogOutMode then
+        EntryMode := OrderMode;
+        SelectScreen(g_ciOrderNum);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank);
+        g_iBags := 0;
+        g_iCounter :=0;
+        ClearStatusWidgets;
       --else 
         --DisplayStatus("not working");
       end if;
@@ -1705,13 +1545,7 @@ procedure processingWeight;
       SetLabelText(btnYes, "Yes");
       SetLabelText(btnNo, "No");
       Selectscreen(g_ciYesNo);
-      --change the mode
-      -- select the screen
-      -- set labels accordingly asking for a reprint
-      -- yes and no buttons have to be programmed accordingly
-      -- yes -> we call godexprintformat again
-      -- no -> we delete db (aris is working on this function rn)
-      -- make sure alllllllll variables and widgets are clear and go back to main
+      
 
     
 
