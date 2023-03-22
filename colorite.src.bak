@@ -898,6 +898,9 @@ procedure processingWeight;
       EntryMode := OrderMode;
       g_sOrderNum := Blank;
       SetLabelText(lbl38, Blank);
+      --
+      -- set timer 3 here instead of select screen
+      --
       SelectScreen(g_ciOrderNum);
     elsif g_EntryMode = NewUserMode then
       EntryMode := SetupMenuMode;
@@ -1008,9 +1011,9 @@ procedure processingWeight;
     WriteLn(2, "^E18");
     WriteLn(2, "^XSET,ROTATION,0");
     WriteLn(2, "^L");
-    WriteLn(2, "AD,35,47,1,1,0,0E," + g_sOrderNum);
+    WriteLn(2, "AD,35,47,1,1,0,0E,Order #:" + g_sOrderNum);
     WriteLn(2, "AD,541,52,1,1,0,0E," + g_sUserID);
-    WriteLn(2, "AD,550,151,1,1,0,0E, Target Weight:" + g_sItemWeight);
+    WriteLn(2, "AD,550,151,1,1,0,0E, Trg Weight:" + g_sItemWeight);
     WriteLn(2, "AD,36,152,1,1,0,0E, Item ID: " + g_sItemId);
     WriteLn(2, "AD,35,100,1,1,0,0E, Lot ID: " + g_sItemLot);
     WriteLn(2, "AD,296,182,1,1,0,0E, Summary");
@@ -1247,23 +1250,24 @@ procedure processingWeight;
         
       else
         if iMotion = 0 then
-          --EntryMode := NewScanMode;
+          EntryMode := NewScanMode;
           SetLabelText(lbAOU, "ACCEPTED");
           SetWidgetColor(lbAOU, "Green");
           SetWidgetColor(2, "Green");
           g_rLastSavedWgt := rNetWgt;
           SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
           ProgramDelay(100);
-          SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
-          SetWidgetVisibility(btnScan, Von);
+          SetLabelText(lbSts1, "Remove Weight and Scan");
+          ProgramDelay(100);
+          --SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
+          --SetWidgetVisibility(btnScan, Von);
         --StopTimer(25);
         end if; 
           
       end if;
       
     end if;
-      
-
+    
  
   end;       
 
@@ -1360,6 +1364,9 @@ procedure processingWeight;
       EntryMode := OrderMode;
       SetLabelText(38, Blank);
       g_sOrderNum := Blank;
+      ---
+      -- start timer 3 here instead of selecting screen 
+      ---
       SelectScreen(g_ciOrderNum);
 
     elsif g_iWidget = lbl38 then
@@ -1410,7 +1417,7 @@ procedure processingWeight;
     elsif g_iWidget = Nxt7 then
       EntryMode := StatusMode;
       SetWidgetVisibility(btnPrint, Voff);
-      SetWidgetVisibility(btnScan, Voff);
+      --SetWidgetVisibility(btnScan, Voff);
       SetupStartTimer(25, 5,TimerContinuous);
       SelectScreen(g_ciStatus);
       SetLabelText(lbl55, g_sOrderNum);
@@ -1436,17 +1443,19 @@ procedure processingWeight;
     -- for exiting
     elsif g_iWidget = Ext3 then
       EntryMode := FinalExitMode;
+      TestEntryMode := IntegerToString(EntryMode,0);
+      DisplayStatus(TestEntryMode);
       SelectScreen(g_ciYesNo);
-      SetLabelText(sts9, "Are you sure you want to end batch?");
+      --SetLabelText(sts9, "Are you sure you want to end batch?");
+      SetLabelText(sts9, TestEntryMode);
 
       --ClearStatusWidgets;
      
     
     elsif g_iWidget = btnYes then
-      --TestEntryMode := IntegerToString(EntryMode,0);
-      --DisplayStatus(TestEntryMode);
+      TestEntryMode := IntegerToString(EntryMode,0);
+      DisplayStatus(TestEntryMode);
       if EntryMode = FinalExitMode then
-        EntryMode := LoginMode;
         SelectScreen(g_ciMainLogin);
         ClearLoginUser;
         ClearWidgetsLogin;
@@ -1458,7 +1467,8 @@ procedure processingWeight;
         g_iBags := 0;
         g_iCounter :=0;
         ClearStatusWidgets;
-      
+        EntryMode := LoginMode;
+        
       elsif EntryMode = ReprintMode then
         GodexPrintFormat;
         EntryMode := LogOutMode;
@@ -1487,6 +1497,9 @@ procedure processingWeight;
       end if;
 
     elsif g_iWidget = btnNo then
+      
+      TestEntryMode := IntegerToString(EntryMode,0);
+      DisplayStatus(TestEntryMode);
       if EntryMode = FinalExitMode then
         EntryMode := StatusMode;
         SelectScreen(g_ciStatus);
@@ -1505,7 +1518,7 @@ procedure processingWeight;
         g_sScannerInput := Blank;
         SetLabelText(lbl48, Blank);
         g_iBags := 0;
-        g_iCounter :=0;
+        g_iCounter := 0;
         ClearStatusWidgets;
 
       elsif EntryMode = LogOutMode then
