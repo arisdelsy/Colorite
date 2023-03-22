@@ -1468,6 +1468,7 @@ procedure processingWeight;
         SelectScreen(g_ciYesNo);
       
       elsif EntryMode = LogOutMode then
+        OrdersDB.Clear;
         EntryMode := LoginMode;
         SelectScreen(g_ciMainLogin);
         ClearLoginUser;
@@ -1508,6 +1509,7 @@ procedure processingWeight;
         ClearStatusWidgets;
 
       elsif EntryMode = LogOutMode then
+        OrdersDB.Delete;
         EntryMode := OrderMode;
         SelectScreen(g_ciOrderNum);
         ClearLoginUser;

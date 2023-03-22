@@ -1247,15 +1247,17 @@ procedure processingWeight;
         
       else
         if iMotion = 0 then
-          --EntryMode := NewScanMode;
+          EntryMode := NewScanMode;
           SetLabelText(lbAOU, "ACCEPTED");
           SetWidgetColor(lbAOU, "Green");
           SetWidgetColor(2, "Green");
           g_rLastSavedWgt := rNetWgt;
           SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
           ProgramDelay(100);
-          SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
-          SetWidgetVisibility(btnScan, Von);
+          SetLabelText(lbSts1, "Remove Weight and Scan");
+          ProgramDelay(100);
+          --SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
+          --SetWidgetVisibility(btnScan, Von);
         --StopTimer(25);
         end if; 
           
@@ -1410,7 +1412,7 @@ procedure processingWeight;
     elsif g_iWidget = Nxt7 then
       EntryMode := StatusMode;
       SetWidgetVisibility(btnPrint, Voff);
-      SetWidgetVisibility(btnScan, Voff);
+      --SetWidgetVisibility(btnScan, Voff);
       SetupStartTimer(25, 5,TimerContinuous);
       SelectScreen(g_ciStatus);
       SetLabelText(lbl55, g_sOrderNum);
@@ -1468,6 +1470,7 @@ procedure processingWeight;
         SelectScreen(g_ciYesNo);
       
       elsif EntryMode = LogOutMode then
+        OrdersDB.Clear;
         EntryMode := LoginMode;
         SelectScreen(g_ciMainLogin);
         ClearLoginUser;
@@ -1508,6 +1511,7 @@ procedure processingWeight;
         ClearStatusWidgets;
 
       elsif EntryMode = LogOutMode then
+        OrdersDB.Delete;
         EntryMode := OrderMode;
         SelectScreen(g_ciOrderNum);
         ClearLoginUser;
