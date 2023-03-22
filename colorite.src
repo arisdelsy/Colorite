@@ -1250,7 +1250,7 @@ procedure processingWeight;
         
       else
         if iMotion = 0 then
-          EntryMode := NewScanMode;
+          --EntryMode := NewScanMode;
           SetLabelText(lbAOU, "ACCEPTED");
           SetWidgetColor(lbAOU, "Green");
           SetWidgetColor(2, "Green");
@@ -1259,8 +1259,8 @@ procedure processingWeight;
           ProgramDelay(100);
           SetLabelText(lbSts1, "Remove Weight and Scan");
           ProgramDelay(100);
-          --SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
-          --SetWidgetVisibility(btnScan, Von);
+          SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
+          SetWidgetVisibility(btnScan, Von);
         --StopTimer(25);
         end if; 
           
@@ -1443,19 +1443,18 @@ procedure processingWeight;
     -- for exiting
     elsif g_iWidget = Ext3 then
       EntryMode := FinalExitMode;
-      TestEntryMode := IntegerToString(EntryMode,0);
-      DisplayStatus(TestEntryMode);
       SelectScreen(g_ciYesNo);
-      --SetLabelText(sts9, "Are you sure you want to end batch?");
-      SetLabelText(sts9, TestEntryMode);
-
+      SetLabelText(sts9, "Are you sure you want to end batch?");
+      
       --ClearStatusWidgets;
      
     
     elsif g_iWidget = btnYes then
-      TestEntryMode := IntegerToString(EntryMode,0);
-      DisplayStatus(TestEntryMode);
-      if EntryMode = FinalExitMode then
+      --TestEntryMode := IntegerToString(EntryMode,0);
+      --SetLabelText(sts9, TestEntryMode);
+      --DisplayStatus(TestEntryMode);
+      if EntryMode <> ReprintMode and EntryMode <> LogOutMode then
+        EntryMode := LoginMode;
         SelectScreen(g_ciMainLogin);
         ClearLoginUser;
         ClearWidgetsLogin;
@@ -1467,7 +1466,6 @@ procedure processingWeight;
         g_iBags := 0;
         g_iCounter :=0;
         ClearStatusWidgets;
-        EntryMode := LoginMode;
         
       elsif EntryMode = ReprintMode then
         GodexPrintFormat;
@@ -1489,7 +1487,7 @@ procedure processingWeight;
         g_sScannerInput := Blank;
         SetLabelText(lbl48, Blank); --Gets rid of number of bags
         g_iBags := 0;
-        g_iCounter :=0;
+        g_iCounter := 0;
         ClearStatusWidgets;
 
       --else 
@@ -1497,10 +1495,7 @@ procedure processingWeight;
       end if;
 
     elsif g_iWidget = btnNo then
-      
-      TestEntryMode := IntegerToString(EntryMode,0);
-      DisplayStatus(TestEntryMode);
-      if EntryMode = FinalExitMode then
+      if EntryMode <> ReprintMode and EntryMode <> LogOutMode then
         EntryMode := StatusMode;
         SelectScreen(g_ciStatus);
       
@@ -1522,7 +1517,7 @@ procedure processingWeight;
         ClearStatusWidgets;
 
       elsif EntryMode = LogOutMode then
-        OrdersDB.Delete;
+        OrdersDB.Clear;
         EntryMode := OrderMode;
         SelectScreen(g_ciOrderNum);
         ClearLoginUser;
