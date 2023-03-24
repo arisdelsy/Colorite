@@ -129,6 +129,7 @@ program Colorite;
   locked : boolean := True;
   g_rWeightExt : real;
   g_dDatetimeExt : datetime;
+  g_rZeroTareWeight : real := 0;
 
 ---- Previous global variables from Checkweight Program
   g_sSetupPassword : stored string;
@@ -1454,8 +1455,10 @@ procedure processingWeight;
       --SetLabelText(sts9, TestEntryMode);
       --DisplayStatus(TestEntryMode);
       if EntryMode <> ReprintMode and EntryMode <> LogOutMode then
+        ClearTare(1);
         EntryMode := LoginMode;
         SelectScreen(g_ciMainLogin);
+        --SetTare(1,Primary,g_rZeroTareWeight);
         ClearLoginUser;
         ClearWidgetsLogin;
         SetLabelText(lbl38, Blank);
@@ -1476,9 +1479,11 @@ procedure processingWeight;
         SelectScreen(g_ciYesNo);
       
       elsif EntryMode = LogOutMode then
+        ClearTare(1);
         OrdersDB.Clear;
         EntryMode := LoginMode;
         SelectScreen(g_ciMainLogin);
+        --SetTare(1,Primary,g_rZeroTareWeight);
         ClearLoginUser;
         ClearWidgetsLogin;
         SetLabelText(lbl38, Blank);
@@ -1517,9 +1522,11 @@ procedure processingWeight;
         ClearStatusWidgets;
 
       elsif EntryMode = LogOutMode then
+        ClearTare(1);
         OrdersDB.Clear;
         EntryMode := OrderMode;
         SelectScreen(g_ciOrderNum);
+        --SetTare(1,Primary,g_rZeroTareWeight);
         ClearLoginUser;
         ClearWidgetsLogin;
         SetLabelText(lbl38, Blank);
