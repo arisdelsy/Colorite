@@ -119,7 +119,7 @@ program Colorite;
   g_rOunces : stored real;
   g_iBags   : integer;
   g_iNums   : integer;
-  g_iCounter : integer := 1;
+  g_iCounter : integer;
   g_dDateTime : DateTime;
   g_rTareweight : real;
   g_sTareweight : string;
@@ -876,6 +876,7 @@ procedure processingWeight;
           g_dDatetimeExt := OrdersDB.dt;
         end if;
 
+
       end if;
     end loop;
   end;
@@ -1109,16 +1110,21 @@ procedure processingWeight;
 
     elsif EntryMode = NewScanMode then
 
-      if EventChar = Chr$(13) and g_iCounter < g_iBags then 
+      SetWidgetVisibility(btnPrint, Voff);
+      
+      if EventChar = Chr$(13) and g_iCounter < g_iBags then
+        g_iNums := g_iNums + 1; 
         ProcessTempOrders;
         DisplayStatus("Entry Added");
         g_iCounter := g_iCounter + 1;
-        g_iNums := g_iNums + 1;
+        --g_iNums := g_iNums + 1;
         SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
+        EntryMode := StatusMode;
         SetupStartTimer(25,5, TimerContinuous);
+        
         -- RESTART THE TIMER               
                           
-      elsif EventChar = Chr$(13) and g_iCounter = g_iBags then 
+      elsif EventChar = Chr$(13) or g_iCounter = g_iBags then 
         ProcessTempOrders;
         DisplayStatus("Entry Added");
         EntryMode := FinalPrintMode;
@@ -1251,17 +1257,17 @@ procedure processingWeight;
         
       else
         if iMotion = 0 then
-          EntryMode := NewScanMode;
+          --EntryMode := NewScanMode;
           SetLabelText(lbAOU, "ACCEPTED");
           SetWidgetColor(lbAOU, "Green");
           SetWidgetColor(2, "Green");
           g_rLastSavedWgt := rNetWgt;
           SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
-          ProgramDelay(100);
-          SetLabelText(lbSts1, "Remove Weight and Scan");
           ProgramDelay(300);
-          --SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
-          --SetWidgetVisibility(btnScan, Von);
+          --SetLabelText(lbSts1, "Remove Weight and Scan");
+          --ProgramDelay(100);
+          StopTimer(25);
+          SetWidgetVisibility(btnScan, Von);
         --StopTimer(25);
         end if; 
           
@@ -1418,7 +1424,7 @@ procedure processingWeight;
     elsif g_iWidget = Nxt7 then
       EntryMode := StatusMode;
       SetWidgetVisibility(btnPrint, Voff);
-      --SetWidgetVisibility(btnScan, Voff);
+      SetWidgetVisibility(btnScan, Voff);
       SetupStartTimer(25, 5,TimerContinuous);
       SelectScreen(g_ciStatus);
       SetLabelText(lbl55, g_sOrderNum);
@@ -1495,8 +1501,6 @@ procedure processingWeight;
         g_iCounter := 0;
         ClearStatusWidgets;
 
-      --else 
-        --DisplayStatus("not working");
       end if;
 
     elsif g_iWidget = btnNo then
@@ -1563,6 +1567,8 @@ procedure processingWeight;
       SetLabelText(btnNo, "No");
       Selectscreen(g_ciYesNo);
       
+    elsif g_iWidget = btnScan then
+      EntryMode := NewScanMode;
 
     
 
