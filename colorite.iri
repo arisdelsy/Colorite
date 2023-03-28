@@ -102,7 +102,6 @@ Ext8      : constant integer := 49;
 Nxt8      : constant integer := 50;
 lbl51     : constant integer := 51;
 lbl52     : constant integer := 52;
-btnScan   : constant integer := 53;
 lbl54     : constant integer := 54;
 lbl55     : constant integer := 55;
 lbl56     : constant integer := 56;

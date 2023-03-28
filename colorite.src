@@ -1251,7 +1251,7 @@ procedure processingWeight;
         
       else
         if iMotion = 0 then
-          --EntryMode := NewScanMode;
+          EntryMode := NewScanMode;
           SetLabelText(lbAOU, "ACCEPTED");
           SetWidgetColor(lbAOU, "Green");
           SetWidgetColor(2, "Green");
@@ -1259,9 +1259,9 @@ procedure processingWeight;
           SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
           ProgramDelay(100);
           SetLabelText(lbSts1, "Remove Weight and Scan");
-          ProgramDelay(100);
-          SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
-          SetWidgetVisibility(btnScan, Von);
+          ProgramDelay(300);
+          --SetLabelText(lbSts1, "Remove Weight and Press Scan Button");
+          --SetWidgetVisibility(btnScan, Von);
         --StopTimer(25);
         end if; 
           
@@ -1549,8 +1549,8 @@ procedure processingWeight;
     elsif g_iWidget = lbl48 then
       PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 2);
 
-    elsif g_iWidget = btnScan then
-      EntryMode := NewScanMode;
+    --elsif g_iWidget = btnScan then
+      --EntryMode := NewScanMode;
 
     -- this is for after print
     elsif g_iWidget = btnPrint then
