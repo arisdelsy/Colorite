@@ -876,6 +876,7 @@ procedure processingWeight;
           g_dDatetimeExt := OrdersDB.dt;
         end if;
 
+
       end if;
     end loop;
   end;
@@ -1004,20 +1005,20 @@ procedure processingWeight;
 
   procedure GodexPrintFormat;
     i: integer := 1;
-    textlen1 : integer := 286;
-    textlen2 : integer := 288;
+    textlen1 : integer := 298;
+    textlen2 : integer := 299;
 
   begin
       
     WriteLn(2, "^E18");
     WriteLn(2, "^XSET,ROTATION,0");
     WriteLn(2, "^L");
-    WriteLn(2, "AD,35,47,1,1,0,0E,Order #:" + g_sOrderNum);
-    WriteLn(2, "AD,541,52,1,1,0,0E," + g_sUserID);
-    WriteLn(2, "AD,550,151,1,1,0,0E, Trg Weight:" + g_sItemWeight);
-    WriteLn(2, "AD,36,152,1,1,0,0E, Item ID: " + g_sItemId);
-    WriteLn(2, "AD,35,100,1,1,0,0E, Lot ID: " + g_sItemLot);
-    WriteLn(2, "AD,296,182,1,1,0,0E, Summary");
+    WriteLn(2, "AD,22,47,1,1,0,0,Order #:" + g_sOrderNum);
+    WriteLn(2, "AD,438,47,1,1,0,0," + g_sUserID);
+    WriteLn(2, "AD,23,241,1,1,0,0, Trg Weight:" + g_sItemWeight);
+    WriteLn(2, "AD,26,98,1,1,0,0, Item ID: " + g_sItemId);
+    WriteLn(2, "AD,438,110,1,1,0,0, Lot ID: " + g_sItemLot);
+    WriteLn(2, "AD,278,182,1,1,0,0, Summary");
     
     
     for i := 1 to g_iBags
@@ -1028,8 +1029,8 @@ procedure processingWeight;
         if g_sysResult = SysOk then
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
-          WriteLn(2, "AB,372,286,1,1,0,0E, "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
-          WriteLn(2, "AB,96,288,1,1,0,0E, "+ IntegerToString(i, 2) +") " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "AC,316,298,1,1,0,0E, "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "AC,87,299,1,1,0,0E, "+ IntegerToString(i, 2) +") " + RealToString(g_rWeightExt, 4,2) + "lbs.");
         end if; 
       elsif i <= g_iBags then
         g_sysResult := OrdersDB.GetNext;
@@ -1038,11 +1039,11 @@ procedure processingWeight;
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
 
-          textlen1 := textlen1 + 26;
-          textlen2 := textlen2 + 26;
+          textlen1 := textlen1 + 32;
+          textlen2 := textlen2 + 32;
 
-          WriteLn(2, "AB,372," + IntegerToString(textlen1, 3) +  ",1,1,0,0E," + Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
-          WriteLn(2, "AB,96,"+ IntegerToString(textlen2, 3) + ",1,1,0,0E," + IntegerToString(i, 2) +") " +  RealToString(g_rWeightExt, 4,2)+ "lbs.");
+          WriteLn(2, "AC,316," + IntegerToString(textlen1, 3) +  ",1,1,0,0E," + Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "AC,87,"+ IntegerToString(textlen2, 3) + ",1,1,0,0E," + IntegerToString(i, 2) +") " +  RealToString(g_rWeightExt, 4,2)+ "lbs.");
 
         end if;
 
@@ -1089,6 +1090,7 @@ procedure processingWeight;
 
 --REVISE TO PORT 1
   handler Port1CharReceived;  -- Scanner
+  x : string;
   begin 
     
     if EntryMode = ScanMode then
@@ -1109,35 +1111,35 @@ procedure processingWeight;
 
     elsif EntryMode = NewScanMode then
 
+      --SetWidgetVisibility(btnScan, Voff);
+      --SetLabelText(lbSts1, "Make sure scale is clear of all items and scan");
+  
+
       if EventChar = Chr$(13) and g_iCounter < g_iBags then
         g_iNums := g_iNums + 1; 
         ProcessTempOrders;
         DisplayStatus("Entry Added");
-        ProgramDelay(300);
         g_iCounter := g_iCounter + 1;
         --g_iNums := g_iNums + 1;
         SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
-        EntryMode := StatusMode;
-        SetupStartTimer(25,5, TimerContinuous);
-        
-        -- RESTART THE TIMER               
+        SetupStartTimer(25,5, TimerContinuous);              
                           
-      elsif EventChar = Chr$(13) or g_iCounter = g_iBags then 
-        ProcessTempOrders;
-        DisplayStatus("Entry Added");
+      elsif g_iCounter = g_iBags then 
+        
+        --ProcessTempOrders;
+        --DisplayStatus("Entry Added");
         EntryMode := FinalPrintMode;
         SetWidgetVisibility(btnPrint, Von);
       else  
          
-        g_sScannerInput := g_sScannerInput + EventChar;
-        
-
+        --g_sScannerInput := g_sScannerInput + EventChar;
+        x := IntegerToString(g_iCounter, 1);
+        DisplayStatus(x);
         --DisplayStatus(g_sScannerInput);
       end if;       
     end if;
          
   end;   
-
 
 
   procedure Ready;  -- Initialization procedure
@@ -1254,18 +1256,16 @@ procedure processingWeight;
 
         
       else
+        SetLabelText(lbAOU, "ACCEPTED");
+        SetWidgetColor(lbAOU, "Green");
+        SetWidgetColor(2, "Green");
+        g_rLastSavedWgt := rNetWgt;
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
         if iMotion = 0 then
-          --EntryMode := NewScanMode;
-          SetLabelText(lbAOU, "ACCEPTED");
-          SetWidgetColor(lbAOU, "Green");
-          SetWidgetColor(2, "Green");
-          g_rLastSavedWgt := rNetWgt;
-          SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
-          ProgramDelay(300);
-          --SetLabelText(lbSts1, "Remove Weight and Scan");
-          --ProgramDelay(100);
+          --ProgramDelay(300);
           StopTimer(25);
           SetWidgetVisibility(btnScan, Von);
+    
         --StopTimer(25);
         end if; 
           
@@ -1551,10 +1551,6 @@ procedure processingWeight;
     elsif g_iWidget = lbl48 then
       PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 2);
 
-    --elsif g_iWidget = btnScan then
-      --EntryMode := NewScanMode;
-
-    -- this is for after print
     elsif g_iWidget = btnPrint then
       StopTimer(25);
       EntryMode := ReprintMode;
@@ -1566,9 +1562,9 @@ procedure processingWeight;
       Selectscreen(g_ciYesNo);
       
     elsif g_iWidget = btnScan then
+      SetWidgetVisibility(btnScan, Voff);
+      SetLabelText(lbSts1, "Make sure scale is clear of all items and scan");
       EntryMode := NewScanMode;
-
-    
 
     end if;
 
