@@ -1003,74 +1003,96 @@ procedure processingWeight;
     end if;
   end;
 
-  --procedure DataMaxPrintFormat;
-  --begin
+  procedure DataMaxPrintFormat;
+    i: integer := 1;
+    textlenWD : integer := 340;
+    --textlenD : integer := 340;
+  begin
+    
     --O0110
     --f182
     --V4
     --L
-    --A1
-    --D11
-    --SI
-    --PI
-    --H20
 
-    --191100405450011 Date and Time: XXXXX                        
-    --191100405200011 Operator ID: XXXXXXXXXXXXXXX
-    --191100404800011 Order Number: XXXXXXXXXXXXXXX
-    --191100404600011 Lot #: XXXXXXXXXXXXXXX
+    WriteLn(2, Chr$(2)+ "O0110");
+    WriteLn(2, Chr$(2)+ "f182");
+    WriteLn(2, Chr$(2)+ "V4");
+    WriteLn(2, Chr$(2)+ "L");
 
-    --191100404400011 Product ID: XXXXXXXXXXXXXXX
+    WriteLn(2, "A1");
+    WriteLn(2, "D11");
+    WriteLn(2, "SI");
+    WriteLn(2, "PI");
+    WriteLn(2, "H20");
 
-    --191100403800011 Target Weight: XXXXXXXXXXX
+    --WriteLn(2, "191100405450011 Date and Time: XXXXX"                        
+    WriteLn(2, "191100405200011 Operator ID: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100404800011 Order Number: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100404600011 Lot #: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100404400011 Product ID: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100403800011 Target Weight: XXXXXXXXXXX");
+    WriteLn(2, "191100505750011                    SUMMARY TICKET");
+    WriteLn(2, "1X1100003660005L399002");
 
-    --191100505750011                    SUMMARY TICKET
+    for i := 1 to g_iBags
 
+    loop
 
+      if i = 1 then 
+        g_sysResult := OrdersDB.GetFirst;
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
 
+          WriteLn(2, "191100303400011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "191100303400211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+        end if;
 
-
-
-
-    --1X1100003660005L399002
-
-    --191100303400011 Weight1: XXXXXX
-
-    --191100303200011 Weight2: XXXXXX
-
-    --191100303000011 Weight3: XXXXXX
-
-
-
-    --191100303400211 Date1: XXXXXX
-
-    --191100303200211 Date2: XXXXXX
-
-    --191100303000211 Date3: XXXXXX
-
+      elsif i <= g_iBags then
+        g_sysResult := OrdersDB.GetNext;
 
 
-    --1X1100006010005L399002
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
 
+          textlenWD := textlenWD - 20;
+          --textlen2 := textlen2 + 32;
 
-
-    --1X1100005710005L399002
-
-
-
-    --1X11000 0100 0005L399002
+          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
 
 
 
-
-
-    --Q0001
-
-    --E
+        end if;
 
 
 
-  --end;
+
+      end if;
+    end loop;
+    --WriteLn(19110030 340 0011 Weight1: XXXXXX);
+
+    --WriteLn(19110030 320 0011 Weight2: XXXXXX);
+
+    --WriteLn(19110030 300 0011 Weight3: XXXXXX);
+
+   
+
+    --WriteLn(19110030 320 0211 Date2: XXXXXX);
+
+    --WriteLn(19110030 300 0211 Date3: XXXXXX);
+
+
+    WriteLn(2, "1X1100006010005L399002");
+    WriteLn(2, "1X1100005710005L399002");
+    --WriteLn(2, "1X1100001000005L399002");
+    WriteLn(2, "Q0001");
+    WriteLn(2, "E");
+
+
+
+  end;
 
 
 
@@ -1089,21 +1111,13 @@ procedure processingWeight;
       
 
     WriteLn(2, "^E18");
-
     WriteLn(2, "^XSET,ROTATION,0");
-
     WriteLn(2, "^L");
-
     WriteLn(2, "AD,22,47,1,1,0,0,Order #:" + g_sOrderNum);
-
     WriteLn(2, "AD,438,47,1,1,0,0," + g_sUserID);
-
     WriteLn(2, "AD,23,241,1,1,0,0, Trg Weight:" + g_sItemWeight);
-
     WriteLn(2, "AD,26,98,1,1,0,0, Item ID: " + g_sItemId);
-
     WriteLn(2, "AD,438,110,1,1,0,0, Lot ID: " + g_sItemLot);
-
     WriteLn(2, "AD,278,182,1,1,0,0, Summary");
 
     
@@ -1115,56 +1129,34 @@ procedure processingWeight;
     loop
 
       if i = 1 then
-
         g_sysResult := OrdersDB.GetFirst;
-
-
-
         if g_sysResult = SysOk then
-
           g_rWeightExt := OrdersDB.weight;
-
           g_dDatetimeExt := OrdersDB.dt;
-
           WriteLn(2, "AC,316,298,1,1,0,0E, "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
-
           WriteLn(2, "AC,87,299,1,1,0,0E, "+ IntegerToString(i, 2) +") " + RealToString(g_rWeightExt, 4,2) + "lbs.");
 
         end if; 
 
       elsif i <= g_iBags then
-
         g_sysResult := OrdersDB.GetNext;
 
 
-
         if g_sysResult = SysOk then
-
           g_rWeightExt := OrdersDB.weight;
-
           g_dDatetimeExt := OrdersDB.dt;
 
-
-
           textlen1 := textlen1 + 32;
-
           textlen2 := textlen2 + 32;
 
-
-
           WriteLn(2, "AC,316," + IntegerToString(textlen1, 3) +  ",1,1,0,0E," + Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
-
           WriteLn(2, "AC,87,"+ IntegerToString(textlen2, 3) + ",1,1,0,0E," + IntegerToString(i, 2) +") " +  RealToString(g_rWeightExt, 4,2)+ "lbs.");
 
 
 
         end if;
 
-
-
       end if;
-
-
 
     end loop;
 
@@ -1288,56 +1280,29 @@ procedure processingWeight;
 
     elsif EntryMode = NewScanMode then
 
-
-
       --SetWidgetVisibility(btnScan, Voff);
-
-      --SetLabelText(lbSts1, "Make sure scale is clear of all items and scan");
-
+      --SetLabelText(lbSts1, "Make sure scale is clear of all items and scan")
+      g_iCounter := 1;
       x := IntegerToString(g_iCounter, 1);
-
       DisplayStatus("Counter: " + x);
 
-
-
       if EventChar = Chr$(13) and g_iCounter < g_iBags then
-
         g_iNums := g_iNums + 1; 
-
         ProcessTempOrders;
-
         --DisplayStatus("Entry Added");
-
         g_iCounter := g_iCounter + 1;
-
         --g_iNums := g_iNums + 1;
-
         SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
-
         SetupStartTimer(25,5, TimerContinuous);              
-
-                          
 
       end if;
 
-
-
       if g_iCounter = g_iBags then 
-
-        
-
         --ProcessTempOrders;
-
         --DisplayStatus("Entry Added");
-
         SetWidgetVisibility(btnScan, Voff);
-
         EntryMode := FinalPrintMode;
-
         SetWidgetVisibility(btnPrint, Von);
-
-
-
       end if;
 
       --else  
@@ -1672,36 +1637,21 @@ procedure processingWeight;
 
   begin 
 
- 
-
     DisplayStatus(Blank);     
-
-    
-
   end;    
 
 
 
   handler UserEntry;  -- Processing a data entry method
-
     sTemp : string;  
-
   begin   
-
-  
 
     sTemp := GetEntry; 
 
-    
-
     if EventKey = EnterKey then     --Enter key pressed
-
       ProcessDataEntry(sTemp); 
-
     else                            --Cancel key pressed    
-
       ProcessPromptCancel;    
-
     end if;
 
 
@@ -1711,15 +1661,11 @@ procedure processingWeight;
 
 
 	handler UnitsKeyReleased;  -- Just incase secondary units is on (let't refresh decimal and screen)
-
 	begin
 
     if GetUnits(CurrentScale, g_uUnits) = SysOk then
-
       if GetCountBy(CurrentScale, g_uUnits, g_rCountby) = SysOk then
-
         g_iDecimal1 := CalcDecimal(g_rCountby); 
-
       end if;
 
     end if;   	
@@ -1731,97 +1677,54 @@ procedure processingWeight;
 
 
  handler WidgetClicked;
-
   sys : SysCode;
-
   begin
 
-
-
   	DisableHandler(WidgetClicked);
-
 		g_iWidget := EventWidget;
-
 		DisplayStatus("");
 
 
-
     if g_iWidget = btnSetup then
-
       PromptForEntry("Enter Admin Password to Create New User", AdminPasswordMode, Blank,1); 
 
-
-
     elsif g_iWidget = lbl18 then
-
       PromptForEntry("Enter User ID", UserIdMode, Blank, 0);
 
-
-
     elsif g_iWidget = lbl19 then
-
       PromptForEntry("Enter Password", PasswordMode, Blank, 1);
 
-
-
     elsif g_iWidget = btnLogin then
-
       ProcessingLoginEntry;
 
-
-
     elsif g_iWidget = lbl24 then
-
       PromptForEntry("Enter New User ID", NewUserMode, Blank, 0);
 
-
-
     elsif g_iWidget = lbl25 then
-
       PromptForEntry("Enter New Password", NewPasswordMode, Blank, 0);
 
-    
-
     elsif g_iWidget = AddUser then
-
       AddNewUser;
 
-
-
     elsif g_iWidget = Ext5 then
-
       g_sOrderNum := Blank;
-
       SetLabelText(lbl38, Blank);
-
       EntryMode := NoMode;
-
       SelectScreen(g_ciMainLogin);
 
 
-
     elsif g_iWidget = Nxt2 then
-
      -- test : string;
-
       EntryMode := GetBagsMode;
-
       SelectScreen(g_ciBags);
 
-      
-
     elsif g_iWidget = Ext2 then
-
       EntryMode := OrderMode;
-
       SetLabelText(38, Blank);
-
       g_sOrderNum := Blank;
 
       ---
-
       -- start timer 3 here instead of selecting screen 
-
       ---
 
       SelectScreen(g_ciOrderNum);
@@ -1829,29 +1732,21 @@ procedure processingWeight;
 
 
     elsif g_iWidget = lbl38 then
-
       PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
 
     
 
     elsif g_iWidget = Nxt6 then
-
       EntryMode := ScanMode;
-
       SelectScreen(g_ciScanBar);
 
 
 
     elsif g_iWidget = Nxt8 then
-
       EntryMode := GetTareMode;
-
       SelectScreen(g_ciTare);
-
       SetWidgetVisibility(Nxt7, Voff);
-
       --SetWidgetVisibility(lbltare, Voff);
-
       SetLabelText(lbl42, "Place Bag on Scale and Tare");
 
 
@@ -1873,99 +1768,55 @@ procedure processingWeight;
 
 
     elsif g_iWidget = lbltare then
-
       GetGross(1, Primary, g_rbagweight);
-
       SetTare (1, Primary,g_rbagweight);
-
       g_sbagweight := RealToString(g_rbagweight,0,1);
-
       SetLabelText(lbl42, "Bag Weight: " + g_sbagweight + "lbs");
 
-   
-
-
-
       if sys = SysOk then
-
         SetLabelText(lbl42, "Tare Complete: " + g_sTareweight);
-
         SetWidgetVisibility(Nxt7, VOn);
 
 --      elsif sys = SysOutOfRange then
-
 --        SetLabelText(lbl42, "SysOutOfRange");
-
 --     elsif sys = SysDeviceError then
-
 --        SetlabelText(lbl42, "SysDeviceError");
-
 --      elsif sys = SysInvalidRequest then
-
 --        SetlabelText(lbl42, "SysInvalidRequest");
-
 --      elsif sys = SysInvalidScale then
-
 --        SetlabelText(lbl42, "SysInvalidScale");
-
 --      elsif sys = SysLFTViolation then
-
 --        SetlabelText(lbl42, "SysLFTViolation");
-
       end if;
-
-
-
       
 
     elsif g_iWidget = Nxt7 then
-
       EntryMode := StatusMode;
-
       SetWidgetVisibility(btnPrint, Voff);
-
       SetWidgetVisibility(btnScan, Voff);
-
       SetupStartTimer(25, 5,TimerContinuous);
-
       SelectScreen(g_ciStatus);
-
       SetLabelText(lbl55, g_sOrderNum);
-
       SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
-
       g_iNums := g_iCounter;
-
       SetLabelText(lbl13, g_sItemWeight + "lbs");
-
       SetLabelText(lbl10, g_sItemId);
-
       SetLabelText(lbl52, g_sItemLot);
-
       SetLabelText(lbl6, g_sPounds + " lbs" + " " + g_sOunces + " oz");
 
 
 
     elsif g_iWidget = Ext6 then
-
       EntryMode := NoMode;
-
       ClearWidgetsLogin;
-
       ClearLoginUser;
-
       SelectScreen(g_ciMainLogin);
 
 
-
     elsif g_iWidget = Ext8 then
-
       EntryMode := ScanMode;
-
       SetLabelText(lbl31, Blank);
-
       g_sScannerInput := Blank;
-
       SelectScreen(g_ciScanBar);    
 
     
@@ -1973,189 +1824,103 @@ procedure processingWeight;
     -- for exiting
 
     elsif g_iWidget = Ext3 then
-
       EntryMode := FinalExitMode;
-
       SelectScreen(g_ciYesNo);
-
       SetLabelText(sts9, "Are you sure you want to end batch?");
-
-      
 
       --ClearStatusWidgets;
 
-     
-
-    
-
     elsif g_iWidget = btnYes then
-
       --TestEntryMode := IntegerToString(EntryMode,0);
-
       --SetLabelText(sts9, TestEntryMode);
-
       --DisplayStatus(TestEntryMode);
 
       if EntryMode <> ReprintMode and EntryMode <> LogOutMode then
-
         ClearTare(1);
-
         EntryMode := LoginMode;
-
         SelectScreen(g_ciMainLogin);
-
         --SetTare(1,Primary,g_rZeroTareWeight);
-
         ClearLoginUser;
-
         ClearWidgetsLogin;
-
         SetLabelText(lbl38, Blank);
-
         g_sOrderNum := Blank;
-
         SetLabelText(lbl31, Blank);
-
         g_sScannerInput := Blank;
-
         SetLabelText(lbl48, Blank);
-
         g_iBags := 0;
-
         g_iCounter :=0;
-
         ClearStatusWidgets;
-
-        
 
       elsif EntryMode = ReprintMode then
-
-        GodexPrintFormat;
-
+        --GodexPrintFormat;
+        DataMaxPrintFormat;
         EntryMode := LogOutMode;
-
         SetLabelText(sts9, "Do you want to log out?");
-
         SetLabelText(btnYes, "Yes");
-
         SetLabelText(btnNo, "No");
-
         SelectScreen(g_ciYesNo);
-
       
-
       elsif EntryMode = LogOutMode then
-
         ClearTare(1);
-
         OrdersDB.Clear;
-
         EntryMode := LoginMode;
-
         SelectScreen(g_ciMainLogin);
-
         --SetTare(1,Primary,g_rZeroTareWeight);
-
         ClearLoginUser;
-
         ClearWidgetsLogin;
-
         SetLabelText(lbl38, Blank);
-
         g_sOrderNum := Blank;
-
         SetLabelText(lbl31, Blank);
-
         g_sScannerInput := Blank;
-
         SetLabelText(lbl48, Blank); --Gets rid of number of bags
-
         g_iBags := 0;
-
         g_iCounter := 0;
-
         ClearStatusWidgets;
-
-
 
       end if;
 
 
 
     elsif g_iWidget = btnNo then
-
       if EntryMode <> ReprintMode and EntryMode <> LogOutMode then
-
         EntryMode := StatusMode;
-
         SelectScreen(g_ciStatus);
-
       
 
       elsif EntryMode = ReprintMode then
-
         EntryMode := LogOutMode;
-
         SetLabelText(sts9, "Do you want to log out?");
-
         SetLabelText(btnYes, "Yes");
-
         SetLabelText(btnNo, "No");
-
         SelectScreen(g_ciYesNo);
-
         ClearLoginUser;
-
         ClearWidgetsLogin;
-
         SetLabelText(lbl38, Blank);
-
         g_sOrderNum := Blank;
-
         SetLabelText(lbl31, Blank);
-
         g_sScannerInput := Blank;
-
         SetLabelText(lbl48, Blank);
-
         g_iBags := 0;
-
         g_iCounter := 0;
-
         ClearStatusWidgets;
 
 
 
       elsif EntryMode = LogOutMode then
-
         ClearTare(1);
-
         OrdersDB.Clear;
-
         EntryMode := OrderMode;
-
         SelectScreen(g_ciOrderNum);
-
         --SetTare(1,Primary,g_rZeroTareWeight);
-
         ClearLoginUser;
-
         ClearWidgetsLogin;
-
         SetLabelText(lbl38, Blank);
-
         g_sOrderNum := Blank;
-
         SetLabelText(lbl31, Blank);
-
         g_sScannerInput := Blank;
-
         SetLabelText(lbl48, Blank);
-
         g_iBags := 0;
-
         g_iCounter :=0;
-
         ClearStatusWidgets;
 
       --else 
@@ -2167,99 +1932,46 @@ procedure processingWeight;
 
 
     elsif g_iWidget = Ext7 then
-
       EntryMode := GetBagsMode;
-
       SetLabelText(lbl48, Blank);
-
       Selectscreen(g_ciBags);
 
-    
 
     elsif g_iWidget = lbl48 then
-
       PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 2);
 
 
-
     elsif g_iWidget = btnPrint then
-
       StopTimer(25);
-
       EntryMode := ReprintMode;
-
-      GodexPrintFormat;
-
+      --GodexPrintFormat;
+      DataMaxPrintFormat;
       DisplayStatus("PRINTED");
-
       SetLabelText(sts9, "Do you want to reprint the label?");
-
       SetLabelText(btnYes, "Yes");
-
       SetLabelText(btnNo, "No");
-
       Selectscreen(g_ciYesNo);
 
-      
 
     elsif g_iWidget = btnScan then
-
       SetWidgetVisibility(btnScan, Voff);
-
       SetLabelText(lbSts1, "Make sure scale is clear of all items and scan");
-
       EntryMode := NewScanMode;
-
-
 
     end if;
 
-
-
     EnableHandler(WidgetClicked);
-
-    
-
-  
 
   end;
 
 
-
-
-
 begin
-
-  
-
   --DisableSetPoints; 
 
   DisplayVersion; 
 
   setmenubarcolor("Black");
-
-
-
-  if g_iDownload = 0 then
-
-    g_iDownload := 1;
-
-    g_sSetupPassword := Blank; 
-
-    g_rThresholdWeight := 10;
-
-    g_iAutoPrint := 1;
-
-    g_bWeighVault := False;
-
-  end if;    
-
   g_sScannerInput := Blank;
-
   Ready;
-
-
-
-
 
 end Colorite; 

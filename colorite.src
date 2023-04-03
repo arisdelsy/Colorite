@@ -1003,70 +1003,92 @@ procedure processingWeight;
     end if;
   end;
 
-  --procedure DataMaxPrintFormat;
-  --begin
+  procedure DataMaxPrintFormat;
+    i: integer := 1;
+    textlenWD : integer := 340;
+    --textlenD : integer := 340;
+  begin
+    
     --O0110
     --f182
     --V4
     --L
-    --A1
-    --D11
-    --SI
-    --PI
-    --H20
 
-    --191100405450011 Date and Time: XXXXX                        
-    --191100405200011 Operator ID: XXXXXXXXXXXXXXX
-    --191100404800011 Order Number: XXXXXXXXXXXXXXX
-    --191100404600011 Lot #: XXXXXXXXXXXXXXX
+    WriteLn(2, Chr$(2)+ "O0110");
+    WriteLn(2, Chr$(2)+ "f182");
+    WriteLn(2, Chr$(2)+ "V4");
+    WriteLn(2, Chr$(2)+ "L");
 
-    --191100404400011 Product ID: XXXXXXXXXXXXXXX
+    WriteLn(2, "A1");
+    WriteLn(2, "D11");
+    WriteLn(2, "SI");
+    WriteLn(2, "PI");
+    WriteLn(2, "H20");
 
-    --191100403800011 Target Weight: XXXXXXXXXXX
+    --WriteLn(2, "191100405450011 Date and Time: XXXXX"                        
+    WriteLn(2, "191100405200011 Operator ID: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100404800011 Order Number: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100404600011 Lot #: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100404400011 Product ID: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100403800011 Target Weight: XXXXXXXXXXX");
+    WriteLn(2, "191100505750011                    SUMMARY TICKET");
+    WriteLn(2, "1X1100003660005L399002");
 
-    --191100505750011                    SUMMARY TICKET
+    for i := 1 to g_iBags
 
+    loop
 
+      if i = 1 then 
+        g_sysResult := OrdersDB.GetFirst;
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
 
+          WriteLn(2, "191100303400011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "191100303400211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+        end if;
 
-
-
-
-    --1X1100003660005L399002
-
-    --191100303400011 Weight1: XXXXXX
-
-    --191100303200011 Weight2: XXXXXX
-
-    --191100303000011 Weight3: XXXXXX
-
-
-
-    --191100303400211 Date1: XXXXXX
-
-    --191100303200211 Date2: XXXXXX
-
-    --191100303000211 Date3: XXXXXX
-
+      elsif i <= g_iBags then
+        g_sysResult := OrdersDB.GetNext;
 
 
-    -1X1100006010005L399002
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
 
+          textlenWD := textlenWD - 20;
+          --textlen2 := textlen2 + 32;
 
-
-    1X1100005710005L399002
-
-
-
-    1X11000 0100 0005L399002
+          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
 
 
 
+        end if;
 
 
-    Q0001
 
-    E
+
+      end if;
+    end loop;
+    --WriteLn(19110030 340 0011 Weight1: XXXXXX);
+
+    --WriteLn(19110030 320 0011 Weight2: XXXXXX);
+
+    --WriteLn(19110030 300 0011 Weight3: XXXXXX);
+
+   
+
+    --WriteLn(19110030 320 0211 Date2: XXXXXX);
+
+    --WriteLn(19110030 300 0211 Date3: XXXXXX);
+
+
+    WriteLn(2, "1X1100006010005L399002");
+    WriteLn(2, "1X1100005710005L399002");
+    --WriteLn(2, "1X1100001000005L399002");
+    WriteLn(2, "Q0001");
+    WriteLn(2, "E");
 
 
 
@@ -1089,21 +1111,13 @@ procedure processingWeight;
       
 
     WriteLn(2, "^E18");
-
     WriteLn(2, "^XSET,ROTATION,0");
-
     WriteLn(2, "^L");
-
     WriteLn(2, "AD,22,47,1,1,0,0,Order #:" + g_sOrderNum);
-
     WriteLn(2, "AD,438,47,1,1,0,0," + g_sUserID);
-
     WriteLn(2, "AD,23,241,1,1,0,0, Trg Weight:" + g_sItemWeight);
-
     WriteLn(2, "AD,26,98,1,1,0,0, Item ID: " + g_sItemId);
-
     WriteLn(2, "AD,438,110,1,1,0,0, Lot ID: " + g_sItemLot);
-
     WriteLn(2, "AD,278,182,1,1,0,0, Summary");
 
     
@@ -1115,56 +1129,34 @@ procedure processingWeight;
     loop
 
       if i = 1 then
-
         g_sysResult := OrdersDB.GetFirst;
-
-
-
         if g_sysResult = SysOk then
-
           g_rWeightExt := OrdersDB.weight;
-
           g_dDatetimeExt := OrdersDB.dt;
-
           WriteLn(2, "AC,316,298,1,1,0,0E, "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
-
           WriteLn(2, "AC,87,299,1,1,0,0E, "+ IntegerToString(i, 2) +") " + RealToString(g_rWeightExt, 4,2) + "lbs.");
 
         end if; 
 
       elsif i <= g_iBags then
-
         g_sysResult := OrdersDB.GetNext;
 
 
-
         if g_sysResult = SysOk then
-
           g_rWeightExt := OrdersDB.weight;
-
           g_dDatetimeExt := OrdersDB.dt;
 
-
-
           textlen1 := textlen1 + 32;
-
           textlen2 := textlen2 + 32;
 
-
-
           WriteLn(2, "AC,316," + IntegerToString(textlen1, 3) +  ",1,1,0,0E," + Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
-
           WriteLn(2, "AC,87,"+ IntegerToString(textlen2, 3) + ",1,1,0,0E," + IntegerToString(i, 2) +") " +  RealToString(g_rWeightExt, 4,2)+ "lbs.");
 
 
 
         end if;
 
-
-
       end if;
-
-
 
     end loop;
 
@@ -1860,7 +1852,8 @@ procedure processingWeight;
         ClearStatusWidgets;
 
       elsif EntryMode = ReprintMode then
-        GodexPrintFormat;
+        --GodexPrintFormat;
+        DataMaxPrintFormat;
         EntryMode := LogOutMode;
         SetLabelText(sts9, "Do you want to log out?");
         SetLabelText(btnYes, "Yes");
@@ -1951,7 +1944,8 @@ procedure processingWeight;
     elsif g_iWidget = btnPrint then
       StopTimer(25);
       EntryMode := ReprintMode;
-      GodexPrintFormat;
+      --GodexPrintFormat;
+      DataMaxPrintFormat;
       DisplayStatus("PRINTED");
       SetLabelText(sts9, "Do you want to reprint the label?");
       SetLabelText(btnYes, "Yes");
