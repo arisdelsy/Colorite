@@ -1005,7 +1005,7 @@ procedure processingWeight;
 
   procedure DataMaxPrintFormat;
     i: integer := 1;
-    textlenWD : integer := 340;
+    textlenWD : integer := 440;
     --textlenD : integer := 340;
   begin
     
@@ -1026,13 +1026,13 @@ procedure processingWeight;
     WriteLn(2, "H20");
 
     --WriteLn(2, "191100405450011 Date and Time: XXXXX"                        
-    WriteLn(2, "191100405200011 Operator ID: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100404800011 Order Number: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100404600011 Lot #: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100404400011 Product ID: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100403800011 Target Weight: XXXXXXXXXXX");
-    WriteLn(2, "191100505750011                    SUMMARY TICKET");
-    WriteLn(2, "1X1100003660005L399002");
+    WriteLn(2, "191100406200011 Operator ID: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100405800011 Order Number: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100405600011 Lot #: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100405400011 Product ID: XXXXXXXXXXXXXXX");
+    WriteLn(2, "191100404800011 Target Weight: XXXXXXXXXXX");
+    WriteLn(2, "191100506750011                    SUMMARY TICKET");
+    WriteLn(2, "1X1100004660005L399002");
 
     for i := 1 to g_iBags
 
@@ -1044,8 +1044,8 @@ procedure processingWeight;
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
 
-          WriteLn(2, "191100303400011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
-          WriteLn(2, "191100303400211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "191100304400011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "191100304400211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
         end if;
 
       elsif i <= g_iBags then
@@ -1084,8 +1084,8 @@ procedure processingWeight;
     --WriteLn(19110030 300 0211 Date3: XXXXXX);
 
 
-    WriteLn(2, "1X1100006010005L399002");
-    WriteLn(2, "1X1100005710005L399002");
+    WriteLn(2, "1X1100007010005L399002");
+    WriteLn(2, "1X1100006710005L399002");
     --WriteLn(2, "1X1100001000005L399002");
     WriteLn(2, "Q0001");
     WriteLn(2, "E");
@@ -1282,7 +1282,6 @@ procedure processingWeight;
 
       --SetWidgetVisibility(btnScan, Voff);
       --SetLabelText(lbSts1, "Make sure scale is clear of all items and scan")
-      --g_iCounter := 1;
       x := IntegerToString(g_iCounter, 1);
       DisplayStatus("Counter: " + x);
 
@@ -1298,6 +1297,7 @@ procedure processingWeight;
       end if;
 
       if g_iCounter = g_iBags then 
+        DisplayStatus("g_iCounter = " + IntegerToString(g_iCounter, 0) + ", g_iBags = " + IntegerToString(g_iBags, 0));
         --ProcessTempOrders;
         --DisplayStatus("Entry Added");
         SetWidgetVisibility(btnScan, Voff);
