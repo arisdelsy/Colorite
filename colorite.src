@@ -1282,7 +1282,7 @@ procedure processingWeight;
 
       --SetWidgetVisibility(btnScan, Voff);
       --SetLabelText(lbSts1, "Make sure scale is clear of all items and scan")
-      g_iCounter := 1;
+      --g_iCounter := 1;
       x := IntegerToString(g_iCounter, 1);
       DisplayStatus("Counter: " + x);
 
