@@ -119,7 +119,7 @@ program Colorite;
   g_rOunces : stored real;
   g_iBags   : integer;
   g_iNums   : integer;
-  g_iCounter : integer := 1;
+  g_iCounter : integer := 0;
   g_dDateTime : DateTime;
   g_rTareweight : real;
   g_sTareweight : string;
@@ -1005,7 +1005,7 @@ procedure processingWeight;
 
   procedure DataMaxPrintFormat;
     i: integer := 1;
-    textlenWD : integer := 440;
+    textlenWD : integer := 210;
     --textlenD : integer := 340;
   begin
     
@@ -1026,13 +1026,13 @@ procedure processingWeight;
     WriteLn(2, "H20");
 
     --WriteLn(2, "191100405450011 Date and Time: XXXXX"                        
-    WriteLn(2, "191100406200011 Operator ID: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100405800011 Order Number: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100405600011 Lot #: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100405400011 Product ID: XXXXXXXXXXXXXXX");
-    WriteLn(2, "191100404800011 Target Weight: XXXXXXXXXXX");
-    WriteLn(2, "191100506750011                    SUMMARY TICKET");
-    WriteLn(2, "1X1100004660005L399002");
+    WriteLn(2, "191100403300011 Operator ID: "+ g_sUserID);
+    WriteLn(2, "191100403100011 Order Number: "+ g_sOrderNum);
+    WriteLn(2, "191100402900011 Lot #: " + g_sItemLot);
+    WriteLn(2, "191100402700011 Product ID: " + g_sItemId);
+    WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
+    WriteLn(2, "191100503550011                    SUMMARY TICKET");
+    WriteLn(2, "1X1100002260005L399002");
 
     for i := 1 to g_iBags
 
@@ -1044,8 +1044,8 @@ procedure processingWeight;
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
 
-          WriteLn(2, "191100304400011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
-          WriteLn(2, "191100304400211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "191100302100011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "191100302100211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
         end if;
 
       elsif i <= g_iBags then
@@ -1084,8 +1084,8 @@ procedure processingWeight;
     --WriteLn(19110030 300 0211 Date3: XXXXXX);
 
 
-    WriteLn(2, "1X1100007010005L399002");
-    WriteLn(2, "1X1100006710005L399002");
+    WriteLn(2, "1X1100003850005L399002");
+    WriteLn(2, "1X1100003510005L399002");
     --WriteLn(2, "1X1100001000005L399002");
     WriteLn(2, "Q0001");
     WriteLn(2, "E");
@@ -1162,70 +1162,6 @@ procedure processingWeight;
 
 
 
-    --WriteLn(2, "AB,372,286,1,1,0,0E, "+ Date$(g_dDatetimeExt) + Time$(g_dDatetimeExt));
-
-
-
-    --WriteLn(2, "AB,372,312,1,1,0,0E,DT2.");
-
-    --WriteLn(2, "AB,372,338,1,1,0,0E,DT3.");
-
-    --WriteLn(2, "AB,372,364,1,1,0,0E,DT4.");
-
-    --WriteLn(2, "AB,372,390,1,1,0,0E,DT5.");
-
-    --WriteLn(2, "AB,372,416,1,1,0,0E,DT6.");
-
-    --WriteLn(2, "AB,372,442,1,1,0,0E,DT7.");
-
-    --WriteLn(2, "AB,372,468,1,1,0,0E,DT8.");
-
-    --WriteLn(2, "AB,372,494,1,1,0,0E,DT9.");
-
-    --WriteLn(2, "AB,372,520,1,1,0,0E,DT10.");
-
-    --WriteLn(2, "AB,372,546,1,1,0,0E,DT11.");
-
-    --WriteLn(2, "AB,372,572,1,1,0,0E,DT12.");
-
-    --WriteLn(2, "AB,372,598,1,1,0,0E,DT13.");
-
-    --WriteLn(2, "AB,372,624,1,1,0,0E,DT14.");
-
-    --WriteLn(2, "AB,372,650,1,1,0,0E,DT15.");
-
-
-
-    --WriteLn(2, "AB,96,288,1,1,0,0E,1) "+ RealToString(g_rWeightExt, 4,2) + "lbs.");
-
-    --WriteLn(2, "AB,96,314,1,1,0,0E,2)");
-
-    --WriteLn(2, "AB,96,340,1,1,0,0E,3)");
-
-    --WriteLn(2, "AB,96,366,1,1,0,0E,4)");
-
-    --WriteLn(2, "AB,96,392,1,1,0,0E,5)");
-
-    --WriteLn(2, "AB,96,418,1,1,0,0E,6)");
-
-    --WriteLn(2, "AB,96,444,1,1,0,0E,7)");
-
-    --WriteLn(2, "AB,96,470,1,1,0,0E,8)");
-
-    --WriteLn(2, "AB,96,496,1,1,0,0E,9)");
-
-    --WriteLn(2, "AB,96,522,1,1,0,0E,10)");
-
-    --WriteLn(2, "AB,96,548,1,1,0,0E,11)");
-
-    --WriteLn(2, "AB,96,574,1,1,0,0E,12)");
-
-    --WriteLn(2, "AB,96,600,1,1,0,0E,13)");
-
-    --WriteLn(2, "AB,96,626,1,1,0,0E,14)");
-
-    --WriteLn(2, "AB,96,652,1,1,0,0E,15)");
-
     WriteLn(2, "E");
 
     
@@ -1282,16 +1218,20 @@ procedure processingWeight;
 
       --SetWidgetVisibility(btnScan, Voff);
       --SetLabelText(lbSts1, "Make sure scale is clear of all items and scan")
-      x := IntegerToString(g_iCounter, 1);
-      DisplayStatus("Counter: " + x);
+      
+      --if g_iCounter = 0 then
+      --  g_iCounter := 1;
+      --end if;
+      --x := IntegerToString(g_iCounter, 1);
+      --DisplayStatus("Counter: " + IntegerToString(g_iCounter, 0));
 
       if EventChar = Chr$(13) and g_iCounter < g_iBags then
         g_iNums := g_iNums + 1; 
         ProcessTempOrders;
-        --DisplayStatus("Entry Added");
         g_iCounter := g_iCounter + 1;
         --g_iNums := g_iNums + 1;
-        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
+        DisplayStatus("Counter: " + IntegerToString(g_iCounter, 0));
+        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 1) + " of " + IntegerToString(g_iBags,1) + " bags");
         SetupStartTimer(25,5, TimerContinuous);              
 
       end if;
@@ -1572,9 +1512,9 @@ procedure processingWeight;
           --ProgramDelay(300);
 
           StopTimer(25);
-
-          SetWidgetVisibility(btnScan, Von);
-
+          if g_iCounter <> g_iBags then 
+            SetWidgetVisibility(btnScan, Von);
+          end if;
     
 
         --StopTimer(25);
@@ -1854,6 +1794,7 @@ procedure processingWeight;
       elsif EntryMode = ReprintMode then
         --GodexPrintFormat;
         DataMaxPrintFormat;
+        Print(GrossFmt);
         EntryMode := LogOutMode;
         SetLabelText(sts9, "Do you want to log out?");
         SetLabelText(btnYes, "Yes");
@@ -1946,6 +1887,7 @@ procedure processingWeight;
       EntryMode := ReprintMode;
       --GodexPrintFormat;
       DataMaxPrintFormat;
+      --Print(GrossFmt);
       DisplayStatus("PRINTED");
       SetLabelText(sts9, "Do you want to reprint the label?");
       SetLabelText(btnYes, "Yes");
