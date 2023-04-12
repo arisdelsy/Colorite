@@ -1003,6 +1003,96 @@ procedure processingWeight;
     end if;
   end;
 
+   procedure TCPDataMaxPrintFormat;
+    i: integer := 1;
+    textlenWD : integer := 340;
+    --textlenD : integer := 340;
+  begin
+    
+
+    --O0110
+    --f182
+    --V4
+    --L
+    if StartDocument("ADVPRN") = SysOk then
+      --Writeoutln("ADVPRN","String data to print");
+      WriteoutLn("ADVPRN", Chr$(2)+ "O0110");
+      WriteoutLn("ADVPRN", Chr$(2)+ "f182");
+      WriteoutLn("ADVPRN", Chr$(2)+ "V4");
+      WriteoutLn("ADVPRN", Chr$(2)+ "L");
+
+      WriteoutLn("ADVPRN", "A1");
+      WriteoutLn("ADVPRN", "D11");
+      WriteoutLn("ADVPRN", "SI");
+      WriteoutLn("ADVPRN", "PI");
+      WriteoutLn("ADVPRN", "H20");
+
+      --WriteoutLn("ADVPRN", "191100405450011 Date and Time: XXXXX"                        
+      WriteoutLn("ADVPRN", "191100405200011 Operator ID: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100404800011 Order Number: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100404600011 Lot #: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100404400011 Product ID: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100403800011 Target Weight: XXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100505750011                    SUMMARY TICKET");
+      WriteoutLn("ADVPRN", "1X1100003660005L399002");
+
+      for i := 1 to g_iBags
+
+      loop
+
+        if i = 1 then 
+          g_sysResult := OrdersDB.GetFirst;
+          if g_sysResult = SysOk then
+            g_rWeightExt := OrdersDB.weight;
+            g_dDatetimeExt := OrdersDB.dt;
+
+            WriteoutLn("ADVPRN", "191100303400011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+            WriteoutLn("ADVPRN", "191100303400211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          end if;
+
+        elsif i <= g_iBags then
+          g_sysResult := OrdersDB.GetNext;
+
+
+          if g_sysResult = SysOk then
+            g_rWeightExt := OrdersDB.weight;
+            g_dDatetimeExt := OrdersDB.dt;
+
+            textlenWD := textlenWD - 20;
+            --textlen2 := textlen2 + 32;
+
+            WriteoutLn("ADVPRN", "19110030" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+            WriteoutLn("ADVPRN", "19110030" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+
+
+
+          end if;
+
+
+
+
+        end if;
+      end loop;
+
+
+      WriteoutLn("ADVPRN", "1X1100006010005L399002");
+      WriteoutLn("ADVPRN", "1X1100005710005L399002");
+      --WriteoutLn("ADVPRN", "1X1100001000005L399002");
+      WriteoutLn("ADVPRN", "Q0001");
+      WriteoutLn("ADVPRN", "E");
+    else
+      DisplayStatus("Printer Error"); 
+    end if;
+    if EndDocument("ADVPRN") = SysOk then
+      DisplayStatus("Document Printed");
+    else
+      DisplayStatus("Printer Error");
+    end if;
+
+
+    
+  end;
+
   procedure DataMaxPrintFormat;
     i: integer := 1;
     textlenWD : integer := 210;
@@ -1793,7 +1883,8 @@ procedure processingWeight;
 
       elsif EntryMode = ReprintMode then
         --GodexPrintFormat;
-        DataMaxPrintFormat;
+        --DataMaxPrintFormat;
+        TCPDataMaxPrintFormat;
         Print(GrossFmt);
         EntryMode := LogOutMode;
         SetLabelText(sts9, "Do you want to log out?");
@@ -1886,8 +1977,9 @@ procedure processingWeight;
       StopTimer(25);
       EntryMode := ReprintMode;
       --GodexPrintFormat;
-      DataMaxPrintFormat;
+      --DataMaxPrintFormat;
       --Print(GrossFmt);
+      TCPDataMaxPrintFormat;
       DisplayStatus("PRINTED");
       SetLabelText(sts9, "Do you want to reprint the label?");
       SetLabelText(btnYes, "Yes");
