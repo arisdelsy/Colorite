@@ -1010,10 +1010,7 @@ procedure processingWeight;
   begin
     
 
-    --O0110
-    --f182
-    --V4
-    --L
+  
     if StartDocument("ADVPRN") = SysOk then
       --Writeoutln("ADVPRN","String data to print");
       WriteoutLn("ADVPRN", Chr$(2)+ "O0110");
@@ -1885,7 +1882,8 @@ procedure processingWeight;
         --GodexPrintFormat;
         --DataMaxPrintFormat;
         TCPDataMaxPrintFormat;
-        Print(GrossFmt);
+        --Print(GrossFmt);
+        --Print(AuxFmt1);
         EntryMode := LogOutMode;
         SetLabelText(sts9, "Do you want to log out?");
         SetLabelText(btnYes, "Yes");
@@ -1980,6 +1978,7 @@ procedure processingWeight;
       --DataMaxPrintFormat;
       --Print(GrossFmt);
       TCPDataMaxPrintFormat;
+      --Print(AuxFmt1);
       DisplayStatus("PRINTED");
       SetLabelText(sts9, "Do you want to reprint the label?");
       SetLabelText(btnYes, "Yes");
