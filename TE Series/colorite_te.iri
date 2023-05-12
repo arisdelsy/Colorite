@@ -1,0 +1,112 @@
+-- Scale Aliases
+Scale1    : constant integer := 1;
+
+-- Digital I/O Aliases
+DIOCRD0   : constant integer := 0;
+DIO0_1    : constant integer := 1;
+DIO0_2    : constant integer := 2;
+DIO0_3    : constant integer := 3;
+DIO0_4    : constant integer := 4;
+DIO0_5    : constant integer := 5;
+DIO0_6    : constant integer := 6;
+DIO0_7    : constant integer := 7;
+DIO0_8    : constant integer := 8;
+
+
+
+-- Analog Output Aliases
+
+-- Database Type Definitions and Field Aliases
+type UsersDatabase is database ("Users")
+     login: String;
+  password: String;
+end database;
+type OrdersDatabase is database ("Orders")
+       num: Integer;
+    itemID: String;
+    lotNum: String;
+    weight: Real;
+  orderNum: String;
+        dt: DateTime;
+end database;
+
+Users_login    : constant integer := 1;
+Users_password : constant integer := 2;
+
+Orders_num      : constant integer := 1;
+Orders_itemID   : constant integer := 2;
+Orders_lotNum   : constant integer := 3;
+Orders_weight   : constant integer := 4;
+Orders_orderNum : constant integer := 5;
+Orders_dt       : constant integer := 6;
+
+
+
+-- Serial Port Aliases
+Port1     : constant integer := 1;
+Port2     : constant integer := 2;
+Port3     : constant integer := 3;
+Port4     : constant integer := 4;
+
+-- Ethernet Communication Aliases
+TCPS      : constant string := "TCPS";
+UDPS      : constant string := "UDPS";
+TCPC1     : constant string := "TCPC1";
+TCPC2     : constant string := "TCPC2";
+
+-- Setpoint Aliases
+
+-- Widget Aliases
+btnLogin  : constant integer := 3;
+lbAOU     : constant integer := 5;
+lbl8      : constant integer := 8;
+lbl9      : constant integer := 9;
+lbl10     : constant integer := 10;
+btnPrint  : constant integer := 11;
+target    : constant integer := 12;
+lbl13     : constant integer := 13;
+Ext5      : constant integer := 15;
+img16     : constant integer := 16;
+lbl17     : constant integer := 17;
+lbl18     : constant integer := 18;
+lbl19     : constant integer := 19;
+lbl20     : constant integer := 20;
+lbl21     : constant integer := 21;
+btnSetup  : constant integer := 22;
+xofn      : constant integer := 23;
+lbl24     : constant integer := 24;
+lbl25     : constant integer := 25;
+lbl26     : constant integer := 26;
+lbl27     : constant integer := 27;
+AddUser   : constant integer := 28;
+lbl29     : constant integer := 29;
+lbl30     : constant integer := 30;
+lbl31     : constant integer := 31;
+Ext2      : constant integer := 32;
+lbSts1    : constant integer := 33;
+Ext3      : constant integer := 34;
+Nxt2      : constant integer := 35;
+lbl37     : constant integer := 37;
+lbl38     : constant integer := 38;
+Ext6      : constant integer := 39;
+Nxt6      : constant integer := 40;
+lbl42     : constant integer := 42;
+lbltare   : constant integer := 44;
+lbl45     : constant integer := 45;
+Ext7      : constant integer := 46;
+Nxt7      : constant integer := 47;
+lbl48     : constant integer := 48;
+Ext8      : constant integer := 49;
+Nxt8      : constant integer := 50;
+lbl51     : constant integer := 51;
+lbl52     : constant integer := 52;
+btnScan   : constant integer := 53;
+lbl54     : constant integer := 54;
+lbl55     : constant integer := 55;
+lbl56     : constant integer := 56;
+btnYes    : constant integer := 57;
+btnNo     : constant integer := 58;
+sts9      : constant integer := 59;
+
+USBPRN    : constant string := "USBPRN";
+ADVPRN    : constant string := "ADVPRN";

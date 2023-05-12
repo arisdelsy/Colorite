@@ -1,0 +1,2011 @@
+
+------------------------------------------------------------------------------
+-- Program Name: Colorite
+-- This 1280 custom made program is a take on the original Checkweight program.
+-- This program includes multiple screens to allow for a better user experience.
+-- In addition it allows for users to scan in a product.
+-- New features can be added (adding a database of products given by a company
+-- to allow for identification of scanned items).
+-- special edition for scale in GRAMS
+------------------------------------------------------------------------------
+
+program Colorite; 
+ 
+#include colorite_te.iri 
+
+  -- Constants and aliases definitions 
+  g_csProgName          : constant string  := "Colorite"; --Program Name 
+  g_csVersion           : constant string  := "V1.02"; --Program Version   
+  --g_ciPrinter           : constant integer := 0;
+  g_ciPort1             : constant integer := 1;
+  g_ciPort2             : constant integer := 2;
+  g_ciDigInOn           : constant integer := 0; --Digital Input is On 
+  g_ciDigInOff          : constant integer := 1; --Digital Input is Off
+  g_ciDigOutOn          : constant integer := 1; --Digital Output is On
+  g_ciDigOutOff         : constant integer := 0; --Digital Output is Off  
+  g_ciBackDoorPassword  : constant string  := "asc1058";  --Backdoor Password 
+
+  
+  -- Inputs/Outputs  
+  --g_coUnder   : constant integer := 1;
+  --g_coAccept  : constant integer := 2;  
+  --g_coOver    : constant integer := 3;
+
+  -- Screens
+  g_ciMainLogin    : constant integer := 1;
+  g_ciScanBar      : constant integer := 2;
+  g_ciStatus       : constant integer := 3;
+  g_ciSearching    : constant integer := 4;
+  g_ciSetUpUsers   : constant integer := 5;
+  g_ciOrderNum     : constant integer := 6;
+  g_ciTare         : constant integer := 7; 
+  g_ciBags         : constant integer := 8;
+  g_ciYesNo        : constant integer := 9;
+ 
+
+
+
+  -- Operation Modes
+  LockMode                : constant integer := 0;
+  NoMode                  : constant integer := 100;    
+  EnterItemID             : constant integer := 101; 
+  GetID                   : constant integer := 102;
+  ProductOnScale          : constant integer := 103;
+  
+  -- Setup Modes
+  --SetupEnterPasswordMode   : constant integer := 999;
+  --Setup1Mode               : constant integer := 1000; 
+  --SetupChangePasswordMode  : constant integer := 1100;
+  --SetupVerifyPasswordMode  : constant integer := 1101; 
+  --SetupItemId               : constant integer := 1210;
+  --SetupItemName             : constant integer := 1211;
+  --SetupItemLowWeight        : constant integer := 1212;
+  --SetupItemHighWeight       : constant integer := 1213;               
+  --SetupDeleteItem         : constant integer := 1220;
+  --SetupClearTransactions  : constant integer := 1230;
+  --SetupThresholdWeight    : constant integer := 1300;
+  -- SendingPCTest           : constant integer := 1400;
+  --Setup2Mode               : constant integer := 2000; 
+   
+
+  --New Modes ARIS
+  EntryMode         : integer;
+  g_EntryMode       : integer;
+  ScanMode          : constant integer := 1000;
+  LoginMode         : constant integer := 1001;
+  SetOrderNumMode   : constant integer := 1002;
+  UserIdMode        : constant integer := 1003;
+  PasswordMode      : constant integer := 1004;
+  NewPasswordMode   : constant integer := 1005;
+  NewUserMode       : constant integer := 1006;
+  SetupMenuMode     : constant integer := 1007;
+  AdminPasswordMode : constant integer := 1008;
+  ProcessNewUser    : constant integer := 1009;
+  ScannedItemMode1  : constant integer := 1010;
+  OrderMode         : constant integer := 1011;
+  StatusMode        : constant integer := 1012;
+  GetBagsMode       : constant integer := 1013;
+  NewScanMode       : constant integer := 1014;
+  ScannedItemMode2  : constant integer := 1015;
+  GetTareMode       : constant integer := 1016;
+  FinalExitMode     : Constant integer := 1017;
+  FinalPrintMode    : constant integer := 1018;
+  ScanAgainButton   : constant integer := 1019;
+  ReprintMode       : constant integer := 1020;
+  LogOutMode        : constant integer := 1021;
+  TestEntryMode : string;
+  Blank : constant string := "";      
+  type boolean is (False,True); 
+
+  -- Global/Types variables definitions
+
+  --New ARIS
+  g_sUserId :stored string;
+  g_sPassword: stored string;
+  --g_sTempPass: stored string;
+  g_sTUser : stored string; 
+  g_sTPass : stored string;
+  g_sScannerInput : string; 
+  g_ciDebug: constant integer := 0;
+  g_bLogin: stored boolean;
+  g_sOrderNum : stored string;
+  g_sTempScanned : string;
+  g_sItemId   :string;
+  g_sItemLot  : string;
+  g_sItemWeight : string;
+  g_rItemWeight : stored real;
+  g_sPounds : string;
+  g_sOunces : string;
+  g_rPounds : stored real;
+  g_rOunces : stored real;
+  g_iBags   : integer;
+  g_iNums   : integer;
+  g_iCounter : integer := 0;
+  g_dDateTime : DateTime;
+  g_rTareweight : real;
+  g_sTareweight : string;
+  --g_rsettareweight : real;
+  g_rbagweight : real;
+  g_sbagweight : string;
+  locked : boolean := True;
+  g_rWeightExt : real;
+  g_dDatetimeExt : datetime;
+  g_rZeroTareWeight : real := 0;
+
+---- Previous global variables from Checkweight Program
+  g_sSetupPassword : stored string;
+  g_iDownload : stored integer;
+  g_sTmpPassword : string;  
+  g_rCountby : real;    
+  g_bUpdate : boolean;
+  g_iDecimal1 : integer;  
+  g_uUnits : Units;
+  g_sysResult : SysCode; 
+  g_sysResult1 : SysCode; 
+  g_sysResult2 : SysCode;  
+  g_iDebug : integer;
+  --g_sItemId : stored string;   
+  g_sItemName : stored string;  
+  g_rLowWeight : stored real;
+  g_rHighWeight : stored real;     
+  g_iAutoPrint : stored real;
+  g_rThresholdWeight : stored real;
+  g_bWeighVault : stored boolean;
+  g_iWidget : integer;
+  g_iTareAttempt : integer;
+  g_rTareWgt : stored real;
+  g_spcResponseBuffer : string;
+  g_sUnits : stored string;
+  g_rTargetWgt : stored real;
+  g_rLastSavedWgt : real;
+  g_bPrintPressed : boolean;
+
+
+  
+  --DATABASES AND ARRAYS
+  type UserArrays is array [1000] of string; 
+  
+  UsersDB  :UsersDatabase;  
+  OrdersDB :OrdersDatabase;
+
+  type Barcode is array [40] of string;
+
+
+
+-- keep
+  procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
+  begin
+  
+    SetTimer(iTimer, iDuration);
+    SetTimerMode(iTimer, itmMode);
+    StartTimer(iTimer);
+    
+  end;     
+  
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iType : integer);  -- Prompts operator for data
+  begin
+    
+    DisableHandler(NumericKeyPressed);
+    DisableHandler(EnterKeyPressed);
+    DisableHandler(NavUpKeyPressed);
+    DisableHandler(NavDownKeyPressed);   
+    
+    --LockMajorKeys;
+ 
+		SetEntry(sDefault);
+    if iType = 0 then
+      PromptUser(sPrompt);
+    elsif iType = 1 then  
+      PromptPassword(sPrompt);
+    elsif iType = 2 then
+      PromptNumeric(sPrompt);
+    end if;
+    g_EntryMode := iMode;
+    
+  end;  
+
+--  procedure DisableSetPoints;
+-- begin
+    
+--    DisableSP(1);
+--    DisableSP(2);
+    
+--  end;
+
+  function GetCurrentUnitsString(s : integer) : string;  -- Gets current units string (lb/kg/etc). 
+    sUnit : Units;
+    sUnitString : string;  
+  begin          
+    
+    if GetUnits(s, sUnit) = SysOk then
+      GetUnitsString(s, sUnit, sUnitString);    
+    else
+      sUnitString := Blank;
+    end if; 
+    
+    return sUnitString; 
+    
+  end;    
+
+  procedure PrintTicket; 
+		sUnits : string;
+  begin  
+
+    sUnits := GetCurrentUnitsString(1);    
+
+		--SetPrintText(1, TransDB.ItemId);
+		--SetPrintText(2, TransDB.ItemName);
+		--SetPrintText(3, RealToString(TransDB.Weight,0,g_iDecimal1) + " " + sUnits);
+		--SetPrintText(4, TransDB.Status);
+		--SetPrintText(5, Date$(TransDB.DT));
+		--SetPrintText(6, Time$(TransDB.DT));
+		Print(AuxFmt1);
+  end;     
+
+  procedure LockMajorKeys;  -- Locks ZERO, GROSS/NET, TARE, UNITS and PRINT key
+  begin
+  
+    LockKey(GrossNetKey);
+    LockKey(TareKey);
+    LockKey(UnitsKey);
+    LockKey(PrintKey);
+    
+  end; 
+
+  procedure UnLockMajorKeys;  -- UnLocks ZERO, GROSS/NET, TARE, UNITS and PRINT key
+  begin
+  
+    UnlockKey(GrossNetKey);
+    UnlockKey(TareKey);
+    UnlockKey(UnitsKey);
+    UnlockKey(PrintKey);
+    
+  end;   
+
+  procedure LockAllKeys; -- Lock All Keys
+  begin
+    LockMajorKeys;
+  end;
+  
+
+--procedure getDT();
+
+
+
+procedure ClearLoginUser; 
+begin
+  g_sUserId := Blank;
+  g_sPassword := Blank;
+end;
+
+procedure  ClearNewUserVars; 
+begin
+  g_sTUser := Blank;
+  g_sTPass := Blank;
+end;
+
+procedure ClearWidgetsLogin; --clears widgets for LOGIN PAGE
+begin
+  SetLabelText(lbl18, Blank);
+  SetLabelText(lbl19, Blank);
+end;
+
+procedure ClearWidgetsNewUser; --ckears widgets for NEW USER PAGE
+begin
+  SetLabelText(lbl24, Blank);
+  SetLabelText(lbl25, Blank);
+end;
+
+procedure ClearStatusWidgets;
+begin
+  SetLabelText(lbl18, Blank);
+  g_sUserId := Blank;
+  SetLabelText(lbl19, Blank);
+  g_sPassword := Blank;
+  SetLabelText(lbl10, Blank);
+  g_sItemId := Blank;
+  SetLabelText(lbl52, Blank);
+  g_sItemLot := Blank;
+  SetLabelText(lbl13, Blank);
+  g_sItemWeight := Blank;
+  SetLabelText(lbl6, Blank);
+  SetLabelText(lbl55, Blank); --Gets rid of order num on  status screen
+  g_sPounds := Blank;
+  g_sOunces := Blank;
+  --SetLabelText(lbl31, Blank);
+  --g_sScannerInput := Blank;
+  SetLabelText(lbl55, Blank);
+  --g_sOrderNum := Blank;
+  SetLabelText(xofn, Blank);
+  --g_iCounter := Blank;
+  --g_iBags := Blank;
+
+end;
+
+procedure AddNewUser;
+begin
+    UsersDB.login := g_sTUser; -- we are temporarily setting the value of g_sTUser to the database 
+    UsersDB.password := g_sTPass;
+
+    g_sysResult := UsersDB.FindFirst(Users_login);
+    if g_sysResult <> SysOk then
+      UsersDB.Add;
+      ClearWidgetsNewUser;
+      ClearNewUserVars;
+      DisplayStatus("New User Added");
+      EntryMode := AdminPasswordMode;
+      SetWidgetVisibility(AddUser, Voff);
+    else
+      DisplayStatus("ERROR: User Exists -- Proceed to Login Page");
+      --EntryMode := NoMode;
+    end if;
+
+end;
+
+procedure ProcessingLoginEntry;
+begin
+    g_bLogin := False;
+    UsersDB.login := g_sUserId; -- we are temporarily setting the value of g_sUsedId to the database 
+    UsersDB.password := g_sPassword;
+
+    g_sysResult := UsersDB.FindFirst(Users_login); --This will equal SysOk if found in DB
+    if g_sysResult = SysOk then
+      g_bLogin := True;
+      if g_bLogin = True then
+
+
+      ------------------------
+      -- start timer 3
+      ------------------------
+        SelectScreen(g_ciOrderNum);
+        EntryMode := OrderMode;
+      ------------------------
+        --SetWidgetVisibility(lbl8, Voff);
+        --SetWidgetVisibility(lbl31, Voff);
+        
+      end if;
+    else
+      DisplayStatus("Incorrect Credentials. Please try again.");
+      ClearLoginUser;
+      ClearWidgetsLogin;
+      EntryMode := LoginMode;  
+    end if;
+  
+end;
+
+
+
+
+--keep/revise
+  function IsValid(sTemp : string; sValidFor : string; iLength : integer) : boolean;  -- Validates a String, Integer and Real
+    bResult : boolean := True; 
+    sMessage : string;
+  begin 
+    
+    sValidFor := UCase$(sValidFor);
+    
+    if sValidFor = "S" then
+    
+      if Len(sTemp) = 0 or (Len(sTemp) > iLength and iLength <> 0) then  
+        bResult := False;
+        sMessage := "Required Entry - Try Again";  
+      end if;      
+        
+ 
+                
+    else
+      
+      DisplayStatus("Validation Error");
+      bResult := False;
+      
+    end if;
+
+    if bResult = False then
+      if sValidFor = "P" or sValidFor = "R" or sValidFor = "I" then
+        PromptForEntry(sMessage, EntryMode, Blank,2);
+      else  
+        PromptForEntry(sMessage, EntryMode, Blank, 0);
+      end if;
+    end if;
+    
+    return bResult;
+
+  end;  
+
+
+--  function GetMilitaryTime (dtTemp : datetime) : string;   -- Military time
+--    iHour: integer;
+--    iMin : integer;
+--    iSec : integer;
+--    sHour : string;
+--    sMin : string;  
+--    sSec : string;
+--    s24HourTime : string;  
+--  begin  
+  
+--    GetTime(dtTemp, iHour, iMin, iSec); 
+    
+--    sHour := IntegerToString(iHour,0);
+--    if Len(sHour) = 1 then
+--      sHour := "0" + IntegerToString(iHour,0);
+--    end if; 
+--    sMin := IntegerToString(iMin,0);  
+--    if Len(sMin) = 1 then
+--      sMin := "0" + IntegerToString(iMin,0);
+--    end if;
+--    sSec := IntegerToString(iSec,0);  
+--    if Len(sSec) = 1 then
+--      sSec := "0" + IntegerToString(iSec,0);
+--    end if;
+
+--    s24HourTime := sHour + sMin + sSec;  
+--    return s24HourTime; 
+  
+--  end; 
+
+--KEEP
+
+  function GetFormattedDate (dtTemp : datetime) : string; -- Format Date DDMMYYYY 
+    iYear : integer;
+    iMonth : integer;
+    iDay : integer; 
+    sDay : string;
+    sFormattedDate : string := BLANK;  
+    tmpDate : datetime; 
+  begin
+    
+    GetDate(dtTemp, iyear, imonth, iday);  
+    
+    -- Configure month
+    if iday < 10 then                   
+      sDay := "0" + IntegerToString(iDay,0);
+    else
+      sDay := IntegerToString(iDay,0); 
+    end if;  
+
+    sFormattedDate := sDay;         
+    
+    -- Configure Day
+    if iMonth < 10 then                   
+      sFormattedDate := sFormattedDate + "0" + IntegerToString(iMonth,0) ;
+    else
+      sFormattedDate := sFormattedDate + IntegerToString(iMonth,0); 
+    end if;
+    
+    -- configure Year 
+    if iyear < 10 then
+      sFormattedDate := sFormattedDate + "200" + IntegerToString(iyear,0);  
+    else   
+      sFormattedDate := sFormattedDate + "20" + IntegerToString(iyear,0);   
+    end if;
+    
+    --sFormattedDate := sFormattedDate + " " + GetMilitaryTime(dtTemp);
+    
+    return sFormattedDate; 
+
+  end; 
+
+
+  --KEEP     
+  -- Returns the starting location in "input_string" of
+  -- the first occurance of the string "match_string"
+  function Locate( input_string : string;
+                   match_string : string ) : integer;
+
+    position     : integer;
+    end_position : integer;
+
+
+    begin
+
+      position := 1;
+      end_position := Len(input_string) + 1 - Len(match_string) ;
+
+      while position <= end_position
+      loop
+        if match_string = Mid$(input_string, position, Len(match_string)) then
+          return position;
+        end if;
+        position := position + 1;
+      end loop;
+      return 0;
+  end;
+        
+  --keep      
+  -- This function is used to trim "n" characters off a string.
+  function TrimNum$( var input_string : string;
+                     trim_length      : integer ) : string;
+
+    result : string;
+
+    begin
+      if trim_length > 0 then
+        result       := Left$(input_string, trim_length);
+        input_string := Right$(input_string, Len(input_string)-trim_length);
+
+      elsif trim_length < 0 then
+        result       := Right$(input_string, -trim_length);
+        input_string := Left$(input_string, Len(input_string)+trim_length);
+      else
+        result       := "";
+      end if;
+      return result;
+  end;
+
+--KEEP
+  --  Strips off all leading occurances in "input_string" of any characters in the string "trim_chars".
+  function TrimLeft$( input_string : string;
+                      trim_chars   : string ) : string;
+
+    result   : string;
+    position : integer := 1;
+
+    begin
+
+      while (position <= Len(input_string))
+      loop
+
+
+        -- If the current character is not in the trim list
+        if ( Locate(trim_chars, Mid$(input_string, position, 1)) = 0 ) then
+
+          -- return remainder of input string
+          result := Mid$(input_string, position, Len(input_string));
+          return result;
+
+        end if;
+
+        position := position + 1;
+
+
+      end loop;
+
+      return "";
+
+  end;   
+
+
+  --  This function is used to parse a single string from
+  --  a passed string using a passed parse character
+  function ParseLeft$( var input_string : string;
+                       parse_char       : string ) : string;
+
+    result   : string;
+    position : integer;
+
+    begin
+
+      -- If blank delimited, remove all leading blanks
+      if parse_char = " " then
+        input_string := TrimLeft$(input_string, " ");
+      end if;
+
+
+      -- Find first occurance of parse character(s)
+      position := Locate(input_string, parse_char);
+
+
+      -- If one is present...
+      if (position > 0) then
+
+        -- Set result = parsed off characters
+        result := TrimNum$(input_string, position-1);
+
+        -- If blank delimited, remove all leading blanks
+        if parse_char = " " then
+          input_string := TrimLeft$(input_string, " ");
+
+        -- Otherwise, remove one occurance of parse character(s)
+        else
+          TrimNum$(input_string, Len(parse_char));
+
+        end if;
+
+
+      -- If no parse character found, result = entire input string
+      else
+        result := input_string;
+        input_string := "";
+      end if;
+
+
+      return result;
+  end;   
+  
+  function CalcDecimal(rCountBy : real) : integer;  -- Calculates the amount of decimal positions  
+    iDecimal : integer := 0;    
+  begin   
+         
+    while rCountBy < 1.0
+    loop    
+      iDecimal := iDecimal + 1;
+      rCountBy := rCountBy * 10.0;  
+     end loop;
+
+     return iDecimal; 
+     
+  end; 
+
+
+  procedure DisplayVersion;    -- Displays Version Number and program name on startup or exiting config   
+  begin   
+  
+    DisplayStatus(g_csProgName + " " + g_csVersion); 
+    --SetLabelText(lbProg, "Program: " + g_csProgName + " " + g_csVersion);  
+    
+  end; 
+
+  --procedure TurnOffAllOutputs;  -- Turn off All Outputs
+    --i : integer;
+  --begin
+    
+    --for i := 1 to 3
+    --loop
+      --SetDigout(0, i, g_ciDigOutOff);
+    --end loop;  
+  
+  --end;     
+
+--KEEP AND REVISE
+  procedure TurnOffWidgets;
+  begin
+
+    SetwidgetColor(1, "#F0EEEE");
+    --SetLabelText(lbSts1, Blank);
+		--SetLabelText(lbAOU, Blank);	
+
+  end;
+  
+
+  procedure RefreshSetupDisplay;  -- Update display screen in setup menu 
+    sUnits : string;    
+		sPassword : string;
+		i : integer;
+  begin          
+
+		for i := 1 to Len(g_sSetupPassword)
+		loop
+			sPassword := sPassword + "*";
+		end loop;  
+
+    sUnits := GetCurrentUnitsString(1);     
+
+    --SetLabelText(lbSet1, "Setup Password ");
+    --Setlabeltext(lbSet11, sPassword);          
+    --SetLabelText(lbSet2, "Threshold Weight ");
+    --setlabeltext(lbSet22, RealToString(g_rThresholdWeight,0,g_iDecimal1) + " " + sUnits);  
+    --if g_iAutoPrint = 1 then
+      --SetLabelText(lbSet3, "Auto Print: ON");   
+    --else
+      --SetLabelText(lbSet3, "Auto Print: OFF");  
+    --end if;
+    --SetLabelText(lbSet4, "Clear Transactions");
+		--SetLabelText(lbSet5, "Add/Edit Items");
+    --SetLabelText(lbSet6, "Delete Items");
+    --SetLabelText(lbSet7, "Import / Export");
+    --Setlabeltext(lbSet8, "CW-90 WeighVault");
+    --if g_bWeighVault = True then
+      --SetLabelText(lbSet88, "Enabled");
+    --else
+      --SetLabelText(lbSet88, "Disabled");
+    --end if;
+    --SetLabelText(lbSet9, "WeighVault");
+    --SetlabelTExt(lbSet99, "PC Test");		
+  end; 
+  
+  procedure RefreshMainDisplay; 
+    sUnits : string;      
+  begin
+		
+		if g_sItemId <> Blank then
+    	sUnits := GetCurrentUnitsString(CurrentScale);
+    	--SetLabelText(lbId2, g_sItemId + " " +  g_sItemName); 
+    	--SetLabelText(lbLow, RealToString(g_rLowWeight,0,g_iDecimal1) + " " + sUnits);      
+    	--SetLabelText(lbHigh, RealToString(g_rHighWeight,0,g_iDecimal1) + " " + sUnits);
+		
+		--else
+    	--SetLabelText(lbId2, Blank); 
+    	--SetLabelText(lbLow, Blank);      
+    	--SetLabelText(lbHigh, "");
+		end if;
+  
+  end;
+
+
+  procedure ToggleOutput(iOUtput : integer);
+    iDigOutSts : integer;
+  begin
+
+    GetDigOut(0, iOutput, iDigOutSts);
+    if iDigOutSts = g_ciDigOutOn then
+      SetDigOut(0, iOutput, g_ciDigOutOff);
+    else
+      SetDigOut(0, iOutput, g_ciDigOutOn);
+    end if;
+
+  end; 
+  
+  procedure GoIntoSetupMenu;  -- Enters Setup Menu
+  begin
+ 
+    --DisableSetPoints;
+    DisplayStatus("Setup Menu");
+    --EntryMode := Setup1Mode;    
+    --SelectScreen(g_ciSetup);     
+    RefreshSetupDisplay;     
+  
+  end; 
+
+  procedure ClearStatus(iTime : integer);  -- Removes Display Status Message
+  begin
+    SetupStartTimer(29, iTime, TimerOneShot);
+  end;  
+
+ procedure GetLotandWeight(tempScan :string);
+    tempI : integer;
+    tempS : string;
+    finalLot : string := "";
+    finalWeight : string;
+		i			: integer;	
+    temp1 : string;
+ begin
+    tempI := Len(tempScan);
+    for i := 1 to tempI	 
+    loop
+      -- take the first letter of the string
+      temp1 := Left$(tempScan, 1);
+      tempScan := Right$( tempScan, tempI-i);
+      if temp1 <> Chr$(96) then
+        finalLot := finalLot + temp1;
+      elsif temp1 = Chr$(96) then
+        finalWeight := tempScan;
+        exit;
+      end if;
+    end loop;
+    --DisplayStatus(finalWeight);
+    g_sItemLot := finalLot;
+    g_sItemWeight := finalWeight;
+    g_rItemWeight := StringToReal(finalWeight);
+
+ end;
+
+procedure processingWeight;
+  tempI : integer;
+  tempS : string;
+  i : integer;
+  temp1 : string;
+  temp_weight : string;
+  final_pounds : string;
+  final_ounces : string;
+  ouncesLength : real; 
+  begin
+    temp_weight := g_sItemWeight;
+    tempI := len(temp_weight);
+    for i := 1 to tempI
+    loop
+    -- taking first number in string
+      temp1 := Left$(temp_weight, 1);
+      temp_weight := Right$(temp_weight, tempI - i);
+
+      if temp1 <> Chr$(46) then
+        final_pounds := final_pounds + temp1;
+      
+      elsif temp1 = Chr$(46) then
+        final_ounces := temp_weight;
+        exit;
+      end if;
+  
+    end loop;
+    g_sPounds := final_pounds;
+    g_rPounds := StringToReal(final_pounds);
+    
+    --DisplayStatus(final_pounds);
+    g_sOunces := final_ounces;
+    g_rOunces := StringToReal(g_sOunces);
+
+  -- calculation for ounces
+    ouncesLength := Len(g_sOunces);
+      
+    if ouncesLength =  1 then
+      g_rOunces := g_rOunces / 10;
+
+    elsif ouncesLength = 2 then
+      g_rOunces := g_rOunces / 100;
+    
+    elsif ouncesLength = 3 then
+      g_rOunces := g_rOunces / 100;
+    end if;
+
+
+    g_rOunces := g_rOunces * 16;
+    
+    g_sOunces := RealToString(g_rOunces, 1, 2);
+
+  --DisplayStatus(g_rOunces);
+
+  --DisplayStatus(final_ounces);
+	
+  end;
+
+  
+
+
+-- attempt to add 
+  procedure ProcessTempOrders;
+  begin
+    
+    OrdersDB.num := g_iNums; 
+    OrdersDB.itemID := g_sItemId;
+    OrdersDB.lotNum := g_sItemLot;
+    --OrdersDB.weight := g_rItemWeight;
+    OrdersDB.weight := g_rLastSavedWgt;
+    OrdersDB.orderNum := g_sOrderNum;
+    --OrdersDB.dt := DTToString(g_dDateTime); 
+    OrdersDB.dt := SystemTime; 
+
+      g_sysResult := OrdersDB.FindFirst(Orders_num); --This will equal SysOk if found in DB
+      if g_sysResult <> SysOk then
+        OrdersDB.Add;
+      end if;
+
+  end;
+
+  -- function grabs each entry in the Orders DB 
+  -- this function isnt called
+  procedure ExtractTempOrders;
+    x : integer;
+    i : integer;
+    --x_weight : real;
+    --y_time : datetime;
+  begin
+    x := g_iBags;
+    
+    for i := 1 to x
+    loop
+      if i = 1 then
+        g_sysResult := OrdersDB.GetFirst;
+
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
+        end if; 
+      elsif i <= x then
+        g_sysResult := OrdersDB.GetNext;
+
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
+        end if;
+
+
+      end if;
+    end loop;
+  end;
+
+  procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
+  begin 
+  
+    ClosePrompt;  
+
+    if g_Entrymode = UserIdMode then 
+      EntryMode := LoginMode;
+      g_sUserId := Blank;
+      SetLabelText(lbl18, Blank);
+      SelectScreen(g_ciMainLogin);
+    elsif g_EntryMode = PasswordMode then
+      EntryMode := LoginMode;
+      g_sPassword := Blank;
+      SetLabelText(lbl19, Blank);
+      SelectScreen(g_ciMainLogin);
+    elsif g_EntryMode = SetOrderNumMode then
+      EntryMode := OrderMode;
+      g_sOrderNum := Blank;
+      SetLabelText(lbl38, Blank);
+      --
+      -- set timer 3 here instead of select screen
+      --
+      SelectScreen(g_ciOrderNum);
+    elsif g_EntryMode = NewUserMode then
+      EntryMode := SetupMenuMode;
+      g_sTUser := Blank;
+      SetLabelText(lbl18, Blank);
+      SelectScreen(g_ciMainLogin);
+    elsif g_EntryMode = NewPasswordMode then
+      EntryMode := SetupMenuMode;
+      g_sTPass := Blank;
+      SetLabelText(lbl19, Blank);
+      SelectScreen(g_ciMainLogin);
+    else    
+      EntryMode := NoMode;  
+    end if;
+
+  end; 
+ 
+
+  procedure ProcessDataEntry(sTemp : string); --Processes different data entries based on the entry mode the program is in
+  i : integer;
+  begin
+    --This is only going to show up for OPERATOR ENTRY
+    if g_Entrymode = UserIdMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid User ID - Retry", UserIdMode, Blank, 1);
+      end if;
+      g_sUserId := sTemp;
+      SetLabelText(lbl18, g_sUserId);
+      EntryMode := LoginMode; 
+
+    elsif g_EntryMode = PasswordMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid Password Entry - Retry", PasswordMode, Blank, 1); 
+      end if;
+      locked := False;
+      --g_sPassword := sTemp;
+      --SetLabelText(lbl19, g_sPassword);
+      for i := 1 to Len(sTemp)
+		  loop
+			  g_sPassword := g_sPassword + "*";
+		  end loop;  
+      SetLabelText(lbl19, g_sPassword);
+      EntryMode := LoginMode;
+      
+    elsif g_EntryMode = NewUserMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid User ID - Retry", NewUserMode, Blank, 0);
+      end if;
+      g_sTUser := sTemp;
+      SetLabelText(lbl24, g_sTUser);
+      EntryMode := ProcessNewUser;
+
+    
+    elsif g_EntryMode = NewPasswordMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid Password Entry - Retry", NewPasswordMode, Blank, 1);
+      end if;
+      g_sTPass := sTemp;
+      SetLabelText(lbl25, g_sTPass);
+      EntryMode := ProcessNewUser;
+      if FileExists("/sdimages/adduser.png", SDCard) = SysOk then  
+        SetImageWidgetPath(AddUser, "/adduser.png");
+        SetWidgetVisibility(AddUser, Von);
+      end if;
+    
+    elsif g_EntryMode = AdminPasswordMode then
+      if sTemp = g_ciBackDoorPassword then
+        locked := false;
+        EntryMode := SetupMenuMode;
+        SelectScreen(g_ciSetUpUsers);
+        SetWidgetVisibility(AddUser, Voff);
+      else
+        PromptForEntry("INVALID Please Enter Admin Password", AdminPasswordMode, Blank, 1);
+      end if;
+      
+    elsif g_EntryMode = SetOrderNumMode then
+      if sTemp = Blank then
+        PromptForEntry("INVALID Order Entry", SetOrderNumMode, Blank, 0);
+      end if;
+      g_sOrderNum := sTemp;
+      SetLabelText(lbl38, g_sOrderNum);
+    
+    elsif g_EntryMode = GetBagsMode then
+    if sTemp = Blank then
+      PromptForEntry("INVALID Entry", GetBagsMode, Blank, 2);
+    end if;
+    SetLabelText(lbl48 ,sTemp);
+    g_iBags := StringToInteger(sTemp);
+      
+    elsif g_EntryMode = ScannedItemMode1 then
+      g_sItemId := Left$(g_sScannerInput,9);
+      g_sTempScanned := Right$(g_sScannerInput, Len(g_sScannerInput)-10);
+      GetLotandWeight(g_sTempScanned);
+      processingWeight;
+
+
+     
+    end if;
+  end;
+
+   procedure TCPDataMaxPrintFormat;
+    i: integer := 1;
+    textlenWD : integer := 340;
+    --textlenD : integer := 340;
+  begin
+    
+
+  
+    if StartDocument("ADVPRN") = SysOk then
+      --Writeoutln("ADVPRN","String data to print");
+      WriteoutLn("ADVPRN", Chr$(2)+ "O0110");
+      WriteoutLn("ADVPRN", Chr$(2)+ "f182");
+      WriteoutLn("ADVPRN", Chr$(2)+ "V4");
+      WriteoutLn("ADVPRN", Chr$(2)+ "L");
+
+      WriteoutLn("ADVPRN", "A1");
+      WriteoutLn("ADVPRN", "D11");
+      WriteoutLn("ADVPRN", "SI");
+      WriteoutLn("ADVPRN", "PI");
+      WriteoutLn("ADVPRN", "H20");
+
+      --WriteoutLn("ADVPRN", "191100405450011 Date and Time: XXXXX"                        
+      WriteoutLn("ADVPRN", "191100405200011 Operator ID: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100404800011 Order Number: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100404600011 Lot #: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100404400011 Product ID: XXXXXXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100403800011 Target Weight: XXXXXXXXXXX");
+      WriteoutLn("ADVPRN", "191100505750011                    SUMMARY TICKET");
+      WriteoutLn("ADVPRN", "1X1100003660005L399002");
+
+      for i := 1 to g_iBags
+
+      loop
+
+        if i = 1 then 
+          g_sysResult := OrdersDB.GetFirst;
+          if g_sysResult = SysOk then
+            g_rWeightExt := OrdersDB.weight;
+            g_dDatetimeExt := OrdersDB.dt;
+
+            WriteoutLn("ADVPRN", "191100303400011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+            WriteoutLn("ADVPRN", "191100303400211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          end if;
+
+        elsif i <= g_iBags then
+          g_sysResult := OrdersDB.GetNext;
+
+
+          if g_sysResult = SysOk then
+            g_rWeightExt := OrdersDB.weight;
+            g_dDatetimeExt := OrdersDB.dt;
+
+            textlenWD := textlenWD - 20;
+            --textlen2 := textlen2 + 32;
+
+            WriteoutLn("ADVPRN", "19110030" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+            WriteoutLn("ADVPRN", "19110030" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+
+
+
+          end if;
+
+
+
+
+        end if;
+      end loop;
+
+
+      WriteoutLn("ADVPRN", "1X1100006010005L399002");
+      WriteoutLn("ADVPRN", "1X1100005710005L399002");
+      --WriteoutLn("ADVPRN", "1X1100001000005L399002");
+      WriteoutLn("ADVPRN", "Q0001");
+      WriteoutLn("ADVPRN", "E");
+    else
+      DisplayStatus("Printer Error"); 
+    end if;
+    if EndDocument("ADVPRN") = SysOk then
+      DisplayStatus("Document Printed");
+    else
+      DisplayStatus("Printer Error");
+    end if;
+
+
+    
+  end;
+
+  procedure DataMaxPrintFormat;
+    i: integer := 1;
+    textlenWD : integer := 210;
+    --textlenD : integer := 340;
+  begin
+    
+    --O0110
+    --f182
+    --V4
+    --L
+
+    WriteLn(2, Chr$(2)+ "O0110");
+    WriteLn(2, Chr$(2)+ "f182");
+    WriteLn(2, Chr$(2)+ "V4");
+    WriteLn(2, Chr$(2)+ "L");
+
+    WriteLn(2, "A1");
+    WriteLn(2, "D11");
+    WriteLn(2, "SI");
+    WriteLn(2, "PI");
+    WriteLn(2, "H20");
+
+    --WriteLn(2, "191100405450011 Date and Time: XXXXX"                        
+    WriteLn(2, "191100403300011 Operator ID: "+ g_sUserID);
+    WriteLn(2, "191100403100011 Order Number: "+ g_sOrderNum);
+    WriteLn(2, "191100402900011 Lot #: " + g_sItemLot);
+    WriteLn(2, "191100402700011 Product ID: " + g_sItemId);
+    WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
+    WriteLn(2, "191100503550011                    SUMMARY TICKET");
+    WriteLn(2, "1X1100002260005L399002");
+
+    for i := 1 to g_iBags
+
+    loop
+
+      if i = 1 then 
+        g_sysResult := OrdersDB.GetFirst;
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
+
+          WriteLn(2, "191100302100011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "191100302100211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+        end if;
+
+      elsif i <= g_iBags then
+        g_sysResult := OrdersDB.GetNext;
+
+
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
+
+          textlenWD := textlenWD - 20;
+          --textlen2 := textlen2 + 32;
+
+          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+
+
+
+        end if;
+
+
+
+
+      end if;
+    end loop;
+    --WriteLn(19110030 340 0011 Weight1: XXXXXX);
+
+    --WriteLn(19110030 320 0011 Weight2: XXXXXX);
+
+    --WriteLn(19110030 300 0011 Weight3: XXXXXX);
+
+   
+
+    --WriteLn(19110030 320 0211 Date2: XXXXXX);
+
+    --WriteLn(19110030 300 0211 Date3: XXXXXX);
+
+
+    WriteLn(2, "1X1100003850005L399002");
+    WriteLn(2, "1X1100003510005L399002");
+    --WriteLn(2, "1X1100001000005L399002");
+    WriteLn(2, "Q0001");
+    WriteLn(2, "E");
+
+
+
+  end;
+
+
+
+  procedure GodexPrintFormat;
+
+    i: integer := 1;
+
+    textlen1 : integer := 298;
+
+    textlen2 : integer := 299;
+
+
+
+  begin
+
+      
+
+    WriteLn(2, "^E18");
+    WriteLn(2, "^XSET,ROTATION,0");
+    WriteLn(2, "^L");
+    WriteLn(2, "AD,22,47,1,1,0,0,Order #:" + g_sOrderNum);
+    WriteLn(2, "AD,438,47,1,1,0,0," + g_sUserID);
+    WriteLn(2, "AD,23,241,1,1,0,0, Trg Weight:" + g_sItemWeight);
+    WriteLn(2, "AD,26,98,1,1,0,0, Item ID: " + g_sItemId);
+    WriteLn(2, "AD,438,110,1,1,0,0, Lot ID: " + g_sItemLot);
+    WriteLn(2, "AD,278,182,1,1,0,0, Summary");
+
+    
+
+    
+
+    for i := 1 to g_iBags
+
+    loop
+
+      if i = 1 then
+        g_sysResult := OrdersDB.GetFirst;
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
+          WriteLn(2, "AC,316,298,1,1,0,0E, "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "AC,87,299,1,1,0,0E, "+ IntegerToString(i, 2) +") " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+
+        end if; 
+
+      elsif i <= g_iBags then
+        g_sysResult := OrdersDB.GetNext;
+
+
+        if g_sysResult = SysOk then
+          g_rWeightExt := OrdersDB.weight;
+          g_dDatetimeExt := OrdersDB.dt;
+
+          textlen1 := textlen1 + 32;
+          textlen2 := textlen2 + 32;
+
+          WriteLn(2, "AC,316," + IntegerToString(textlen1, 3) +  ",1,1,0,0E," + Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "AC,87,"+ IntegerToString(textlen2, 3) + ",1,1,0,0E," + IntegerToString(i, 2) +") " +  RealToString(g_rWeightExt, 4,2)+ "lbs.");
+
+
+
+        end if;
+
+      end if;
+
+    end loop;
+
+
+
+    WriteLn(2, "E");
+
+    
+
+  end;
+
+
+
+
+
+--REVISE TO PORT 1
+
+  handler Port1CharReceived;  -- Scanner
+
+  x : string;
+
+  begin 
+
+    
+
+    if EntryMode = ScanMode then
+
+
+
+      if EventChar = Chr$(13) then -- this means if eventchar = carriage return then
+
+        EntryMode := ScannedItemMode1;
+
+        g_EntryMode := ScannedItemMode1;
+
+        SetLabelText(lbl31,g_sScannerInput);
+
+        ProcessDataEntry(g_sScannerInput);
+
+        g_sScannerInput := Blank;               
+
+                          
+
+      else  
+
+         
+
+        g_sScannerInput := g_sScannerInput + EventChar;  
+
+        --DisplayStatus(g_sScannerInput);  
+
+        
+
+      end if;  
+
+
+
+    elsif EntryMode = NewScanMode then
+
+      --SetWidgetVisibility(btnScan, Voff);
+      --SetLabelText(lbSts1, "Make sure scale is clear of all items and scan")
+      
+      --if g_iCounter = 0 then
+      --  g_iCounter := 1;
+      --end if;
+      --x := IntegerToString(g_iCounter, 1);
+      --DisplayStatus("Counter: " + IntegerToString(g_iCounter, 0));
+
+      if EventChar = Chr$(13) and g_iCounter < g_iBags then
+        g_iNums := g_iNums + 1; 
+        ProcessTempOrders;
+        g_iCounter := g_iCounter + 1;
+        --g_iNums := g_iNums + 1;
+        DisplayStatus("Counter: " + IntegerToString(g_iCounter, 0));
+        SetLabelText(xofn, "" + IntegerToString(g_iCounter, 1) + " of " + IntegerToString(g_iBags,1) + " bags");
+        SetupStartTimer(25,5, TimerContinuous);              
+
+      end if;
+
+      if g_iCounter = g_iBags then 
+        DisplayStatus("g_iCounter = " + IntegerToString(g_iCounter, 0) + ", g_iBags = " + IntegerToString(g_iBags, 0));
+        --ProcessTempOrders;
+        --DisplayStatus("Entry Added");
+        SetWidgetVisibility(btnScan, Voff);
+        EntryMode := FinalPrintMode;
+        SetWidgetVisibility(btnPrint, Von);
+      end if;
+
+      --else  
+
+         
+
+      --  --g_sScannerInput := g_sScannerInput + EventChar;
+
+      --  x := IntegerToString(g_iCounter, 1);
+
+      --  DisplayStatus(x);
+
+        --DisplayStatus(g_sScannerInput);
+
+      --end if;       
+
+    end if;
+
+         
+
+  end;   
+
+
+
+
+
+  procedure Ready;  -- Initialization procedure
+
+  begin
+
+    
+
+    UnLockMajorKeys;
+
+    SetLabelText(lbSts1, Blank);    
+
+		SetLabelText(lbAOU, Blank);
+
+    
+
+    if GetUnits(CurrentScale, g_uUnits) = SysOk then
+
+      if GetCountBy(CurrentScale, g_uUnits, g_rCountby) = SysOk then
+
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+
+      end if;
+
+    end if;           
+
+	
+
+    --SetupScreens;
+
+    SelectScreen(g_ciMainLogin);  
+
+    SetSPValue(1, g_rThresholdWeight);
+
+    SetSPValue(2, g_rThresholdWeight);
+
+		EnableSP(1);
+
+    EntryMode := NoMode;
+
+    RefreshMainDisplay;
+
+  end;        
+
+
+
+  handler Timer1Trip; -- Attempt to tare
+
+  begin
+
+    
+
+    g_iTareAttempt := g_iTareAttempt + 1; 
+
+    if g_iTareAttempt < 15 then 
+
+      if SetTare(CurrentScale, g_uUnits, g_rTareWgt) = SysOk then 
+
+        SetMode(CurrentScale, NetMode);                           
+
+        StopTimer(1);
+
+      end if;
+
+    else 
+
+      StopTimer(1); 
+
+      DisplayStatus("Error Taring Scale");
+
+    end if; 
+
+            
+
+  end;    
+
+
+
+   
+
+  
+
+  handler Timer25Trip;  -- Wait for Standstill check
+
+    iMotion : integer;   
+
+    rNetWgt : real;
+
+		iInRange : integer;
+
+    rTareWgt : real;
+
+    lowAccepted : real;
+
+    highAccepted : real;
+
+  begin 
+
+
+
+    -- Make sure Item selected
+
+    if g_sItemId = Blank then  
+
+      return;
+
+    end if;		 
+
+
+
+    InMotion(CurrentScale, iMotion);
+
+    GetUnits(CurrentScale, g_uUnits);
+
+    g_sysResult1 := GetNet(CurrentScale, g_uUnits, rNetWgt); 
+
+    g_sysResult2 := InRange(CurrentScale, iInRange);   
+
+    --GetTare(CurrentScale, g_uUnits, g_rTareWgt);
+
+
+
+    -- Get Net Command  
+
+    if g_sysResult1 <> SysOk then
+
+      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1)); 
+
+      --TurnOffAllOutputs;
+
+      --TurnOffWidgets; 
+
+      return;
+
+    end if;
+
+--    
+
+    -- Check In Range
+
+    if g_sysResult2 <> SysOk then
+
+      SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
+
+      --TurnOffAllOutputs;
+
+      --TurnOffWidgets;
+
+      return;
+
+    end if;			
+
+    
+
+    -- Validate InRage
+
+    if iInRange = 0 then  
+
+      SetLabelText(lbSts1, "Scale NOT In Range");  
+
+      --TurnOffAllOutputs;
+
+      --TurnOffWidgets;
+
+      return;
+
+    end if;  
+
+
+
+    if EntryMode = NoMode then  
+
+      return;
+
+    end if;
+
+    
+
+    lowAccepted := (g_rItemWeight - (g_rItemWeight * 0.005)); 
+
+    highAccepted := (g_rItemWeight + (g_rItemWeight * 0.005));
+
+
+
+    if iMotion = 0 then    
+
+      DisplayStatus(Blank);  
+
+      SetLabelText(lbSts1,  Blank); 
+
+
+
+      if rNetWgt < lowAccepted then                       
+
+        SetLabelText(lbAOU, "UNDER");
+
+        SetWidgetColor(lbAOU, "Orange"); 
+
+        setwidgetColor(2, "Orange");
+
+        g_rLastSavedWgt := rNetWgt;
+
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+
+        EntryMode := StatusMode;
+
+
+
+
+
+      elsif rNetWgt > highAccepted then 
+
+        SetLabelText(lbAOU, "OVER");
+
+        SetWidgetColor(lbAOU, "Red");
+
+        setwidgetColor(2, "Red");
+
+        g_rLastSavedWgt := rNetWgt;	
+
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+
+        EntryMode := StatusMode;
+
+
+
+        
+
+      else
+
+        SetLabelText(lbAOU, "ACCEPTED");
+
+        SetWidgetColor(lbAOU, "Green");
+
+        SetWidgetColor(2, "Green");
+
+        g_rLastSavedWgt := rNetWgt;
+
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+
+        if iMotion = 0 then
+
+          --ProgramDelay(300);
+
+          StopTimer(25);
+          if g_iCounter <> g_iBags then 
+            SetWidgetVisibility(btnScan, Von);
+          end if;
+    
+
+        --StopTimer(25);
+
+        end if; 
+
+          
+
+      end if;
+
+      
+
+    end if;
+
+    
+
+ 
+
+  end;       
+
+
+
+ 
+
+----------
+
+  handler PrintKeyPressed;
+
+  begin
+
+
+
+    if EntryMode = ProductOnScale and g_bPrintPressed = False then  
+
+      g_bPrintPressed := True;
+
+    end if;
+
+
+
+  end;
+
+
+
+  handler Timer3Trip;
+
+  begin
+
+    SelectScreen(g_ciOrderNum);
+
+    EntryMode := OrderMode;
+
+  end;
+
+
+
+
+
+  handler Timer29Trip;  -- Removes display status text  
+
+  begin 
+
+    DisplayStatus(Blank);     
+  end;    
+
+
+
+  handler UserEntry;  -- Processing a data entry method
+    sTemp : string;  
+  begin   
+
+    sTemp := GetEntry; 
+
+    if EventKey = EnterKey then     --Enter key pressed
+      ProcessDataEntry(sTemp); 
+    else                            --Cancel key pressed    
+      ProcessPromptCancel;    
+    end if;
+
+
+
+  end;  
+
+
+
+	handler UnitsKeyReleased;  -- Just incase secondary units is on (let't refresh decimal and screen)
+	begin
+
+    if GetUnits(CurrentScale, g_uUnits) = SysOk then
+      if GetCountBy(CurrentScale, g_uUnits, g_rCountby) = SysOk then
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+      end if;
+
+    end if;   	
+
+		RefreshMainDisplay;
+
+	end;
+
+
+
+ handler WidgetClicked;
+  sys : SysCode;
+  begin
+
+  	DisableHandler(WidgetClicked);
+		g_iWidget := EventWidget;
+		DisplayStatus("");
+
+
+    if g_iWidget = btnSetup then
+      PromptForEntry("Enter Admin Password to Create New User", AdminPasswordMode, Blank,1); 
+
+    elsif g_iWidget = lbl18 then
+      PromptForEntry("Enter User ID", UserIdMode, Blank, 0);
+
+    elsif g_iWidget = lbl19 then
+      PromptForEntry("Enter Password", PasswordMode, Blank, 1);
+
+    elsif g_iWidget = btnLogin then
+      ProcessingLoginEntry;
+
+    elsif g_iWidget = lbl24 then
+      PromptForEntry("Enter New User ID", NewUserMode, Blank, 0);
+
+    elsif g_iWidget = lbl25 then
+      PromptForEntry("Enter New Password", NewPasswordMode, Blank, 0);
+
+    elsif g_iWidget = AddUser then
+      AddNewUser;
+
+    elsif g_iWidget = Ext5 then
+      g_sOrderNum := Blank;
+      SetLabelText(lbl38, Blank);
+      EntryMode := NoMode;
+      SelectScreen(g_ciMainLogin);
+
+
+    elsif g_iWidget = Nxt2 then
+     -- test : string;
+      EntryMode := GetBagsMode;
+      SelectScreen(g_ciBags);
+
+    elsif g_iWidget = Ext2 then
+      EntryMode := OrderMode;
+      SetLabelText(38, Blank);
+      g_sOrderNum := Blank;
+
+      ---
+      -- start timer 3 here instead of selecting screen 
+      ---
+
+      SelectScreen(g_ciOrderNum);
+
+
+
+    elsif g_iWidget = lbl38 then
+      PromptForEntry("Enter Order Number", SetOrderNumMode, Blank, 0);
+
+    
+
+    elsif g_iWidget = Nxt6 then
+      EntryMode := ScanMode;
+      SelectScreen(g_ciScanBar);
+
+
+
+    elsif g_iWidget = Nxt8 then
+      EntryMode := GetTareMode;
+      SelectScreen(g_ciTare);
+      SetWidgetVisibility(Nxt7, Voff);
+      --SetWidgetVisibility(lbltare, Voff);
+      SetLabelText(lbl42, "Place Bag on Scale and Tare");
+
+
+
+--    COMMMENTED 3/10/23 TO GET RID OF GET TARE(NOT NEEDED)
+
+--    elsif g_iWidget = lbl53 then
+
+--      GetGross(1, Primary, g_rbagweight);
+
+--      SetTare (1, Primary,g_rbagweight);
+
+--      g_sbagweight := RealToString(g_rbagweight,0,1);
+
+--      SetLabelText(lbl42, "Bag Weight: " + g_sbagweight);
+
+--      SetWidgetVisibility(lbltare, Von);
+
+
+
+    elsif g_iWidget = lbltare then
+      GetGross(1, Primary, g_rbagweight);
+      SetTare (1, Primary,g_rbagweight);
+      g_sbagweight := RealToString(g_rbagweight,0,1);
+      SetLabelText(lbl42, "Bag Weight: " + g_sbagweight + "lbs");
+
+      if sys = SysOk then
+        SetLabelText(lbl42, "Tare Complete: " + g_sTareweight);
+        SetWidgetVisibility(Nxt7, VOn);
+
+--      elsif sys = SysOutOfRange then
+--        SetLabelText(lbl42, "SysOutOfRange");
+--     elsif sys = SysDeviceError then
+--        SetlabelText(lbl42, "SysDeviceError");
+--      elsif sys = SysInvalidRequest then
+--        SetlabelText(lbl42, "SysInvalidRequest");
+--      elsif sys = SysInvalidScale then
+--        SetlabelText(lbl42, "SysInvalidScale");
+--      elsif sys = SysLFTViolation then
+--        SetlabelText(lbl42, "SysLFTViolation");
+      end if;
+      
+
+    elsif g_iWidget = Nxt7 then
+      EntryMode := StatusMode;
+      SetWidgetVisibility(btnPrint, Voff);
+      SetWidgetVisibility(btnScan, Voff);
+      SetupStartTimer(25, 5,TimerContinuous);
+      SelectScreen(g_ciStatus);
+      SetLabelText(lbl55, g_sOrderNum);
+      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
+      g_iNums := g_iCounter;
+      SetLabelText(lbl13, g_sItemWeight + "lbs");
+      SetLabelText(lbl10, g_sItemId);
+      SetLabelText(lbl52, g_sItemLot);
+      SetLabelText(lbl6, g_sPounds + " lbs" + " " + g_sOunces + " oz");
+
+
+
+    elsif g_iWidget = Ext6 then
+      EntryMode := NoMode;
+      ClearWidgetsLogin;
+      ClearLoginUser;
+      SelectScreen(g_ciMainLogin);
+
+
+    elsif g_iWidget = Ext8 then
+      EntryMode := ScanMode;
+      SetLabelText(lbl31, Blank);
+      g_sScannerInput := Blank;
+      SelectScreen(g_ciScanBar);    
+
+    
+
+    -- for exiting
+
+    elsif g_iWidget = Ext3 then
+      EntryMode := FinalExitMode;
+      SelectScreen(g_ciYesNo);
+      SetLabelText(sts9, "Are you sure you want to end batch?");
+
+      --ClearStatusWidgets;
+
+    elsif g_iWidget = btnYes then
+      --TestEntryMode := IntegerToString(EntryMode,0);
+      --SetLabelText(sts9, TestEntryMode);
+      --DisplayStatus(TestEntryMode);
+
+      if EntryMode <> ReprintMode and EntryMode <> LogOutMode then
+        ClearTare(1);
+        EntryMode := LoginMode;
+        SelectScreen(g_ciMainLogin);
+        --SetTare(1,Primary,g_rZeroTareWeight);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank);
+        g_iBags := 0;
+        g_iCounter :=0;
+        ClearStatusWidgets;
+
+      elsif EntryMode = ReprintMode then
+        --GodexPrintFormat;
+        --DataMaxPrintFormat;
+        TCPDataMaxPrintFormat;
+        --Print(GrossFmt);
+        --Print(AuxFmt1);
+        EntryMode := LogOutMode;
+        SetLabelText(sts9, "Do you want to log out?");
+        SetLabelText(btnYes, "Yes");
+        SetLabelText(btnNo, "No");
+        SelectScreen(g_ciYesNo);
+      
+      elsif EntryMode = LogOutMode then
+        ClearTare(1);
+        OrdersDB.Clear;
+        EntryMode := LoginMode;
+        SelectScreen(g_ciMainLogin);
+        --SetTare(1,Primary,g_rZeroTareWeight);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank); --Gets rid of number of bags
+        g_iBags := 0;
+        g_iCounter := 0;
+        ClearStatusWidgets;
+
+      end if;
+
+
+
+    elsif g_iWidget = btnNo then
+      if EntryMode <> ReprintMode and EntryMode <> LogOutMode then
+        EntryMode := StatusMode;
+        SelectScreen(g_ciStatus);
+      
+
+      elsif EntryMode = ReprintMode then
+        EntryMode := LogOutMode;
+        SetLabelText(sts9, "Do you want to log out?");
+        SetLabelText(btnYes, "Yes");
+        SetLabelText(btnNo, "No");
+        SelectScreen(g_ciYesNo);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank);
+        g_iBags := 0;
+        g_iCounter := 0;
+        ClearStatusWidgets;
+
+
+
+      elsif EntryMode = LogOutMode then
+        ClearTare(1);
+        OrdersDB.Clear;
+        EntryMode := OrderMode;
+        SelectScreen(g_ciOrderNum);
+        --SetTare(1,Primary,g_rZeroTareWeight);
+        ClearLoginUser;
+        ClearWidgetsLogin;
+        SetLabelText(lbl38, Blank);
+        g_sOrderNum := Blank;
+        SetLabelText(lbl31, Blank);
+        g_sScannerInput := Blank;
+        SetLabelText(lbl48, Blank);
+        g_iBags := 0;
+        g_iCounter :=0;
+        ClearStatusWidgets;
+
+      --else 
+
+        --DisplayStatus("not working");
+
+      end if;
+
+
+
+    elsif g_iWidget = Ext7 then
+      EntryMode := GetBagsMode;
+      SetLabelText(lbl48, Blank);
+      Selectscreen(g_ciBags);
+
+
+    elsif g_iWidget = lbl48 then
+      PromptForEntry("Enter the amount of bags for this batch", GetBagsMode, Blank, 2);
+
+
+    elsif g_iWidget = btnPrint then
+      StopTimer(25);
+      EntryMode := ReprintMode;
+      --GodexPrintFormat;
+      --DataMaxPrintFormat;
+      --Print(GrossFmt);
+      TCPDataMaxPrintFormat;
+      --Print(AuxFmt1);
+      DisplayStatus("PRINTED");
+      SetLabelText(sts9, "Do you want to reprint the label?");
+      SetLabelText(btnYes, "Yes");
+      SetLabelText(btnNo, "No");
+      Selectscreen(g_ciYesNo);
+
+
+    elsif g_iWidget = btnScan then
+      SetWidgetVisibility(btnScan, Voff);
+      SetLabelText(lbSts1, "Make sure scale is clear of all items and scan");
+      EntryMode := NewScanMode;
+
+    end if;
+
+    EnableHandler(WidgetClicked);
+
+  end;
+
+
+begin
+  --DisableSetPoints; 
+
+  DisplayVersion; 
+
+  setmenubarcolor("Black");
+  g_sScannerInput := Blank;
+  Ready;
+
+end Colorite; 
