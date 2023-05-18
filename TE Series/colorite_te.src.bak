@@ -1128,7 +1128,8 @@ procedure processingWeight;
     WriteLn(2, "191100403100011 Order Number: "+ g_sOrderNum);
     WriteLn(2, "191100402900011 Lot #: " + g_sItemLot);
     WriteLn(2, "191100402700011 Product ID: " + g_sItemId);
-    WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
+    --WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
+    WriteLn(2, "191100402500011 Target Weight: " + g_sGrams);
     WriteLn(2, "191100503550011                    SUMMARY TICKET");
     WriteLn(2, "1X1100002260005L399002");
 

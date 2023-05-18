@@ -822,6 +822,13 @@ procedure processingWeight;
 
     elsif gramsLength = 4 then
       g_rGrams := g_rGrams / 1000;
+
+    elsif gramsLength = 5 then
+      g_rGrams := g_rGrams / 10000;
+    
+    elsif gramsLength = 6 then
+      g_rGrams := g_rGrams / 100000;
+
     end if;
 
 
@@ -1128,7 +1135,8 @@ procedure processingWeight;
     WriteLn(2, "191100403100011 Order Number: "+ g_sOrderNum);
     WriteLn(2, "191100402900011 Lot #: " + g_sItemLot);
     WriteLn(2, "191100402700011 Product ID: " + g_sItemId);
-    WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
+    --WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
+    WriteLn(2, "191100402500011 Target Weight: " + g_sGrams);
     WriteLn(2, "191100503550011                    SUMMARY TICKET");
     WriteLn(2, "1X1100002260005L399002");
 
@@ -1488,8 +1496,8 @@ procedure processingWeight;
 
     --lowAccepted := (g_rItemWeight - (g_rItemWeight * 0.005)); 
     --highAccepted := (g_rItemWeight + (g_rItemWeight * 0.005));
-    lowAccepted := (g_rGrams - (g_rGrams * 0.005)); 
-    highAccepted := (g_rGrams + (g_rGrams * 0.005));
+    lowAccepted := (g_rGrams - (g_rGrams * 0.0001)); 
+    highAccepted := (g_rGrams + (g_rGrams * 0.0001));
 
 
     if iMotion = 0 then    
