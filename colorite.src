@@ -1878,8 +1878,8 @@ procedure processingWeight;
 
       elsif EntryMode = ReprintMode then
         --GodexPrintFormat;
-        --DataMaxPrintFormat;
-        TCPDataMaxPrintFormat;
+        DataMaxPrintFormat;
+        --TCPDataMaxPrintFormat;
         --Print(GrossFmt);
         --Print(AuxFmt1);
         EntryMode := LogOutMode;
@@ -1973,9 +1973,9 @@ procedure processingWeight;
       StopTimer(25);
       EntryMode := ReprintMode;
       --GodexPrintFormat;
-      --DataMaxPrintFormat;
+      DataMaxPrintFormat;
       --Print(GrossFmt);
-      TCPDataMaxPrintFormat;
+      --TCPDataMaxPrintFormat;
       --Print(AuxFmt1);
       DisplayStatus("PRINTED");
       SetLabelText(sts9, "Do you want to reprint the label?");
