@@ -1186,11 +1186,8 @@ procedure processingWeight;
   procedure GodexPrintFormat;
 
     i: integer := 1;
-
     textlen1 : integer := 298;
-
     textlen2 : integer := 299;
-
 
 
   begin

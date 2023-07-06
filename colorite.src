@@ -1874,8 +1874,8 @@ procedure processingWeight;
         ClearStatusWidgets;
 
       elsif EntryMode = ReprintMode then
-        GodexPrintFormat;
-        --DataMaxPrintFormat;
+        --GodexPrintFormat;
+        DataMaxPrintFormat;
         --TCPDataMaxPrintFormat;
         --Print(GrossFmt);
         --Print(AuxFmt1);
@@ -1969,8 +1969,8 @@ procedure processingWeight;
     elsif g_iWidget = btnPrint then
       StopTimer(25);
       EntryMode := ReprintMode;
-      GodexPrintFormat;
-      --DataMaxPrintFormat;
+      --GodexPrintFormat;
+      DataMaxPrintFormat;
       --Print(GrossFmt);
       --TCPDataMaxPrintFormat;
       --Print(AuxFmt1);
