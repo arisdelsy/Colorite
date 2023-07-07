@@ -1092,7 +1092,7 @@ procedure processingWeight;
 
   procedure DataMaxPrintFormat;
     i: integer := 1;
-    textlenWD : integer := 210;
+    textlenWD : integer := 230;
     --textlenD : integer := 340;
   begin
     
@@ -1119,7 +1119,7 @@ procedure processingWeight;
     WriteLn(2, "191100402700011 Product ID: " + g_sItemId);
     WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
     WriteLn(2, "191100503550011                    SUMMARY TICKET");
-    WriteLn(2, "1X1100002260005L399002");
+    WriteLn(2, "1X1100002460005L399002");
 
     for i := 1 to g_iBags
 
@@ -1131,8 +1131,8 @@ procedure processingWeight;
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
 
-          WriteLn(2, "191100302100011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
-          WriteLn(2, "191100302100211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "191100202300011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "191100202300211  "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
         end if;
 
       elsif i <= g_iBags then
@@ -1143,11 +1143,11 @@ procedure processingWeight;
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
 
-          textlenWD := textlenWD - 20;
+          textlenWD := textlenWD - 9;
           --textlen2 := textlen2 + 32;
 
-          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
-          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "19110020" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
+          WriteLn(2, "19110020" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
 
 
 
