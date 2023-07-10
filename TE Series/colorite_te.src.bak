@@ -1688,11 +1688,24 @@ procedure processingWeight;
 
 
     elsif g_iWidget = Nxt8 then
-      EntryMode := GetTareMode;
-      SelectScreen(g_ciTare);
-      SetWidgetVisibility(Nxt7, Voff);
+--      EntryMode := GetTareMode;
+--      SelectScreen(g_ciTare);
+--      SetWidgetVisibility(Nxt7, Voff);
       --SetWidgetVisibility(lbltare, Voff);
-      SetLabelText(lbl42, "Place Bag on Scale and Tare");
+--      SetLabelText(lbl42, "Place Bag on Scale and Tare");
+      EntryMode := StatusMode;
+      SetWidgetVisibility(btnPrint, Voff);
+      SetWidgetVisibility(btnScan, Voff);
+      SetupStartTimer(25, 5,TimerContinuous);
+      SelectScreen(g_ciStatus);
+      SetLabelText(lbl55, g_sOrderNum);
+      SetLabelText(xofn, "" + IntegerToString(g_iCounter, 2) + " of " + IntegerToString(g_iBags,2) + " bags");
+      g_iNums := g_iCounter;
+      --SetLabelText(lbl13, g_sItemWeight + "lbs");
+      SetLabelText(lbl13, g_sGrams +" g");
+      SetLabelText(lbl10, g_sItemId);
+      SetLabelText(lbl52, g_sItemLot);
+      --SetLabelText(lbl6, g_sPounds + " lbs" + " " + g_sGrams + " oz");
 
 
 
