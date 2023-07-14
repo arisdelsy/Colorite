@@ -1919,9 +1919,9 @@ procedure GodexPrintFormat2;
         ClearStatusWidgets;
 
       elsif EntryMode = ReprintMode then
-        GodexPrintFormat2;
+        --GodexPrintFormat2;
         --GodexPrintFormat;
-        --DataMaxPrintFormat;
+        DataMaxPrintFormat;
         --TCPDataMaxPrintFormat;
         --Print(GrossFmt);
         --Print(AuxFmt1);
@@ -2016,8 +2016,8 @@ procedure GodexPrintFormat2;
       StopTimer(25);
       EntryMode := ReprintMode;
       --GodexPrintFormat;
-      GodexPrintFormat2;
-      --DataMaxPrintFormat;
+      --GodexPrintFormat2;
+      DataMaxPrintFormat;
       --Print(GrossFmt);
       --TCPDataMaxPrintFormat;
       --Print(AuxFmt1);

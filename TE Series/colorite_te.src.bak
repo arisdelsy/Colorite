@@ -818,16 +818,16 @@ procedure processingWeight;
       g_rGrams := g_rGrams / 100;
     
     elsif gramsLength = 3 then
-      g_rGrams := g_rGrams / 100;
-
-    elsif gramsLength = 4 then
       g_rGrams := g_rGrams / 1000;
 
-    elsif gramsLength = 5 then
+    elsif gramsLength = 4 then
       g_rGrams := g_rGrams / 10000;
+
+    elsif gramsLength = 5 then
+      g_rGrams := g_rGrams / 100000;
     
     elsif gramsLength = 6 then
-      g_rGrams := g_rGrams / 100000;
+      g_rGrams := g_rGrams / 1000000;
 
     end if;
 
@@ -1110,7 +1110,7 @@ procedure processingWeight;
 
   procedure DataMaxPrintFormat;
     i: integer := 1;
-    textlenWD : integer := 210;
+    textlenWD : integer := 327;
     --textlenD : integer := 340;
   begin
     
@@ -1131,14 +1131,14 @@ procedure processingWeight;
     WriteLn(2, "H20");
 
     --WriteLn(2, "191100405450011 Date and Time: XXXXX"                        
-    WriteLn(2, "191100403300011 Operator ID: "+ g_sUserID);
-    WriteLn(2, "191100403100011 Order Number: "+ g_sOrderNum);
-    WriteLn(2, "191100402900011 Lot #: " + g_sItemLot);
-    WriteLn(2, "191100402700011 Product ID: " + g_sItemId);
+    WriteLn(2, "191100203620011 Operator ID: "+ g_sUserID);
+    WriteLn(2, "191100203520011 Order Number: "+ g_sOrderNum);
+    WriteLn(2, "191100203420011 Lot #: " + g_sItemLot);
+    WriteLn(2, "191100203620211 Product ID: " + g_sItemId);
     --WriteLn(2, "191100402500011 Target Weight: " + g_sItemWeight);
-    WriteLn(2, "191100402500011 Target Weight: " + g_sGrams);
-    WriteLn(2, "191100503550011                    SUMMARY TICKET");
-    WriteLn(2, "1X1100002260005L399002");
+    WriteLn(2, "191100203520211 Target Weight: " + g_sGrams);
+    WriteLn(2, "191100303760061                    SUMMARY TICKET");
+    WriteLn(2, "1X1100003390005L399002");
 
     for i := 1 to g_iBags
 
@@ -1150,8 +1150,8 @@ procedure processingWeight;
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
 
-          WriteLn(2, "191100302100011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
-          WriteLn(2, "191100302100211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "191100203270011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "g");
+          WriteLn(2, "191100203270211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
         end if;
 
       elsif i <= g_iBags then
@@ -1162,11 +1162,11 @@ procedure processingWeight;
           g_rWeightExt := OrdersDB.weight;
           g_dDatetimeExt := OrdersDB.dt;
 
-          textlenWD := textlenWD - 20;
+          textlenWD := textlenWD - 10;
           --textlen2 := textlen2 + 32;
 
-          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "lbs.");
-          WriteLn(2, "19110030" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
+          WriteLn(2, "19110020" + IntegerToString(textlenWD, 3) + "0011 Weight " + IntegerToString(i,2) + ": " + RealToString(g_rWeightExt, 4,2) + "g");
+          WriteLn(2, "19110020" + IntegerToString(textlenWD, 3) + "0211 "+ Date$(g_dDatetimeExt) + " " + Time$(g_dDatetimeExt));
 
 
 
@@ -1190,8 +1190,8 @@ procedure processingWeight;
     --WriteLn(19110030 300 0211 Date3: XXXXXX);
 
 
-    WriteLn(2, "1X1100003850005L399002");
-    WriteLn(2, "1X1100003510005L399002");
+    WriteLn(2, "1X1100003750005L399002");
+    --WriteLn(2, "1X1100003510005L399002");
     --WriteLn(2, "1X1100001000005L399002");
     WriteLn(2, "Q0001");
     WriteLn(2, "E");
@@ -1496,8 +1496,8 @@ procedure processingWeight;
 
     --lowAccepted := (g_rItemWeight - (g_rItemWeight * 0.005)); 
     --highAccepted := (g_rItemWeight + (g_rItemWeight * 0.005));
-    lowAccepted := (g_rGrams - (g_rGrams * 0.0001)); 
-    highAccepted := (g_rGrams + (g_rGrams * 0.0001));
+    lowAccepted := (g_rGrams - (g_rGrams * 0.001)); 
+    highAccepted := (g_rGrams + (g_rGrams * 0.001));
 
 
     if iMotion = 0 then    
