@@ -1496,9 +1496,18 @@ procedure processingWeight;
 
     --lowAccepted := (g_rItemWeight - (g_rItemWeight * 0.005)); 
     --highAccepted := (g_rItemWeight + (g_rItemWeight * 0.005));
-    lowAccepted := (g_rGrams - (g_rGrams * 0.001)); 
-    highAccepted := (g_rGrams + (g_rGrams * 0.001));
 
+    --gramsLength1 := Len(g_sGrams)
+
+    if g_rGrams >= 1 and g_rGrams <= 2 then
+      lowAccepted := (g_rGrams - (g_rGrams * 0.01)); 
+      highAccepted := (g_rGrams + (g_rGrams * 0.01));
+    
+    elsif g_rGrams > 2 then
+      lowAccepted := (g_rGrams - (g_rGrams * 0.001)); 
+      highAccepted := (g_rGrams + (g_rGrams * 0.001));
+    
+    end if;
 
     if iMotion = 0 then    
       DisplayStatus(Blank);  
@@ -1511,7 +1520,7 @@ procedure processingWeight;
         SetWidgetColor(lbAOU, "Orange"); 
         setwidgetColor(2, "Orange");
         g_rLastSavedWgt := rNetWgt;
-        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,2));
         EntryMode := StatusMode;
 
       elsif rNetWgt > highAccepted then 
@@ -1519,7 +1528,7 @@ procedure processingWeight;
         SetWidgetColor(lbAOU, "Red");
         setwidgetColor(2, "Red");
         g_rLastSavedWgt := rNetWgt;	
-        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,2));
         EntryMode := StatusMode;
         
       else
@@ -1527,7 +1536,7 @@ procedure processingWeight;
         SetWidgetColor(lbAOU, "Green");
         SetWidgetColor(2, "Green");
         g_rLastSavedWgt := rNetWgt;
-        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,g_iDecimal1));
+        SetLabelText(lbSts1, "Last Stable Weight - " + Realtostring(g_rLastSavedWgt,0,2));
 
         if iMotion = 0 then
 
