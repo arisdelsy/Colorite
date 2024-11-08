@@ -1010,7 +1010,6 @@ procedure processingWeight;
   begin
     
 
-  
     if StartDocument("ADVPRN") = SysOk then
       --Writeoutln("ADVPRN","String data to print");
       WriteoutLn("ADVPRN", Chr$(2)+ "O0110");
@@ -1919,10 +1918,10 @@ procedure GodexPrintFormat2;
         ClearStatusWidgets;
 
       elsif EntryMode = ReprintMode then
-        GodexPrintFormat2;
+        --GodexPrintFormat2;
         --GodexPrintFormat;
         --DataMaxPrintFormat;
-        --TCPDataMaxPrintFormat;
+        TCPDataMaxPrintFormat;
         --Print(GrossFmt);
         --Print(AuxFmt1);
         EntryMode := LogOutMode;
@@ -2016,10 +2015,10 @@ procedure GodexPrintFormat2;
       StopTimer(25);
       EntryMode := ReprintMode;
       --GodexPrintFormat;
-      GodexPrintFormat2;
+      --GodexPrintFormat2;
       --DataMaxPrintFormat;
       --Print(GrossFmt);
-      --TCPDataMaxPrintFormat;
+      TCPDataMaxPrintFormat;
       --Print(AuxFmt1);
       DisplayStatus("PRINTED");
       SetLabelText(sts9, "Do you want to reprint the label?");
